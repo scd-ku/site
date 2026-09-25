@@ -1,0 +1,20 @@
+{
+  "name": "scd-ku-astro-site",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "sync": "node scripts/sync-github.mjs",
+    "capture": "node scripts/capture-thumbnails.mjs",
+    "refresh": "npm run sync && npm run capture",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import AppGrid from '../components/AppGrid.astro';
+import apps from '../data/apps.generated.json';
+---
+<BaseLayout>
+  <main id="top">
+    <Header />
+
+    <section class="hero">
+      <div class="hero-field" aria-hidden="true">
+        <i class="shape shape-a"></i>
+        <i class="shape shape-b"></i>
+        <i class="shape shape-c"></i>
+        <i class="shape shape-d"></i>
+        <div class="field-grid"></div>
+      </div>
+      <div class="hero-content">
+        <p class="eyebrow">Kagawa University · Science Communication Design Laboratory</p>
+        <h1>Science,<br />Design &amp;<br />Communication.</h1>
+        <p class="hero-copy">Tools, experiments and interfaces for seeing, making and thinking.</p>
+      </div>
+      <a class="scroll-cue" href="#projects">Explore projects <span>↓</span></a>
+      <div class="hero-index" aria-hidden="true">
+        <span>SC / D</span><span>2026</span>
+      </div>
+    </section>
+
+    <AppGrid apps={apps} />
+
+    <section id="about" class="text-section about-section">
+      <div class="section-kicker"><span>01</span><span>About</span></div>
+      <div class="text-grid">
+        <h2>Science becomes tangible through tools, expression and dialogue.</h2>
+        <p>科学技術や地域文化を素材に、初等中等教育・STEAM・科学コミュニケーションへ接続するための教材、Webアプリ、実験装置、表現手法を研究・開発しています。</p>
+      </div>
+    </section>
+
+    <section id="people" class="text-section people-section">
+      <div class="section-kicker"><span>02</span><span>People</span></div>
+      <div class="people-grid">
+        <div class="person-primary">
+          <h2>Akihiro<br />Osaki</h2>
+          <p>Associate Professor<br />Kagawa University</p>
+        </div>
+        <div class="people-list">
+          <div><span>Science Communication</span><span>Research / Practice</span></div>
+          <div><span>Design &amp; Fabrication</span><span>Tools / Materials</span></div>
+          <div><span>Students / Collaborators</span><span>Coming soon</span></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>Science Communication Design Laboratory, Kagawa University</span>
+      <span>GitHub · scd-ku</span>
+      <span>© 2026</span>
+    </footer>
+  </main>
+</BaseLayout>

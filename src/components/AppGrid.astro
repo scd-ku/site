@@ -1,0 +1,87 @@
+---
+const { apps } = Astro.props;
+const tags = [...new Set(apps.flatMap((app) => app.tags))].sort((a, b) => a.localeCompare(b, 'en'));
+const base = import.meta.env.BASE_URL;
+const asset = (p) => `${base}${p.replace(/^\//, '')}`;
+---
+<section id="projects" class="projects-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Public applications · {apps.length}</p>
+      <h2>Projects</h2>
+    </div>
+    <p class="section-note">Experiments, tools and interfaces<br />published from GitHub.</p>
+  </div>
+
+  <div class="filters" aria-label="Project filters">
+    <button class="filter is-active" data-filter="all" type="button">All</button>
+    {tags.map((tag) => <button class="filter" data-filter={tag} type="button">{tag}</button>)}
+  </div>
+
+  <div class="app-grid" id="app-grid">
+    {apps.map((app, index) => (
+      <article
+        class={`app-card app-card--${app.size}`}
+        data-tags={JSON.stringify(app.tags)}
+        style={`--index:${index}`}
+      >
+        <a href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`}>
+          <div class="card-visual" aria-hidden="true">
+            <div class="fallback-art">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{app.title}</strong>
+            </div>
+            <img
+              src={asset(`screenshots/${app.slug}.jpg`)}
+              alt=""
+              loading="lazy"
+              onerror="this.style.display='none'"
+            />
+          </div>
+          <div class="card-shade"></div>
+          <div class="card-label">
+            <div>
+              <span class="card-number">{String(index + 1).padStart(2, '0')}</span>
+              <span class="card-title">{app.title}</span>
+            </div>
+            <span class="arrow">↗</span>
+          </div>
+          <div class="card-detail">
+            <div class="detail-topline">
+              <span>{app.repo}</span>
+              <span>Open app ↗</span>
+            </div>
+            <p>{app.description}</p>
+            <div class="card-meta">
+              <span>{app.tags.join(' · ')}</span>
+              {app.updatedAt && <span>{new Date(app.updatedAt).getFullYear()}</span>}
+            </div>
+          </div>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  <script is:inline>
+    const filters = [...document.querySelectorAll('.filter')];
+    const cards = [...document.querySelectorAll('.app-card')];
+
+    filters.forEach((button) => {
+      button.addEventListener('click', () => {
+        const selected = button.dataset.filter;
+        filters.forEach((b) => b.classList.toggle('is-active', b === button));
+        cards.forEach((card) => {
+          const tags = JSON.parse(card.dataset.tags || '[]');
+          const visible = selected === 'all' || tags.includes(selected);
+          card.classList.toggle('is-filtered-out', !visible);
+          window.setTimeout(() => card.toggleAttribute('hidden', !visible), visible ? 0 : 180);
+        });
+      });
+    });
+
+    cards.forEach((card) => {
+      card.addEventListener('pointerenter', () => document.body.dataset.cursor = 'open');
+      card.addEventListener('pointerleave', () => delete document.body.dataset.cursor);
+    });
+  </script>
+</section>

@@ -1,0 +1,46 @@
+[
+  {
+    "slug": "kagaritemari",
+    "repo": "scd-ku/kagaritemari",
+    "title": "かがり手まり 3D制作工程",
+    "description": "球体上の地割りとかがり縫いを3Dアニメーションで観察し、手まりの制作工程を段階的に試せるWebアプリ。",
+    "url": "https://scd-ku.github.io/kagaritemari/",
+    "repoUrl": "https://github.com/scd-ku/kagaritemari",
+    "tags": ["3D", "Craft", "STEAM", "Visualization"],
+    "size": "large",
+    "updatedAt": "2026-09-24T10:18:32Z"
+  },
+  {
+    "slug": "camera",
+    "repo": "scd-ku/camera",
+    "title": "書画カメラ++",
+    "description": "カメラ映像に描画や図形・漫画効果を重ね、静止画・動画・タイムラプスとして記録できるクリエイティブな書画カメラ。",
+    "url": "https://scd-ku.github.io/camera/",
+    "repoUrl": "https://github.com/scd-ku/camera",
+    "tags": ["Camera", "Media", "Education", "Creative Tool"],
+    "size": "tall",
+    "updatedAt": "2026-09-24T10:45:44Z"
+  },
+  {
+    "slug": "tsumari",
+    "repo": "scd-ku/tsumari",
+    "title": "ことばをひらく",
+    "description": "文章を選択してOCRし、「つまり」「たとえると」などの問いから生成AIで言葉をひらく読解支援ツール。",
+    "url": "https://scd-ku.github.io/tsumari/",
+    "repoUrl": "https://github.com/scd-ku/tsumari",
+    "tags": ["AI", "OCR", "Language", "Learning"],
+    "size": "wide",
+    "updatedAt": "2026-09-24T10:26:45Z"
+  },
+  {
+    "slug": "seizahayami",
+    "repo": "scd-ku/seizahayami",
+    "title": "星座早見盤",
+    "description": "日時や観察条件を変えながら、星座と空の見え方をインタラクティブに確かめられる星座早見盤。",
+    "url": "https://scd-ku.github.io/seizahayami/",
+    "repoUrl": "https://github.com/scd-ku/seizahayami",
+    "tags": ["Astronomy", "Science", "Visualization", "Education"],
+    "size": "normal",
+    "updatedAt": "2026-09-24T11:51:15Z"
+  }
+]

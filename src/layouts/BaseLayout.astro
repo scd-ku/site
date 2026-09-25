@@ -1,0 +1,32 @@
+---
+import '../styles/global.css';
+const {
+  title = 'Science Communication Design Laboratory',
+  description = 'Science Communication Design Laboratory, Kagawa University — public web applications and projects.'
+} = Astro.props;
+---
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f1f1ed" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
+    <slot />
+    <script is:inline>
+      const dot = document.querySelector('.cursor-dot');
+      const root = document.documentElement;
+      if (dot && matchMedia('(pointer:fine)').matches) {
+        addEventListener('pointermove', (e) => {
+          dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          root.style.setProperty('--mx', `${(e.clientX / innerWidth - .5) * 2}`);
+          root.style.setProperty('--my', `${(e.clientY / innerHeight - .5) * 2}`);
+        }, { passive: true });
+      }
+    </script>
+  </body>
+</html>
