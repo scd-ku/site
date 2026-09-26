@@ -932,3 +932,37 @@ html, body { background:#FFFFFF; }
   .object-water { width:34vw; min-width:0; }
   .object-k1, .object-k2, .object-k3 { display:none; }
 }
+
+
+/* v8 — fewer elements, refined chloroplast, true canvas solids */
+.hero { min-height:68vh; }
+.hero h1 { max-width:11.7ch; }
+.science-object { opacity:.7; }
+.object-water { left:4%; top:14%; width:16vw; min-width:160px; opacity:.62; }
+.object-chloroplast { right:4%; top:9%; width:23vw; min-width:248px; opacity:.6; }
+.object-volvox { left:37%; top:9%; width:17vw; min-width:180px; opacity:.52; }
+.object-solid { display:block; }
+.object-solid canvas { width:100%; height:100%; display:block; }
+.object-cube-3d { right:30%; bottom:7%; width:13vw; min-width:136px; opacity:.62; }
+.object-octa-3d { left:23%; bottom:9%; width:11vw; min-width:118px; opacity:.6; }
+.object-tetra-3d { right:17%; top:32%; width:10vw; min-width:108px; opacity:.54; }
+.object-nh4cl { right:1%; bottom:-1%; width:15vw; min-width:156px; opacity:.34; }
+.object-bases { left:8%; bottom:2%; width:33vw; min-width:360px; opacity:.38; }
+.object-kandinsky { opacity:.24; }
+.object-k1 { width:12vw; min-width:112px; right:42%; top:10%; --drift:17s; --spin:120s; }
+.object-k2 { width:8vw; min-width:84px; left:17%; top:44%; --drift:16s; --spin:90s; }
+.object-k3 { display:none; }
+.object-cube, .object-octahedron, .object-tetrahedron { display:none; }
+.reflection-zone ellipse { fill:rgba(255,255,255,.028); filter:blur(4px); }
+.ray { stroke-width:1.9; }
+.ray.inside, .ray.inside-secondary { stroke:rgba(255,255,255,.76); }
+.triangle-shell { fill:rgba(255,255,255,.045); }
+@media (max-width:920px){
+  .object-bases { width:45vw; min-width:0; }
+  .object-nh4cl { width:20vw; min-width:0; }
+}
+@media (max-width:580px){
+  .object-bases { width:60vw; }
+  .object-cube-3d, .object-octa-3d, .object-tetra-3d { width:22vw; min-width:0; }
+  .object-k1, .object-k2 { display:none; }
+}
