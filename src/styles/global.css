@@ -834,3 +834,101 @@ html, body { background:#FFFFFF; }
   .object-bases { width:56vw; min-width:0; }
   .optics-layer { opacity:.72; }
 }
+
+
+/* v7 — corrected title, rigorous optics, 3D solids, abstract line forms */
+.hero { min-height:70vh; background:#050505; color:#fff; }
+.hero h1 { font-size:clamp(33px,5vw,72px); line-height:.94; font-weight:300; max-width:12ch; }
+.hero-copy { max-width:560px; }
+.hero::after {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.032), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.055) 76%, rgba(255,255,255,.018));
+}
+.science-field { color:#fff; }
+.science-object { opacity:.74; }
+.object-water { left:3%; top:14%; width:17vw; min-width:168px; opacity:.68; }
+.object-chloroplast { right:2%; top:7%; width:24vw; min-width:248px; opacity:.56; }
+.object-volvox { left:34%; top:7%; width:18vw; min-width:188px; opacity:.56; }
+.object-cube { right:30%; bottom:8%; width:13vw; min-width:132px; opacity:.58; }
+.object-octahedron { left:23%; bottom:8%; width:11vw; min-width:118px; opacity:.56; }
+.object-tetrahedron { right:15%; top:31%; width:10vw; min-width:108px; opacity:.5; }
+.object-nh4cl { right:0; bottom:-3%; width:17vw; min-width:170px; opacity:.42; }
+.object-bases { left:7%; bottom:2%; width:31vw; min-width:330px; opacity:.45; }
+.object-kandinsky { opacity:.36; }
+.object-k1 { width:13vw; min-width:124px; right:39%; top:8%; --drift:17s; --spin:120s; }
+.object-k2 { width:9vw; min-width:92px; left:16%; top:40%; --drift:16s; --spin:90s; }
+.object-k3 { width:11vw; min-width:110px; right:6%; top:56%; --drift:20s; --spin:110s; }
+.object-kandinsky svg { animation-duration:var(--spin,100s); }
+
+.object-cube svg,
+.object-octahedron svg,
+.object-tetrahedron svg {
+  transform-box:fill-box;
+  transform-origin:50% 50%;
+}
+.object-cube svg { animation:cube-turn-3d 18s linear infinite; }
+.object-octahedron svg { animation:octa-turn-3d 20s linear infinite; }
+.object-tetrahedron svg { animation:tetra-turn-3d 16s linear infinite; }
+@keyframes cube-turn-3d {
+  0% { transform:perspective(700px) rotateX(18deg) rotateY(0deg) rotateZ(3deg); }
+  50% { transform:perspective(700px) rotateX(20deg) rotateY(180deg) rotateZ(-5deg); }
+  100% { transform:perspective(700px) rotateX(18deg) rotateY(360deg) rotateZ(3deg); }
+}
+@keyframes octa-turn-3d {
+  0% { transform:perspective(700px) rotateX(20deg) rotateY(10deg) rotateZ(0deg); }
+  50% { transform:perspective(700px) rotateX(-18deg) rotateY(190deg) rotateZ(10deg); }
+  100% { transform:perspective(700px) rotateX(20deg) rotateY(370deg) rotateZ(0deg); }
+}
+@keyframes tetra-turn-3d {
+  0% { transform:perspective(700px) rotateX(24deg) rotateY(0deg) rotateZ(-8deg); }
+  50% { transform:perspective(700px) rotateX(-12deg) rotateY(180deg) rotateZ(7deg); }
+  100% { transform:perspective(700px) rotateX(24deg) rotateY(360deg) rotateZ(-8deg); }
+}
+
+.optics-layer { z-index:1; }
+.ray {
+  fill:none;
+  stroke:rgba(255,255,255,.92);
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-dasharray:2 6;
+  animation:ray-flow 5.8s linear infinite;
+}
+.ray.inside, .ray.inside-secondary { stroke:rgba(255,255,255,.8); }
+.ray.inside-secondary { stroke-dasharray:2 8; opacity:.88; }
+.ray.reflected { stroke:rgba(255,255,255,.88); stroke-dasharray:3 7; }
+.ray-group { opacity:.82; }
+.ray-b { opacity:.68; }
+.ray-c { opacity:.56; }
+.glass-triangle {
+  transform-origin:648px 222px;
+  animation:triangle-roll 18s ease-in-out infinite alternate;
+}
+.triangle-shell { fill:rgba(255,255,255,.06); }
+.triangle-stroke,
+.triangle-detail { stroke:#fff; stroke-width:1.2; fill:none; }
+.triangle-detail { opacity:.48; }
+@keyframes triangle-roll {
+  0% { transform:translateX(-28px) rotate(-8deg); }
+  50% { transform:translateX(8px) rotate(2deg); }
+  100% { transform:translateX(36px) rotate(10deg); }
+}
+.reflection-zone ellipse { fill:rgba(255,255,255,.04); filter:blur(5px); }
+
+@media (max-width:920px) {
+  .hero h1 { max-width:12.5ch; }
+  .object-water { left:-2%; top:17%; }
+  .object-volvox { left:47%; top:16%; }
+  .object-bases { left:2%; bottom:5%; width:43vw; min-width:0; }
+  .object-tetrahedron { right:5%; top:38%; }
+}
+@media (max-width:580px) {
+  .hero h1 { font-size:clamp(31px,9vw,52px); max-width:none; }
+  .science-object { opacity:.33; }
+  .object-bases { width:62vw; }
+  .object-chloroplast { width:56vw; min-width:0; }
+  .object-volvox { width:40vw; min-width:0; }
+  .object-water { width:34vw; min-width:0; }
+  .object-k1, .object-k2, .object-k3 { display:none; }
+}
