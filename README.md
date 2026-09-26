@@ -179,3 +179,12 @@ scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 ### いいねの扱い
 
 現段階のハートは「このブラウザでのいいね」です。Google Analyticsを許可している利用者については `project_like` イベントを集計できるため、Projectごとの反応数をGA4で確認できます。サイト上に全利用者の合計いいね数を表示する場合は、Firebase / Supabase / Google Apps Script等の永続バックエンドを追加してください。
+
+## v10 build / deploy notes
+
+- `src/layouts/BaseLayout.astro` の入れ子になっていた `<script>` を分離し、Astroで正しく解析できる構造に修正しました。
+- GitHub Actions は Node.js 24 対応の `actions/checkout@v5` / `actions/setup-node@v5` を使用します。
+- `package-lock.json` が無い状態で setup-node の npm cache が失敗しないよう、`package-manager-cache: false` を指定しています。
+- Playwright/Chromium によるサムネイル撮影は失敗してもデプロイ全体を止めません。
+- Pages artifact は `actions/upload-pages-artifact@v4`、deploy は `actions/deploy-pages@v5` を使用します。
+- 手動で入れ替える場合は `.github/workflows/deploy.yml` を含めてリポジトリのルートを丸ごと置き換えてください。

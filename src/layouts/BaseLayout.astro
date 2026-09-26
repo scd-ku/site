@@ -14,7 +14,8 @@ const base = import.meta.env.BASE_URL;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#050505" />
-    <link rel="icon" type="image/png" href={`${base}favicon.png`} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="alternate icon" type="image/png" href={`${base}favicon.png`} />
     <link rel="apple-touch-icon" href={`${base}favicon.png`} />
     <title>{title}</title>
   </head>
@@ -22,6 +23,7 @@ const base = import.meta.env.BASE_URL;
     <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
     <slot />
     <PrivacyAnalytics />
+
     <script is:inline>
       const dot = document.querySelector('.cursor-dot');
       const root = document.documentElement;
@@ -32,88 +34,183 @@ const base = import.meta.env.BASE_URL;
           root.style.setProperty('--my', `${(e.clientY / innerHeight - .5) * 2}`);
         }, { passive: true });
       }
-    
+    </script>
+
     <script is:inline>
-      function hatchFace(ctx, pts, angle, spacing, color, width){
-        ctx.save();
-        ctx.beginPath();
-        pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
-        ctx.closePath();
-        ctx.clip();
-        const c = {x:0,y:0}; pts.forEach(p=>{c.x+=p.x;c.y+=p.y}); c.x/=pts.length; c.y/=pts.length;
-        ctx.translate(c.x,c.y); ctx.rotate(angle); ctx.translate(-c.x,-c.y);
-        const box=220;
-        ctx.strokeStyle=color; ctx.lineWidth=width;
-        for(let x=-box; x<box*2; x+=spacing){
-          ctx.beginPath(); ctx.moveTo(x,-box); ctx.lineTo(x,box*2); ctx.stroke();
-        }
-        ctx.restore();
+      const norm = (v) => {
+        const m = Math.hypot(v.x, v.y) || 1;
+        return { x:v.x/m, y:v.y/m };
+      };
+      const dot2 = (a,b) => a.x*b.x + a.y*b.y;
+      const add = (a,b) => ({x:a.x+b.x,y:a.y+b.y});
+      const mul = (a,s) => ({x:a.x*s,y:a.y*s});
+      const sub = (a,b) => ({x:a.x-b.x,y:a.y-b.y});
+      const cross = (a,b) => a.x*b.y-a.y*b.x;
+
+      function refract(I, normal, n1, n2){
+        I = norm(I); let N = norm(normal);
+        if (dot2(I,N) > 0) N = mul(N,-1);
+        const eta = n1/n2;
+        const cosI = -dot2(N,I);
+        const k = 1 - eta*eta*(1-cosI*cosI);
+        if (k < 0) return null;
+        return norm(add(mul(I,eta), mul(N, eta*cosI-Math.sqrt(k))));
       }
-      function dotFace(ctx, pts, spacing, color, r){
+      function intersectRaySegment(p,d,a,b){
+        const e = sub(b,a);
+        const den = cross(d,e);
+        if(Math.abs(den)<1e-8) return null;
+        const ap = sub(a,p);
+        const t = cross(ap,e)/den;
+        const u = cross(ap,d)/den;
+        if(t>1e-4 && u>=0 && u<=1) return {p:add(p,mul(d,t)),t,u};
+        return null;
+      }
+      function rotate2(p,c,a){
+        const x=p.x-c.x, y=p.y-c.y, co=Math.cos(a), si=Math.sin(a);
+        return {x:c.x+x*co-y*si,y:c.y+x*si+y*co};
+      }
+      function drawPath(ctx, points, alpha=0.85){
+        if(points.length<2) return;
         ctx.save();
-        ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.closePath(); ctx.clip();
-        const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
-        const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-        ctx.fillStyle=color;
-        for(let y=minY; y<=maxY; y+=spacing){
-          for(let x=minX; x<=maxX; x+=spacing){
-            ctx.beginPath(); ctx.arc(x, y + ((Math.round(x/spacing)%2)*spacing*0.25), r, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle=`rgba(255,255,255,${alpha})`;
+        ctx.lineWidth=1.7;
+        ctx.setLineDash([2,6]);
+        ctx.beginPath(); ctx.moveTo(points[0].x,points[0].y);
+        for(let i=1;i<points.length;i++) ctx.lineTo(points[i].x,points[i].y);
+        ctx.stroke(); ctx.restore();
+      }
+      function drawOptics(canvas,t){
+        const ctx=canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+        ctx.clearRect(0,0,w,h);
+        const center={x:650,y:173};
+        const rot=Math.sin(t*0.00012)*0.035;
+        const drift=Math.sin(t*0.00017)*12;
+        let tri=[{x:560+drift,y:160},{x:740+drift,y:160},{x:650+drift,y:200}];
+        tri=tri.map(p=>rotate2(p,{x:center.x+drift,y:center.y},rot));
+
+        // glass prism
+        ctx.save();
+        ctx.fillStyle='rgba(255,255,255,.045)';
+        ctx.strokeStyle='rgba(255,255,255,.9)';
+        ctx.lineWidth=1.1;
+        ctx.beginPath(); ctx.moveTo(tri[0].x,tri[0].y); ctx.lineTo(tri[1].x,tri[1].y); ctx.lineTo(tri[2].x,tri[2].y); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        const incoming=norm({x:.45,y:1});
+        const starts=[{x:500,y:-20},{x:535,y:-20},{x:570,y:-20}];
+        const nAir=1.0, nGlass=1.52;
+        const reflectY=h*0.84;
+
+        starts.forEach((start,idx)=>{
+          const hits=[];
+          for(let i=0;i<3;i++){
+            const h0=intersectRaySegment(start,incoming,tri[i],tri[(i+1)%3]);
+            if(h0) hits.push({...h0,edge:i});
           }
-        }
-        ctx.restore();
+          if(!hits.length) return;
+          hits.sort((a,b)=>a.t-b.t);
+          const entry=hits[0];
+          const ea=tri[entry.edge], eb=tri[(entry.edge+1)%3];
+          const edgeVec=sub(eb,ea);
+          const normal={x:-edgeVec.y,y:edgeVec.x};
+          const inside=refract(incoming,normal,nAir,nGlass);
+          if(!inside) return;
+
+          const fromInside=add(entry.p,mul(inside,.1));
+          const exits=[];
+          for(let i=0;i<3;i++){
+            if(i===entry.edge) continue;
+            const h1=intersectRaySegment(fromInside,inside,tri[i],tri[(i+1)%3]);
+            if(h1) exits.push({...h1,edge:i});
+          }
+          if(!exits.length) return;
+          exits.sort((a,b)=>a.t-b.t);
+          const exit=exits[0];
+          const xa=tri[exit.edge], xb=tri[(exit.edge+1)%3];
+          const xedge=sub(xb,xa);
+          const xnormal={x:-xedge.y,y:xedge.x};
+          let outgoing=refract(inside,xnormal,nGlass,nAir);
+          if(!outgoing){
+            // physically correct fallback if the moving prism crosses the critical-angle condition
+            let N=norm(xnormal); if(dot2(inside,N)>0) N=mul(N,-1);
+            outgoing=norm(sub(inside,mul(N,2*dot2(inside,N))));
+          }
+
+          drawPath(ctx,[start,entry.p],.54+idx*.12);
+          drawPath(ctx,[entry.p,exit.p],.66+idx*.08);
+
+          if(outgoing.y>0.04){
+            const tr=(reflectY-exit.p.y)/outgoing.y;
+            const rp=add(exit.p,mul(outgoing,tr));
+            drawPath(ctx,[exit.p,rp],.72+idx*.06);
+            const reflected={x:outgoing.x,y:-outgoing.y};
+            drawPath(ctx,[rp,add(rp,mul(reflected,190))],.7+idx*.05);
+          } else {
+            drawPath(ctx,[exit.p,add(exit.p,mul(outgoing,260))],.72+idx*.06);
+          }
+        });
       }
-      function project(pt, rx, ry, rz, scale, cx, cy){
-        let [x,y,z]=pt;
-        let c=Math.cos(rx), s=Math.sin(rx); [y,z]=[y*c-z*s, y*s+z*c];
-        c=Math.cos(ry); s=Math.sin(ry); [x,z]=[x*c+z*s, -x*s+z*c];
-        c=Math.cos(rz); s=Math.sin(rz); [x,y]=[x*c-y*s, x*s+y*c];
-        const d=4.8, p=scale/(z+d);
-        return {x:cx+x*p, y:cy+y*p, z};
+
+      function rotatePoint([x,y,z], rx, ry, rz) {
+        let c=Math.cos(rx), s=Math.sin(rx);
+        [y,z] = [y*c-z*s, y*s+z*c];
+        c=Math.cos(ry); s=Math.sin(ry);
+        [x,z] = [x*c+z*s, -x*s+z*c];
+        c=Math.cos(rz); s=Math.sin(rz);
+        [x,y] = [x*c-y*s, x*s+y*c];
+        return [x,y,z];
       }
-      function drawSolid(canvas, type, t){
-        const ctx=canvas.getContext('2d'); const w=canvas.width, h=canvas.height;
-        ctx.clearRect(0,0,w,h); ctx.strokeStyle='rgba(255,255,255,.94)'; ctx.fillStyle='rgba(255,255,255,.12)';
-        const lw=1.15; ctx.lineWidth=lw; ctx.lineJoin='round'; ctx.lineCap='round';
-        let verts=[], faces=[], styleFaces=[];
+      function projectPoint([x,y,z], scale, cx, cy){
+        const d = 5.6;
+        const p = scale / (z + d);
+        return { x: cx + x * p, y: cy + y * p, z };
+      }
+      function drawWireSolid(canvas, type, t){
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+        ctx.lineJoin='round'; ctx.lineCap='round';
+        let verts=[], edges=[], scale=78;
         if(type==='cube'){
           verts=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
-          faces=[[0,1,2,3],[1,5,6,2],[4,5,6,7],[0,4,7,3],[3,2,6,7],[0,1,5,4]];
-          styleFaces=[{i:2,kind:'hatch'},{i:1,kind:'hatch'}];
+          edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]; scale=86;
         } else if(type==='octahedron'){
-          verts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1.3],[0,0,-1.3]];
-          faces=[[0,2,4],[2,1,4],[1,3,4],[3,0,4],[2,0,5],[1,2,5],[3,1,5],[0,3,5]];
-          styleFaces=[{i:0,kind:'dots'},{i:2,kind:'dots'}];
+          verts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1.38],[0,0,-1.38]];
+          edges=[[0,2],[2,1],[1,3],[3,0],[0,4],[2,4],[1,4],[3,4],[0,5],[2,5],[1,5],[3,5]]; scale=76;
         } else {
-          verts=[[0,0,1.35],[1.1,0,-.55],[-.55,.95,-.55],[-.55,-.95,-.55]];
-          faces=[[0,1,2],[0,3,1],[0,2,3],[1,3,2]];
-          styleFaces=[{i:0,kind:'dots'},{i:1,kind:'dots'}];
+          verts=[[0,0,1.38],[1.14,0,-.52],[-.57,.98,-.52],[-.57,-.98,-.52]];
+          edges=[[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]]; scale=74;
         }
-        const rx=t*0.0007+(type==='tetrahedron'?0.5:0.25), ry=t*(type==='cube'?0.00085:0.00072), rz=t*0.00035;
-        const projected=verts.map(v=>project(v, rx, ry, rz, type==='cube'?82:72, w/2, h/2));
-        const faceData=faces.map((f,idx)=>{
-          const pts=f.map(i=>projected[i]);
-          const depth=pts.reduce((a,p)=>a+p.z,0)/pts.length;
-          return {idx, pts, depth};
-        }).sort((a,b)=>a.depth-b.depth);
-        for(const fd of faceData){
-          const sty=styleFaces.find(s=>s.i===fd.idx);
-          if(sty){
-            if(sty.kind==='hatch') hatchFace(ctx, fd.pts, Math.PI/4, 7, 'rgba(255,255,255,.92)', lw);
-            if(sty.kind==='dots') dotFace(ctx, fd.pts, 10, 'rgba(255,255,255,.92)', lw/2);
-          }
-          ctx.beginPath(); fd.pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.closePath(); ctx.stroke();
-        }
+        // ~90–120 seconds per full revolution: deliberately slow and calm
+        const rx=.35+t*.000045;
+        const ry=t*.000060+(type==='tetrahedron'?.7:type==='octahedron'?.25:0);
+        const rz=t*.000025;
+        const rverts=verts.map(v=>rotatePoint(v,rx,ry,rz));
+        const pverts=rverts.map(v=>projectPoint(v,scale,w/2,h/2));
+        const edata=edges.map(([a,b])=>({a:pverts[a],b:pverts[b],depth:(rverts[a][2]+rverts[b][2])/2})).sort((a,b)=>a.depth-b.depth);
+        // all rear edges remain visible
+        edata.forEach(e=>{
+          const rear=e.depth<0;
+          ctx.beginPath();
+          ctx.strokeStyle=rear?'rgba(255,255,255,.28)':'rgba(255,255,255,.78)';
+          ctx.lineWidth=rear?.82:1.15;
+          ctx.moveTo(e.a.x,e.a.y); ctx.lineTo(e.b.x,e.b.y); ctx.stroke();
+        });
       }
-      function animateSolids(){
-        const canvases=[...document.querySelectorAll('canvas[data-solid]')];
-        if(!canvases.length) return;
+
+      function animateScience(){
+        const optics=document.querySelector('canvas[data-optics]');
+        const solids=[...document.querySelectorAll('canvas[data-solid]')];
+        if(!optics && !solids.length) return;
         function frame(t){
-          canvases.forEach(c=> drawSolid(c, c.dataset.solid, t));
+          if(optics) drawOptics(optics,t);
+          solids.forEach(c=>drawWireSolid(c,c.dataset.solid,t));
           requestAnimationFrame(frame);
         }
         requestAnimationFrame(frame);
       }
-      animateSolids();
+      animateScience();
     </script>
   </body>
 </html>

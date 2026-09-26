@@ -966,3 +966,80 @@ html, body { background:#FFFFFF; }
   .object-cube-3d, .object-octa-3d, .object-tetra-3d { width:22vw; min-width:0; }
   .object-k1, .object-k2 { display:none; }
 }
+
+
+/* v9 — stricter chemistry, Snell-like rays, refined chloroplast, slower wireframe solids */
+.hero { min-height: 68vh; }
+.hero h1 { max-width: 11.3ch; }
+.science-object { opacity: .68; }
+.object-water { left: 5%; top: 15%; width: 15vw; min-width: 150px; opacity: .56; }
+.object-chloroplast { right: 6%; top: 10%; width: 22vw; min-width: 246px; opacity: .6; }
+.object-volvox { left: 39%; top: 10%; width: 16vw; min-width: 170px; opacity: .48; }
+.object-cube-3d { right: 30%; bottom: 8%; width: 12vw; min-width: 132px; opacity: .64; }
+.object-octa-3d { left: 24%; bottom: 10%; width: 10.4vw; min-width: 112px; opacity: .62; }
+.object-tetra-3d { right: 17%; top: 34%; width: 9vw; min-width: 100px; opacity: .58; }
+.object-nh4cl { right: 2%; bottom: 0; width: 14vw; min-width: 144px; opacity: .3; }
+.object-bases { left: 8%; bottom: 2%; width: 35vw; min-width: 380px; opacity: .36; }
+.object-kandinsky { opacity: .18; }
+.object-k1 { width: 11vw; min-width: 100px; right: 43%; top: 11%; --drift: 18s; --spin: 130s; }
+.object-k2 { width: 7vw; min-width: 76px; left: 18%; top: 46%; --drift: 16s; --spin: 100s; }
+.object-k3 { display:none; }
+.object-solid canvas { width:100%; height:100%; display:block; filter: drop-shadow(0 0 3px rgba(255,255,255,.04)); }
+
+.ray { stroke-width: 1.75; stroke-dasharray: 2 5.5; animation: ray-flow 6.4s linear infinite; }
+.ray.inside, .ray.inside-secondary { stroke: rgba(255,255,255,.74); }
+.ray.reflected { stroke: rgba(255,255,255,.84); }
+.triangle-shell { fill: rgba(255,255,255,.04); }
+.triangle-stroke, .triangle-detail { stroke-width: 1.1; }
+.reflection-zone ellipse { fill: rgba(255,255,255,.02); filter: blur(3px); }
+
+@media (max-width: 920px) {
+  .object-bases { width: 47vw; min-width: 0; }
+  .object-nh4cl { width: 18vw; min-width: 0; }
+}
+@media (max-width: 580px) {
+  .object-bases { width: 64vw; min-width: 0; }
+  .object-water, .object-volvox, .object-chloroplast { min-width: 0; }
+  .object-cube-3d, .object-octa-3d, .object-tetra-3d { width: 21vw; min-width: 0; }
+  .object-k1, .object-k2 { display: none; }
+}
+
+
+/* v10 — computed Snell optics, refined biology and calm wireframes */
+.optics-canvas {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  pointer-events:none;
+  opacity:.82;
+}
+.hero { min-height:68vh; }
+.hero h1 { max-width:11.3ch; }
+.object-water { left:5%; top:16%; width:14vw; min-width:145px; opacity:.5; }
+.object-chloroplast { right:5%; top:10%; width:23vw; min-width:250px; opacity:.58; }
+.object-volvox { left:40%; top:10%; width:15.5vw; min-width:165px; opacity:.44; }
+.object-cube-3d { right:31%; bottom:8%; width:11.5vw; min-width:128px; opacity:.62; }
+.object-octa-3d { left:25%; bottom:10%; width:9.8vw; min-width:108px; opacity:.58; }
+.object-tetra-3d { right:18%; top:35%; width:8.5vw; min-width:96px; opacity:.54; }
+.object-nh4cl { right:2%; bottom:1%; width:13vw; min-width:136px; opacity:.27; }
+.object-bases { left:7%; bottom:2%; width:38vw; min-width:410px; opacity:.34; }
+.object-kandinsky { opacity:.15; }
+.object-k1 { width:10vw; min-width:94px; right:44%; top:12%; }
+.object-k2 { width:6.5vw; min-width:70px; left:18%; top:48%; }
+.object-solid { z-index:2; }
+.object-solid canvas { width:100%; height:100%; display:block; }
+
+@media (max-width:920px) {
+  .object-bases { width:50vw; min-width:0; }
+  .object-chloroplast { right:-5%; }
+  .object-volvox { left:49%; }
+}
+@media (max-width:580px) {
+  .optics-canvas { opacity:.62; }
+  .object-bases { width:66vw; }
+  .object-water, .object-volvox, .object-chloroplast { min-width:0; }
+  .object-cube-3d, .object-octa-3d, .object-tetra-3d { min-width:0; width:20vw; }
+  .object-k1, .object-k2 { display:none; }
+}
