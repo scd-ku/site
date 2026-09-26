@@ -155,3 +155,14 @@ scripts/sync-github.mjs            GitHubリポジトリ自動取得
 scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 .github/workflows/deploy.yml        自動更新・GitHub Pages公開
 ```
+
+
+## Design update v4
+
+- Projects をデスクトップで3列固定の均一タイルに変更。
+- Projects 見出しと各セクション見出しを小さく、font-weight 300 を基調に調整。
+- Hero の “Science, Design & Communication.” を3行から2行にし、高さも圧縮。
+- カーソルを円形スリットパターンへ変更。
+- Hero 内の4つの幾何学形状も異なる角度・ピッチのスリットへ変更し、それぞれ逆方向を含む回転アニメーションを付与。
+- カーソルのスリットと背景スリットが重なった位置では difference blend によりモワレが強調される。
+- fine pointer 環境では通常カーソルを隠し、スリットカーソルを使用。
