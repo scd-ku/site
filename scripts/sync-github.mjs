@@ -3,7 +3,7 @@ import path from 'node:path';
 import overrides from '../src/data/overrides.mjs';
 
 const OWNER = process.env.SCD_GITHUB_OWNER || 'scd-ku';
-const SITE_REPO = process.env.SCD_SITE_REPO || 'scd-site';
+const SITE_REPO = process.env.SCD_SITE_REPO || 'site';
 const OUT = path.resolve('src/data/apps.generated.json');
 const token = process.env.GITHUB_TOKEN || '';
 
@@ -39,7 +39,11 @@ function inferTags(text) {
     ['Computer Vision', /yolo|facemesh|object detection|computer vision|画像認識/i],
     ['Weather', /気象|天気|weather/i],
     ['IoT', /micro:bit|microbit|m5stack|esp32|sensor|センサ/i],
-    ['Fabrication', /3d printer|3dプリンタ|g-code|gcode|bambu/i],
+    ['Fabrication', /3d printer|3dプリンタ|g-code|gcode|bambu|stl/i],
+    ['CAD', /\bcad\b|solid|hole|stl|svg|寸法|モデリング/i],
+    ['Collaboration', /firebase|firestore|共同|協働|付箋|ふせん|sticky/i],
+    ['Presentation', /slide|presentation|スライド|弾幕|コメント投稿/i],
+    ['Simulation', /simulation|simulator|シミュレーション|個体数|食物連鎖|ecosystem/i],
     ['Craft', /手まり|手毬|temari|かがり|craft/i],
     ['Language', /ことば|言葉|語彙|要約|language/i],
     ['Education', /教材|学習|授業|education|learning|理科/i],

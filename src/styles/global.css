@@ -278,14 +278,28 @@ h1 {
   line-height:1.72;
   letter-spacing:-.012em;
 }
+.people-section { min-height:46vh; }
 .people-grid {
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:clamp(30px,7vw,100px);
-  align-items:end;
+  grid-template-columns:minmax(220px,.48fr) minmax(0,1fr);
+  gap:clamp(42px,8vw,130px);
+  align-items:start;
 }
-.person-primary h2 { margin-bottom:28px; }
-.person-primary p { margin:0; color:var(--muted); font-size:12px; line-height:1.55; }
+.person-primary h2 {
+  margin:0 0 12px;
+  font-size:clamp(22px,2.25vw,34px);
+  line-height:1;
+  letter-spacing:-.035em;
+  font-weight:500;
+}
+.person-primary p {
+  margin:0;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.6;
+  letter-spacing:.025em;
+  text-transform:uppercase;
+}
 .people-list { border-top:1px solid var(--line); }
 .people-list > div {
   display:flex; justify-content:space-between; gap:18px;

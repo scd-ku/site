@@ -1,13 +1,98 @@
 [
   {
+    "slug": "cad",
+    "repo": "scd-ku/cad",
+    "title": "3DCAD++",
+    "description": "ブラウザ上で立体形状を配置・移動・回転・拡大縮小し、寸法確認やSTL/SVG入出力、解析まで試せる3D CADアプリ。",
+    "url": "https://scd-ku.github.io/cad/",
+    "repoUrl": "https://github.com/scd-ku/cad",
+    "tags": [
+      "3D",
+      "CAD",
+      "Fabrication",
+      "Visualization"
+    ],
+    "size": "large",
+    "updatedAt": null
+  },
+  {
+    "slug": "aifusen",
+    "repo": "scd-ku/aifusen",
+    "title": "AIふせんボード",
+    "description": "QRで参加者をつなぎ、付箋の投稿・共有・リアクションとAIによる分類を組み合わせた協働型のアイデアボード。",
+    "url": "https://scd-ku.github.io/aifusen/",
+    "repoUrl": "https://github.com/scd-ku/aifusen",
+    "tags": [
+      "AI",
+      "Collaboration",
+      "Education",
+      "Firebase"
+    ],
+    "size": "wide",
+    "updatedAt": null
+  },
+  {
+    "slug": "slidefusen",
+    "repo": "scd-ku/slidefusen",
+    "title": "スライドふせん",
+    "description": "スライドを表示しながら参加者のコメントを付箋や弾幕として重ね、QR共有や描画、可視化を行える参加型プレゼンテーションツール。",
+    "url": "https://scd-ku.github.io/slidefusen/",
+    "repoUrl": "https://github.com/scd-ku/slidefusen",
+    "tags": [
+      "Presentation",
+      "Collaboration",
+      "AI",
+      "Visualization"
+    ],
+    "size": "tall",
+    "updatedAt": null
+  },
+  {
+    "slug": "lifegame",
+    "repo": "scd-ku/lifegame",
+    "title": "FOOD CHAIN QUEST",
+    "description": "草・鹿・狼の相互作用をフィールドと個体数グラフで観察し、条件を変えながら食物連鎖を考える8bit生態系シミュレーション。",
+    "url": "https://scd-ku.github.io/lifegame/",
+    "repoUrl": "https://github.com/scd-ku/lifegame",
+    "tags": [
+      "Simulation",
+      "Ecology",
+      "Science",
+      "Education"
+    ],
+    "size": "wide",
+    "updatedAt": null
+  },
+  {
+    "slug": "3dtenkizu",
+    "repo": "scd-ku/3dtenkizu",
+    "title": "3D天気図",
+    "description": "気象庁の過去実況天気図を読み込み、等圧線をインタラクティブな3D空間として観察し、SVG/STLにも書き出せる気象可視化アプリ。",
+    "url": "https://scd-ku.github.io/3dtenkizu/",
+    "repoUrl": "https://github.com/scd-ku/3dtenkizu",
+    "tags": [
+      "3D",
+      "Weather",
+      "Science",
+      "Visualization"
+    ],
+    "size": "large",
+    "updatedAt": null
+  },
+  {
     "slug": "kagaritemari",
     "repo": "scd-ku/kagaritemari",
     "title": "かがり手まり 3D制作工程",
     "description": "球体上の地割りとかがり縫いを3Dアニメーションで観察し、手まりの制作工程を段階的に試せるWebアプリ。",
     "url": "https://scd-ku.github.io/kagaritemari/",
     "repoUrl": "https://github.com/scd-ku/kagaritemari",
-    "tags": ["3D", "Craft", "STEAM", "Visualization"],
-    "size": "large",
+    "tags": [
+      "3D",
+      "Craft",
+      "STEAM",
+      "Visualization"
+    ],
+    "size": "tall",
     "updatedAt": "2026-09-24T10:18:32Z"
   },
   {
@@ -17,8 +102,13 @@
     "description": "カメラ映像に描画や図形・漫画効果を重ね、静止画・動画・タイムラプスとして記録できるクリエイティブな書画カメラ。",
     "url": "https://scd-ku.github.io/camera/",
     "repoUrl": "https://github.com/scd-ku/camera",
-    "tags": ["Camera", "Media", "Education", "Creative Tool"],
-    "size": "tall",
+    "tags": [
+      "Camera",
+      "Media",
+      "Education",
+      "Creative Tool"
+    ],
+    "size": "normal",
     "updatedAt": "2026-09-24T10:45:44Z"
   },
   {
@@ -28,7 +118,12 @@
     "description": "文章を選択してOCRし、「つまり」「たとえると」などの問いから生成AIで言葉をひらく読解支援ツール。",
     "url": "https://scd-ku.github.io/tsumari/",
     "repoUrl": "https://github.com/scd-ku/tsumari",
-    "tags": ["AI", "OCR", "Language", "Learning"],
+    "tags": [
+      "AI",
+      "OCR",
+      "Language",
+      "Learning"
+    ],
     "size": "wide",
     "updatedAt": "2026-09-24T10:26:45Z"
   },
@@ -39,7 +134,12 @@
     "description": "日時や観察条件を変えながら、星座と空の見え方をインタラクティブに確かめられる星座早見盤。",
     "url": "https://scd-ku.github.io/seizahayami/",
     "repoUrl": "https://github.com/scd-ku/seizahayami",
-    "tags": ["Astronomy", "Science", "Visualization", "Education"],
+    "tags": [
+      "Astronomy",
+      "Science",
+      "Visualization",
+      "Education"
+    ],
     "size": "normal",
     "updatedAt": "2026-09-24T11:51:15Z"
   }

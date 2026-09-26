@@ -4,12 +4,19 @@
 
 ## 現在同梱しているアプリ
 
+- 3DCAD++ — `scd-ku/cad`
+- AIふせんボード — `scd-ku/aifusen`
+- スライドふせん — `scd-ku/slidefusen`
+- FOOD CHAIN QUEST — `scd-ku/lifegame`
+- 3D天気図 — `scd-ku/3dtenkizu`
 - かがり手まり 3D制作工程 — `scd-ku/kagaritemari`
 - 書画カメラ++ — `scd-ku/camera`
 - ことばをひらく — `scd-ku/tsumari`
 - 星座早見盤 — `scd-ku/seizahayami`
 
-これらは2026-09-25時点で `scd-ku` に公開され、GitHub Pagesが有効になっているリポジトリをもとに作成しています。
+これらを初期スナップショットとして同梱し、公開時には `scd-ku` のGitHub Pages対応リポジトリを再走査します。新しい公開アプリは次回ビルド時に自動追加されます。
+
+People セクションは氏名を大きな見出し扱いにせず、役職情報と同じ静かな階層に整理したミニマル表示です。
 
 ## 仕組み
 
