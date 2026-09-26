@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+---
+<BaseLayout title="Privacy / Analytics — Science Communication Design Laboratory">
+  <main id="top">
+    <Header />
+    <article class="privacy-page">
+      <p class="eyebrow">Privacy / Analytics</p>
+      <h1>アクセス解析について</h1>
+
+      <section>
+        <h2>利用目的</h2>
+        <p>サイトや公開アプリの利用状況を統計的に把握し、情報設計、表示、教材・アプリの改善に利用します。</p>
+      </section>
+
+      <section>
+        <h2>Google Analytics</h2>
+        <p>本サイトは、設定された場合に Google Analytics 4 を利用します。解析タグは、このサイト上で「許可する」を選ぶまで読み込みません。</p>
+        <dl>
+          <div><dt>送信先</dt><dd>Google LLC</dd></div>
+          <div><dt>主な情報</dt><dd>閲覧ページ、参照元、言語、画面解像度、おおよその地域、ブラウザ・端末情報、サイト内でのプロジェクト操作など</dd></div>
+          <div><dt>利用目的</dt><dd>閲覧状況の集計、サイト構成・公開アプリの改善</dd></div>
+        </dl>
+        <p class="privacy-note">Google Analytics 4 は位置情報の推定に IP アドレスを利用しますが、Google の説明では、IP アドレスはデータセンターやサーバーに記録される前に破棄されます。</p>
+      </section>
+
+      <section>
+        <h2>「いいね」</h2>
+        <p>各Projectのハートは、このブラウザ内に選択状態を保存します。Google Analyticsを許可している場合は、Projectごとの like / unlike 操作を集計イベントとして送信します。個人を特定する氏名・メールアドレス等は送信しない設計です。</p>
+      </section>
+
+      <section>
+        <h2>選択の変更</h2>
+        <p>アクセス解析の選択は、いつでもリセットできます。</p>
+        <button class="privacy-reset" type="button" onclick="window.scdResetAnalyticsConsent?.()">アクセス解析の選択をリセット</button>
+      </section>
+
+      <section>
+        <h2>外部送信に関する参考情報</h2>
+        <p>利用者情報の外部送信については、サイト運営主体・サービス内容によって適用関係が異なります。本ページは、送信される情報・送信先・利用目的を利用者が確認できるようにするための表示です。</p>
+        <div class="privacy-links">
+          <a href="https://support.google.com/analytics/answer/11593727?hl=ja" target="_blank" rel="noreferrer">Google Analytics — データ収集 ↗</a>
+          <a href="https://support.google.com/analytics/answer/11598602?hl=ja" target="_blank" rel="noreferrer">Google Analytics — 地域でのデータ収集 ↗</a>
+          <a href="https://www.soumu.go.jp/main_sosiki/joho_tsusin/d_syohi/gaibusoushin_kiritsu_00002.html" target="_blank" rel="noreferrer">総務省 — 外部送信規律 FAQ ↗</a>
+        </div>
+      </section>
+    </article>
+  </main>
+</BaseLayout>

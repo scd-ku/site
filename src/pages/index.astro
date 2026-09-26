@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import AppGrid from '../components/AppGrid.astro';
+import HeroScienceField from '../components/HeroScienceField.astro';
 import apps from '../data/apps.generated.json';
 ---
 <BaseLayout>
@@ -9,13 +10,7 @@ import apps from '../data/apps.generated.json';
     <Header />
 
     <section class="hero">
-      <div class="hero-field" aria-hidden="true">
-        <i class="shape shape-a"></i>
-        <i class="shape shape-b"></i>
-        <i class="shape shape-c"></i>
-        <i class="shape shape-d"></i>
-        <div class="field-grid"></div>
-      </div>
+      <HeroScienceField />
       <div class="hero-content">
         <p class="eyebrow">Kagawa University · Science Communication Design Laboratory</p>
         <h1><span>Science, Design</span><br /><span>&amp; Communication.</span></h1>
@@ -55,7 +50,7 @@ import apps from '../data/apps.generated.json';
     <footer>
       <span>Science Communication Design Laboratory, Kagawa University</span>
       <span>GitHub · scd-ku</span>
-      <span>© 2026</span>
+      <span><a href="./privacy/">Privacy / Analytics</a> · © 2026</span>
     </footer>
   </main>
 </BaseLayout>

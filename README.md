@@ -166,3 +166,16 @@ scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 - Hero 内の4つの幾何学形状も異なる角度・ピッチのスリットへ変更し、それぞれ逆方向を含む回転アニメーションを付与。
 - カーソルのスリットと背景スリットが重なった位置では difference blend によりモワレが強調される。
 - fine pointer 環境では通常カーソルを隠し、スリットカーソルを使用。
+
+## v5: 背景・いいね・アクセス解析
+
+- 背景色は `#FFFFFF` に統一。
+- Hero背景には、水分子、葉緑体、ボルボックス、立方体、正八面体、塩化アンモニウム再結晶をイメージした輪郭SVGを配置し、それぞれ異なる周期で回転・漂流します。
+- 各Projectにミニマルな線画ハートを追加。選択状態はブラウザの `localStorage` に保存します。
+- Google Analytics 4 を使う場合は、GitHub repository variable `PUBLIC_GA_MEASUREMENT_ID` に `G-...` の測定IDを設定してください。
+- GA4タグは利用者が「許可する」を押すまで読み込みません。許可後は、GA4標準の参照元・ページ・おおよその地域・ブラウザ/端末情報等に加え、`project_open`、`project_like`、`project_unlike` を送信します。
+- `/privacy/` に「アクセス解析について」を用意し、フッターから常時参照できます。
+
+### いいねの扱い
+
+現段階のハートは「このブラウザでのいいね」です。Google Analyticsを許可している利用者については `project_like` イベントを集計できるため、Projectごとの反応数をGA4で確認できます。サイト上に全利用者の合計いいね数を表示する場合は、Firebase / Supabase / Google Apps Script等の永続バックエンドを追加してください。

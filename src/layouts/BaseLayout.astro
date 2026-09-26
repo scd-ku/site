@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import PrivacyAnalytics from '../components/PrivacyAnalytics.astro';
 const {
   title = 'Science Communication Design Laboratory',
   description = 'Science Communication Design Laboratory, Kagawa University — public web applications and projects.'
@@ -11,12 +12,13 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f1f1ed" />
+    <meta name="theme-color" content="#FFFFFF" />
     <title>{title}</title>
   </head>
   <body>
     <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
     <slot />
+    <PrivacyAnalytics />
     <script is:inline>
       const dot = document.querySelector('.cursor-dot');
       const root = document.documentElement;

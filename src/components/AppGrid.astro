@@ -23,9 +23,10 @@ const asset = (p) => `${base}${p.replace(/^\//, '')}`;
       <article
         class={`app-card app-card--${app.size}`}
         data-tags={JSON.stringify(app.tags)}
+        data-slug={app.slug}
         style={`--index:${index}`}
       >
-        <a href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`}>
+        <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug}>
           <div class="card-visual" aria-hidden="true">
             <div class="fallback-art">
               <span>{String(index + 1).padStart(2, '0')}</span>
@@ -58,6 +59,9 @@ const asset = (p) => `${base}${p.replace(/^\//, '')}`;
             </div>
           </div>
         </a>
+        <button class="like-button" type="button" data-like={app.slug} aria-pressed="false" aria-label={`${app.title} にいいね`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+        </button>
       </article>
     ))}
   </div>
@@ -82,6 +86,31 @@ const asset = (p) => `${base}${p.replace(/^\//, '')}`;
     cards.forEach((card) => {
       card.addEventListener('pointerenter', () => document.body.dataset.cursor = 'open');
       card.addEventListener('pointerleave', () => delete document.body.dataset.cursor);
+    });
+
+    document.querySelectorAll('[data-project-open]').forEach((link) => {
+      link.addEventListener('click', () => {
+        window.scdTrack?.('project_open', { project_slug: link.dataset.projectOpen });
+      });
+    });
+
+    document.querySelectorAll('[data-like]').forEach((button) => {
+      const slug = button.dataset.like;
+      const key = `scd_like_${slug}`;
+      const paint = () => {
+        const liked = localStorage.getItem(key) === '1';
+        button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+        button.classList.toggle('is-liked', liked);
+      };
+      paint();
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const liked = localStorage.getItem(key) === '1';
+        localStorage.setItem(key, liked ? '0' : '1');
+        paint();
+        window.scdTrack?.(liked ? 'project_unlike' : 'project_like', { project_slug: slug });
+      });
     });
   </script>
 </section>
