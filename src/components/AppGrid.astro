@@ -3,6 +3,18 @@ const { apps } = Astro.props;
 const tags = [...new Set(apps.flatMap((app) => app.tags))].sort((a, b) => a.localeCompare(b, 'en'));
 const base = import.meta.env.BASE_URL;
 const asset = (p) => `${base}${p.replace(/^\//, '')}`;
+const goethePalette = [
+  '#b98e92', // muted red
+  '#c89d78', // muted orange
+  '#ceb676', // muted yellow
+  '#8c9b87', // muted green
+  '#8ea6b3', // muted blue
+  '#8f8aa5', // muted violet
+];
+const colorForApp = (slug, index) => {
+  const seed = [...slug].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) + index * 17;
+  return goethePalette[seed % goethePalette.length];
+};
 ---
 <section id="projects" class="projects-section">
   <div class="section-heading">
@@ -24,7 +36,7 @@ const asset = (p) => `${base}${p.replace(/^\//, '')}`;
         class={`app-card app-card--${app.size}`}
         data-tags={JSON.stringify(app.tags)}
         data-slug={app.slug}
-        style={`--index:${index}`}
+        style={`--index:${index};--detail-bg:${colorForApp(app.slug, index)}`}
       >
         <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug}>
           <div class="card-visual" aria-hidden="true">

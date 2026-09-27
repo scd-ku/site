@@ -1119,3 +1119,16 @@ html, body { background:#FFFFFF; }
   .object-adenine,.object-thymine,.object-cytosine,.object-guanine { width:12vw; min-width:0; }
   .object-cube-3d,.object-octa-3d,.object-tetra-3d { width:15vw; }
 }
+
+
+/* v12 — Goethe muted six-hue backgrounds for project detail panels */
+.card-detail {
+  background: color-mix(in srgb, var(--detail-bg, #d8d1c3) 68%, rgba(250,248,242,.96));
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+    radial-gradient(circle at 18% 16%, rgba(255,255,255,.25), transparent 34%);
+  border-top: 1px solid rgba(17,17,17,.08);
+}
+.card-detail .detail-topline,
+.card-detail .card-meta { color: rgba(17,17,17,.58); }
+.card-detail p { color: rgba(17,17,17,.9); }
