@@ -2740,3 +2740,130 @@ footer {
     padding-bottom: 20px;
   }
 }
+
+
+/* v37 — strict grid alignment + corrected About hierarchy */
+:root {
+  --scd-page-gutter: 42px;
+  --scd-section-title-size: clamp(19px, 1.65vw, 26px);
+}
+
+/* One horizontal datum for Projects / About / People / Footer. */
+.projects-section {
+  padding-left: var(--scd-page-gutter) !important;
+  padding-right: var(--scd-page-gutter) !important;
+}
+.text-section {
+  margin-left: var(--scd-page-gutter) !important;
+  margin-right: var(--scd-page-gutter) !important;
+}
+footer {
+  margin-left: var(--scd-page-gutter);
+  margin-right: var(--scd-page-gutter);
+}
+
+/* Override the old generic .text-section h2 rule with the exact People scale. */
+.text-section .about-lead,
+.people-section .person-primary h2 {
+  font-size: var(--scd-section-title-size) !important;
+  font-weight: 400 !important;
+  letter-spacing: -.018em !important;
+}
+.text-section .about-lead {
+  max-width: none !important;
+  line-height: 1.42 !important;
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif;
+  text-wrap: pretty;
+}
+.people-section .person-primary h2 {
+  line-height: 1.42 !important;
+}
+
+/* About is one continuous editorial column: no artificial sub-grid. */
+.about-block,
+.about-prose,
+.about-block--site .about-prose {
+  width: 100%;
+  max-width: none !important;
+}
+.about-prose {
+  margin-top: 15px;
+}
+.about-prose p {
+  width: 100%;
+  max-width: none !important;
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  line-height: 1.82;
+  letter-spacing: .006em;
+  font-weight: 300;
+  text-wrap: pretty;
+}
+.about-prose p:last-child { margin-bottom: 0; }
+
+/* Compact but clearly separated section rhythm. */
+.about-section {
+  padding-top: 18px !important;
+  padding-bottom: 36px !important;
+}
+.about-section .section-kicker {
+  margin-bottom: 22px !important;
+}
+.about-divider {
+  margin-top: 26px !important;
+  margin-bottom: 22px !important;
+}
+.about-mini-label {
+  margin-bottom: 0;
+}
+.about-block--site .about-prose {
+  margin-top: 14px;
+}
+.people-section {
+  padding-top: 16px !important;
+  padding-bottom: 34px !important;
+}
+.people-section .section-kicker {
+  margin-bottom: 22px !important;
+}
+
+/* Keep Projects compact while preserving enough breathing room between tiles. */
+.projects-section {
+  padding-top: 24px !important;
+  padding-bottom: 58px !important;
+}
+.app-grid {
+  gap: 34px 30px !important;
+}
+
+@media (max-width: 920px) {
+  :root { --scd-page-gutter: 22px; }
+  .text-section .about-lead,
+  .people-section .person-primary h2 {
+    font-size: clamp(19px, 3.2vw, 25px) !important;
+  }
+  .about-prose p {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .projects-section { padding-bottom: 50px !important; }
+  .about-section { padding-bottom: 32px !important; }
+  .people-section { padding-bottom: 30px !important; }
+}
+
+@media (max-width: 580px) {
+  :root { --scd-page-gutter: 14px; }
+  .text-section .about-lead,
+  .people-section .person-primary h2 {
+    font-size: clamp(18px, 5.4vw, 23px) !important;
+    line-height: 1.42 !important;
+  }
+  .about-prose p {
+    font-size: 12.5px;
+    line-height: 1.78;
+    letter-spacing: .003em;
+  }
+  .projects-section { padding-top: 18px !important; padding-bottom: 42px !important; }
+  .about-section { padding-top: 14px !important; padding-bottom: 28px !important; }
+  .people-section { padding-top: 14px !important; padding-bottom: 26px !important; }
+}
