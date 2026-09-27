@@ -2598,3 +2598,38 @@ html[data-site-palette="mono"] .card-detail p {
   .lab-function-head h3 { font-size:18px; }
   .lab-map { width:820px; }
 }
+
+
+/* v31 — subtle per-character reactive weight in the hero title */
+.hero h1[data-reactive-weight] {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+}
+.hero-weight-line {
+  white-space: nowrap;
+}
+.hero-weight-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.hero-weight-char {
+  display: inline-block;
+  font-weight: var(--hero-char-weight, 320);
+  font-variation-settings: "wght" var(--hero-char-weight, 320);
+  font-optical-sizing: auto;
+  will-change: font-weight, font-variation-settings;
+}
+
+/* Keep the title readable and stable on smaller screens. */
+@media (max-width: 580px) {
+  .hero-weight-line {
+    white-space: normal;
+  }
+}
+
+/* Reduced motion: retain the restrained static weight gradient only. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-weight-char {
+    transition: none;
+  }
+}

@@ -13,7 +13,7 @@ import apps from '../data/apps.generated.json';
       <HeroScienceField />
       <div class="hero-content">
         <p class="eyebrow">Kagawa University · Program in Media and Product Design</p>
-        <h1><span>Science, Education, Engineering</span><br /><span>Design and Communication.</span></h1>
+        <h1 data-reactive-weight><span class="hero-weight-line">Science, Education, Engineering</span><br /><span class="hero-weight-line">Design &amp; Communication.</span></h1>
       </div>
       <a class="scroll-cue" href="#projects">Explore projects <span>↓</span></a>
       <div class="hero-index" aria-hidden="true">
@@ -38,10 +38,9 @@ import apps from '../data/apps.generated.json';
       <div class="about-copy about-copy--site">
         <p class="about-mini-label">About this site</p>
         <div class="about-body">
-          <p>このページでは、研究室で実際に開発したツールや教材を、学校やさまざまな学びの場で活用できるよう公開しています。Webアプリの多くは生成AIを用いて開発し、できるだけ1つのHTMLファイルで完結する構成にしています。そのため、公開されたHTMLをもとに、利用する人自身がAIへカスタマイズを依頼し、それぞれの授業や活動に合わせて作り変えることも想定しています。</p>
-          <p>教材では、見た目の完成度だけでなく、その背後にある仕組みやモデルを重視しています。生成AIによる開発であっても、シミュレーションモデルや理論は公開文献や既存ライブラリを参照しながら実装し、可能な範囲で検証するよう努めています。関連する出典や参考情報も記載し、さらに詳しく学びたい方が元の知見へたどれるようにしています。</p>
-          <p>アイコンや画像など、来歴の判別が難しい素材については、できるだけ自分たちで原案を作り、それをAIで修正・展開して用いる方法をとっています。公開前には繰り返し確認していますが、不備や誤りがあればご指摘ください。</p>
-          <p>誰もが望むものをつくりやすい時代だからこそ、アイデアや細かな工夫の<strong>出典と来歴への敬意を可視化し、適切な帰属をつなぐ</strong>ことを大切にしています。成果だけを囲い込むのではなく、誰のどの工夫から生まれたのかをできるだけ開いた形で残し、次の人が学び、改変し、さらに共有できるオープンなものづくりの基盤を目指します。</p>
+          <p>このサイトでは、研究室で開発したツールや教材を、学校やさまざまな学びの場で活用できるよう公開しています。Webアプリの多くは生成AIを活用し、できるだけ1つのHTMLファイルで完結させています。公開されたHTMLをもとに、ユーザがAIを使って授業や活動に合わせて自由に改変することも想定しています。</p>
+          <p>教材は、その効果や結果だけでなく、その背後の仕組みやモデルの理解が重要です。そのため開発では信頼性のある学術情報や既存ライブラリを、生成AIに対して具体的に指示して開発し、可能な限り検証するとともに、出典や仕組みを記載しています。</p>
+          <p>誰もがものづくりに参画でき、交換しやすい時代だからこそ、着想や工夫の来歴と適切な帰属が大切です。学び、改変し、再び共有できる、オープンなものづくりの場を目指しています。</p>
         </div>
       </div>
 
@@ -64,4 +63,147 @@ import apps from '../data/apps.generated.json';
       <span><a href="./privacy/">Privacy / Analytics</a> · © 2026</span>
     </footer>
   </main>
+
+<script is:inline>
+(() => {
+  const title = document.querySelector('[data-reactive-weight]');
+  if (!title) return;
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lines = [...title.querySelectorAll('.hero-weight-line')];
+  const chars = [];
+  const BASE_HIGH = 390;
+  const BASE_LOW = 285;
+  const HOVER_BOOST = 115;
+  const RADIUS = 150;
+  const SIGMA = 66;
+
+  const makeChar = (character, baseWeight) => {
+    if (character === ' ') {
+      const space = document.createTextNode(' ');
+      return space;
+    }
+    const span = document.createElement('span');
+    span.className = 'hero-weight-char';
+    span.textContent = character;
+    span.dataset.baseWeight = String(baseWeight);
+    span._currentWeight = baseWeight;
+    span.style.setProperty('--hero-char-weight', baseWeight.toFixed(1));
+    chars.push(span);
+    return span;
+  };
+
+  lines.forEach((line) => {
+    const source = line.textContent || '';
+    const words = source.split(/(\s+)/);
+    line.textContent = '';
+
+    words.forEach((token) => {
+      if (/^\s+$/.test(token)) {
+        line.appendChild(document.createTextNode(token));
+        return;
+      }
+
+      const word = document.createElement('span');
+      word.className = 'hero-weight-word';
+      const visibleChars = [...token];
+      const denominator = Math.max(1, visibleChars.length - 1);
+
+      visibleChars.forEach((character, index) => {
+        const t = index / denominator;
+        // A restrained word-level weight slope: slightly stronger at the start,
+        // gradually lighter toward the end.
+        const baseWeight = BASE_HIGH + (BASE_LOW - BASE_HIGH) * t;
+        word.appendChild(makeChar(character, baseWeight));
+      });
+      line.appendChild(word);
+    });
+  });
+
+  let pointer = { x: -9999, y: -9999, active: false };
+  let raf = 0;
+
+  const targetWeightFor = (char) => {
+    const base = Number(char.dataset.baseWeight || 300);
+    if (!pointer.active || reducedMotion) return base;
+
+    const rect = char.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = pointer.x - cx;
+    const dy = (pointer.y - cy) * 1.25;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance >= RADIUS) return base;
+
+    // Gaussian-like pressure field: local, soft and visually stable.
+    const influence = Math.exp(-(distance * distance) / (2 * SIGMA * SIGMA));
+    return Math.min(540, base + HOVER_BOOST * influence);
+  };
+
+  const animate = () => {
+    let needsAnotherFrame = false;
+
+    chars.forEach((char) => {
+      const target = targetWeightFor(char);
+      const current = Number.isFinite(char._currentWeight) ? char._currentWeight : target;
+      const next = current + (target - current) * 0.18;
+      char._currentWeight = next;
+      char.style.setProperty('--hero-char-weight', next.toFixed(1));
+
+      if (Math.abs(target - next) > 0.35) needsAnotherFrame = true;
+    });
+
+    raf = needsAnotherFrame || pointer.active
+      ? requestAnimationFrame(animate)
+      : 0;
+  };
+
+  const ensureAnimation = () => {
+    if (!raf) raf = requestAnimationFrame(animate);
+  };
+
+  const updatePointer = (x, y) => {
+    pointer.x = x;
+    pointer.y = y;
+    pointer.active = true;
+    ensureAnimation();
+  };
+
+  window.addEventListener('pointermove', (event) => {
+    updatePointer(event.clientX, event.clientY);
+  }, { passive: true });
+
+  window.addEventListener('pointerdown', (event) => {
+    updatePointer(event.clientX, event.clientY);
+  }, { passive: true });
+
+  window.addEventListener('pointerleave', () => {
+    pointer.active = false;
+    ensureAnimation();
+  }, { passive: true });
+
+  window.addEventListener('blur', () => {
+    pointer.active = false;
+    ensureAnimation();
+  });
+
+  // Touch devices: finger position drives the same local weight field.
+  window.addEventListener('touchstart', (event) => {
+    const touch = event.touches[0];
+    if (touch) updatePointer(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (event) => {
+    const touch = event.touches[0];
+    if (touch) updatePointer(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    pointer.active = false;
+    ensureAnimation();
+  }, { passive: true });
+})();
+</script>
+
 </BaseLayout>
