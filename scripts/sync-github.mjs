@@ -132,6 +132,12 @@ try {
     inspected.push(await inspectRepo(apps[i], i));
   }
 
+  inspected.sort((a, b) => {
+    const bt = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+    const at = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+    return bt - at;
+  });
+
   await fs.mkdir(path.dirname(OUT), { recursive: true });
   await fs.writeFile(OUT, `${JSON.stringify(inspected, null, 2)}\n`, 'utf8');
   console.log(`Synced ${inspected.length} public app repositories from ${OWNER}.`);

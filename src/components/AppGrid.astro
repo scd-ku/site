@@ -1,6 +1,11 @@
 ---
 const { apps } = Astro.props;
-const tags = [...new Set(apps.flatMap((app) => app.tags))].sort((a, b) => a.localeCompare(b, 'en'));
+const sortedApps = [...apps].sort((a, b) => {
+  const bt = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+  const at = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+  return bt - at;
+});
+const tags = [...new Set(sortedApps.flatMap((app) => app.tags))].sort((a, b) => a.localeCompare(b, 'en'));
 const base = import.meta.env.BASE_URL;
 const asset = (p) => `${base}${p.replace(/^\//, '')}`;
 const goethePalette = [
@@ -95,11 +100,11 @@ const colorForApp = (slug, index) => {
 
   <div class="content-band" aria-label="Current content type">
     <span>Public applications</span>
-    <span>{apps.length}</span>
+    <span>{sortedApps.length}</span>
   </div>
 
   <div class="app-grid" id="app-grid">
-    {apps.map((app, index) => (
+    {sortedApps.map((app, index) => (
       <article
         class={`app-card app-card--${app.size}`}
         data-tags={JSON.stringify(app.tags)}
