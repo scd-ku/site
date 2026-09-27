@@ -1132,3 +1132,28 @@ html, body { background:#FFFFFF; }
 .card-detail .detail-topline,
 .card-detail .card-meta { color: rgba(17,17,17,.58); }
 .card-detail p { color: rgba(17,17,17,.9); }
+
+
+/* v13 — remove organelles/molecules, add four hexagons, extra large cube, brighter Goethe panels */
+.object-organelle, .object-base { display:none !important; }
+.object-hex { opacity:.5; animation: drift-orbital var(--drift,18s) ease-in-out infinite alternate; }
+.object-hex svg { width:100%; height:auto; display:block; }
+.object-hex-a { left:12%; top:20%; width:7.8vw; min-width:92px; --drift:20s; }
+.object-hex-b { left:46%; top:18%; width:7.8vw; min-width:92px; --drift:24s; }
+.object-hex-c { right:20%; top:48%; width:7.8vw; min-width:92px; --drift:18s; }
+.object-hex-d { left:30%; bottom:14%; width:7.8vw; min-width:92px; --drift:22s; }
+.object-cube-3d-large { left:50%; top:40%; width:15vw; min-width:240px; --drift:30s; opacity:.74; }
+.object-cube-3d { left:67%; bottom:16%; width:10.5vw; min-width:160px; --drift:24s; opacity:.72; }
+.object-octa-3d { left:78%; bottom:7%; width:10vw; min-width:152px; --drift:28s; }
+.object-tetra-3d { left:58%; bottom:5%; width:10vw; min-width:152px; --drift:26s; }
+.card-detail {
+  background: color-mix(in srgb, var(--detail-bg, #d8d1c3) 78%, rgba(252,251,247,.98));
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.10)),
+    radial-gradient(circle at 18% 16%, rgba(255,255,255,.30), transparent 36%);
+}
+@media (max-width:580px){
+  .object-hex-a,.object-hex-b,.object-hex-c,.object-hex-d { width:14vw; min-width:0; }
+  .object-cube-3d-large { width:22vw; min-width:0; }
+  .object-cube-3d,.object-octa-3d,.object-tetra-3d { width:16vw; min-width:0; }
+}
