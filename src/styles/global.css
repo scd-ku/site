@@ -2147,3 +2147,60 @@ html[data-site-palette="color"] .app-card:focus-within .card-visual img {
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
 }
+
+
+/* v24 — seamless ribbon trail + clearer display settings */
+.display-settings-popover {
+  color:#090909;
+  font-weight:450;
+  background:rgba(255,255,255,.985);
+  border-color:rgba(9,9,9,.24);
+}
+.display-settings-title {
+  color:#080808;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.09em;
+}
+.settings-group-label {
+  color:rgba(8,8,8,.78);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.095em;
+}
+.palette-modes button,
+.layout-modes button {
+  color:#090909;
+  background:#fff;
+  border-color:rgba(8,8,8,.28);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+}
+.palette-modes button:hover,
+.layout-modes button:hover {
+  background:#f1f1ed;
+  border-color:rgba(8,8,8,.46);
+}
+.palette-modes button.is-active,
+.layout-modes button.is-active {
+  color:#fff;
+  background:#090909;
+  border-color:#090909;
+  font-weight:500;
+}
+.saturation-control,
+.cursor-control {
+  color:#111;
+  font-size:11px;
+  font-weight:500;
+}
+.saturation-control output,
+.cursor-control output {
+  color:rgba(8,8,8,.72);
+  font-weight:500;
+}
+
+/* The ribbon is now canvas-filled; remove any legacy path styling that could create spot-like marks. */
+.cursor-trail path { display:none !important; }

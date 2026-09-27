@@ -58,35 +58,64 @@ const base = import.meta.env.BASE_URL;
       syncTrailViewport();
       addEventListener('resize', syncTrailViewport, { passive:true });
 
-      function smoothPoint(a,b){ return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
       function drawRibbon(now = performance.now()){
         if (!trailCtx || !trailCanvas) return;
         trailCtx.clearRect(0,0,innerWidth,innerHeight);
         if (cursorState.style !== 'line') return;
+
         const lifetime = 140 + (cursorState.trail / 100) * 3000;
         pathPoints = pathPoints.filter(p => now - p.t <= lifetime);
-        if (pathPoints.length < 2) return;
+        if (pathPoints.length < 3) return;
 
-        const hue = cursorState.lineHue;
-        const n = pathPoints.length;
-        for (let i=0;i<n-1;i++){
-          const a = pathPoints[Math.max(0,i-1)];
-          const b = pathPoints[i];
-          const c = pathPoints[i+1];
-          const start = smoothPoint(a,b);
-          const end = smoothPoint(b,c);
-          const age = i / Math.max(1,n-2); // 0 = trailing end, 1 = pointer end
-          const alpha = Math.pow(age, 1.7) * .78;
-          const width = .2 + Math.pow(age, .72) * 9.2;
-          trailCtx.beginPath();
-          trailCtx.moveTo(start.x,start.y);
-          trailCtx.quadraticCurveTo(b.x,b.y,end.x,end.y);
-          trailCtx.strokeStyle = `hsla(${hue},92%,60%,${alpha})`;
-          trailCtx.lineWidth = width;
-          trailCtx.lineCap = 'round';
-          trailCtx.lineJoin = 'round';
-          trailCtx.stroke();
+        // Smooth the pointer path without drawing individual round-capped strokes.
+        const sampled=[];
+        for(let i=0;i<pathPoints.length;i++){
+          const p0=pathPoints[Math.max(0,i-1)];
+          const p1=pathPoints[i];
+          const p2=pathPoints[Math.min(pathPoints.length-1,i+1)];
+          sampled.push({
+            x:(p0.x + p1.x*2 + p2.x)/4,
+            y:(p0.y + p1.y*2 + p2.y)/4
+          });
         }
+        if(sampled.length < 3) return;
+
+        const left=[];
+        const right=[];
+        const maxWidth=11.5;
+        for(let i=0;i<sampled.length;i++){
+          const prev=sampled[Math.max(0,i-1)];
+          const next=sampled[Math.min(sampled.length-1,i+1)];
+          let dx=next.x-prev.x, dy=next.y-prev.y;
+          const len=Math.hypot(dx,dy)||1;
+          dx/=len; dy/=len;
+          const nx=-dy, ny=dx;
+          const u=i/Math.max(1,sampled.length-1);
+          // Tail tapers to zero quickly; full ribbon thickness is reached by ~10%.
+          const ramp=Math.min(1,u/0.10);
+          const width=maxWidth * (0.12 + 0.88*Math.pow(u,.58)) * ramp;
+          left.push({x:sampled[i].x + nx*width/2, y:sampled[i].y + ny*width/2});
+          right.push({x:sampled[i].x - nx*width/2, y:sampled[i].y - ny*width/2});
+        }
+
+        const tail=sampled[0];
+        const head=sampled[sampled.length-1];
+        const gradient=trailCtx.createLinearGradient(tail.x,tail.y,head.x,head.y);
+        const hue=cursorState.lineHue;
+        gradient.addColorStop(0.00, `hsla(${hue},94%,60%,0)`);
+        gradient.addColorStop(0.055, `hsla(${hue},94%,60%,.20)`);
+        gradient.addColorStop(0.10, `hsla(${hue},94%,60%,.82)`);
+        gradient.addColorStop(1.00, `hsla(${hue},94%,60%,.90)`);
+
+        trailCtx.save();
+        trailCtx.beginPath();
+        trailCtx.moveTo(left[0].x,left[0].y);
+        for(let i=1;i<left.length;i++) trailCtx.lineTo(left[i].x,left[i].y);
+        for(let i=right.length-1;i>=0;i--) trailCtx.lineTo(right[i].x,right[i].y);
+        trailCtx.closePath();
+        trailCtx.fillStyle=gradient;
+        trailCtx.fill();
+        trailCtx.restore();
       }
 
       function updateBlindWindow(now){
