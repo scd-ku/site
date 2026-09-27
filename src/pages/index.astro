@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import AppGrid from '../components/AppGrid.astro';
 import HeroScienceField from '../components/HeroScienceField.astro';
+import LabFunctionMap from '../components/LabFunctionMap.astro';
 import apps from '../data/apps.generated.json';
 ---
 <BaseLayout>
@@ -26,22 +27,35 @@ import apps from '../data/apps.generated.json';
     <section id="about" class="text-section about-section">
       <div class="section-kicker"><span>01</span><span>About</span></div>
       <div class="about-copy">
-        <h2>Science becomes tangible through tools, expression and dialogue.</h2>
-        <p>科学・教育・デザイン・コミュニケーションを横断し、科学技術や地域文化を素材に、初等中等教育やSTEAMへ接続する教材、Webアプリ、実験装置、インターフェース、表現手法を研究・開発しています。</p>
+        <h2>Designing tools that connect science, learning and society.</h2>
+        <div class="about-body">
+          <p>科学コミュニケーションデザイン研究室は、科学技術と社会をつなぐために、専門ではない人が新しい学びや体験に出会えるプロダクトやメディアをデザインする研究室です。先端科学技術や地域の産業・文化を素材に、専門家と学習者・市民を橋渡ししながら、主に初等中等教育の理科・STEAM教育へ接続する教材を研究します。</p>
+          <p>3Dプリンタやレーザーカッターなどの先端加工技術、IoTデバイス設計、Webや生成AIを含む情報技術を活用し、これまでにない教材や手法を現場と連携して検証します。社会の中で使われ続ける学びの仕組みをつくり、工学的なものづくりの力で科学コミュニケーションを実践できる仲間を育てることを目指します。</p>
+        </div>
       </div>
+
+      <div class="about-divider"></div>
+
+      <div class="about-copy about-copy--site">
+        <p class="about-mini-label">About this site</p>
+        <div class="about-body">
+          <p>このページでは、研究室で実際に開発したツールや教材を、学校やさまざまな学びの場で活用できるよう公開しています。Webアプリの多くは生成AIを用いて開発し、できるだけ1つのHTMLファイルで完結する構成にしています。そのため、公開されたHTMLをもとに、利用する人自身がAIへカスタマイズを依頼し、それぞれの授業や活動に合わせて作り変えることも想定しています。</p>
+          <p>教材では、見た目の完成度だけでなく、その背後にある仕組みやモデルを重視しています。生成AIによる開発であっても、シミュレーションモデルや理論は公開文献や既存ライブラリを参照しながら実装し、可能な範囲で検証するよう努めています。関連する出典や参考情報も記載し、さらに詳しく学びたい方が元の知見へたどれるようにしています。</p>
+          <p>アイコンや画像など、来歴の判別が難しい素材については、できるだけ自分たちで原案を作り、それをAIで修正・展開して用いる方法をとっています。公開前には繰り返し確認していますが、不備や誤りがあればご指摘ください。</p>
+          <p>誰もが望むものをつくりやすい時代だからこそ、アイデアや細かな工夫の<strong>出典と来歴への敬意を可視化し、適切な帰属をつなぐ</strong>ことを大切にしています。成果だけを囲い込むのではなく、誰のどの工夫から生まれたのかをできるだけ開いた形で残し、次の人が学び、改変し、さらに共有できるオープンなものづくりの基盤を目指します。</p>
+        </div>
+      </div>
+
+      <LabFunctionMap />
     </section>
 
     <section id="people" class="text-section people-section">
       <div class="section-kicker"><span>02</span><span>People</span></div>
-      <div class="people-grid">
+      <div class="people-grid people-grid--single">
         <div class="person-primary">
           <h2>Akihiro Osaki</h2>
-          <p>Associate Professor<br />Kagawa University</p>
-        </div>
-        <div class="people-list">
-          <div><span>Science Communication</span><span>Research / Practice</span></div>
-          <div><span>Design &amp; Fabrication</span><span>Tools / Materials</span></div>
-          <div><span>Students / Collaborators</span><span>Coming soon</span></div>
+          <p>Associate Professor<br />Kagawa University<br />Program in Media and Product Design</p>
+          <a class="person-link" href="https://researchmap.jp/osaki" target="_blank" rel="noreferrer">researchmap.jp/osaki ↗</a>
         </div>
       </div>
     </section>
