@@ -2204,3 +2204,28 @@ html[data-site-palette="color"] .app-card:focus-within .card-visual img {
 
 /* The ribbon is now canvas-filled; remove any legacy path styling that could create spot-like marks. */
 .cursor-trail path { display:none !important; }
+
+
+/* v25 — velocity-safe ribbon, persistent blind blur, mono black-density control */
+html[data-site-palette="blind"] .blind-overlay {
+  backdrop-filter:blur(var(--blind-overlay-blur,0px)) saturate(.35) contrast(.82);
+  -webkit-backdrop-filter:blur(var(--blind-overlay-blur,0px)) saturate(.35) contrast(.82);
+}
+
+html[data-site-palette="mono"] .card-visual img {
+  filter:grayscale(1) brightness(var(--mono-brightness,.84)) contrast(var(--mono-contrast,1.3)) !important;
+}
+html[data-site-palette="mono"] .science-object canvas,
+html[data-site-palette="mono"] .optics-canvas {
+  filter:grayscale(1) brightness(var(--mono-brightness,.84)) contrast(var(--mono-contrast,1.3));
+}
+html[data-site-palette="mono"] .card-detail {
+  background:rgb(var(--mono-gray,107),var(--mono-gray,107),var(--mono-gray,107)) !important;
+  color:var(--mono-text,#fff) !important;
+  filter:none !important;
+}
+html[data-site-palette="mono"] .card-detail .detail-topline,
+html[data-site-palette="mono"] .card-detail .card-meta,
+html[data-site-palette="mono"] .card-detail p {
+  color:color-mix(in srgb, var(--mono-text,#fff) 88%, transparent) !important;
+}

@@ -58,31 +58,46 @@ const base = import.meta.env.BASE_URL;
       syncTrailViewport();
       addEventListener('resize', syncTrailViewport, { passive:true });
 
+      function resampleTrail(points, spacing=5){
+        if(points.length < 2) return points.slice();
+        const out=[{...points[0]}];
+        for(let i=1;i<points.length;i++){
+          const a=points[i-1], b=points[i];
+          const dx=b.x-a.x, dy=b.y-a.y;
+          const dist=Math.hypot(dx,dy);
+          if(dist < .001) continue;
+          const steps=Math.max(1, Math.ceil(dist/spacing));
+          for(let s=1;s<=steps;s++){
+            const u=s/steps;
+            out.push({x:a.x+dx*u, y:a.y+dy*u, t:a.t+(b.t-a.t)*u});
+          }
+        }
+        return out;
+      }
+
       function drawRibbon(now = performance.now()){
         if (!trailCtx || !trailCanvas) return;
         trailCtx.clearRect(0,0,innerWidth,innerHeight);
         if (cursorState.style !== 'line') return;
 
-        const lifetime = 140 + (cursorState.trail / 100) * 3000;
+        const lifetime = 160 + (cursorState.trail / 100) * 2900;
         pathPoints = pathPoints.filter(p => now - p.t <= lifetime);
-        if (pathPoints.length < 3) return;
+        if (pathPoints.length < 2) return;
 
-        // Smooth the pointer path without drawing individual round-capped strokes.
-        const sampled=[];
-        for(let i=0;i<pathPoints.length;i++){
-          const p0=pathPoints[Math.max(0,i-1)];
-          const p1=pathPoints[i];
-          const p2=pathPoints[Math.min(pathPoints.length-1,i+1)];
-          sampled.push({
-            x:(p0.x + p1.x*2 + p2.x)/4,
-            y:(p0.y + p1.y*2 + p2.y)/4
-          });
-        }
+        // Fixed-distance resampling prevents a fast pointer move from creating
+        // one huge polygon that appears to stretch backward along the old trail.
+        let sampled=resampleTrail(pathPoints, 5.5);
+        if(sampled.length > 420) sampled=sampled.slice(sampled.length-420);
         if(sampled.length < 3) return;
 
-        const left=[];
-        const right=[];
-        const maxWidth=11.5;
+        // A gentle 3-point filter smooths corners without overshooting the path.
+        sampled=sampled.map((p,i,arr)=>{
+          const a=arr[Math.max(0,i-1)], b=p, c=arr[Math.min(arr.length-1,i+1)];
+          return {x:(a.x+b.x*2+c.x)/4, y:(a.y+b.y*2+c.y)/4, t:b.t};
+        });
+
+        const left=[], right=[];
+        const maxWidth=12.5;
         for(let i=0;i<sampled.length;i++){
           const prev=sampled[Math.max(0,i-1)];
           const next=sampled[Math.min(sampled.length-1,i+1)];
@@ -91,31 +106,34 @@ const base = import.meta.env.BASE_URL;
           dx/=len; dy/=len;
           const nx=-dy, ny=dx;
           const u=i/Math.max(1,sampled.length-1);
-          // Tail tapers to zero quickly; full ribbon thickness is reached by ~10%.
-          const ramp=Math.min(1,u/0.10);
-          const width=maxWidth * (0.12 + 0.88*Math.pow(u,.58)) * ramp;
-          left.push({x:sampled[i].x + nx*width/2, y:sampled[i].y + ny*width/2});
-          right.push({x:sampled[i].x - nx*width/2, y:sampled[i].y - ny*width/2});
+          const width=maxWidth*(0.50+0.50*Math.pow(u,.72));
+          left.push({x:sampled[i].x+nx*width/2,y:sampled[i].y+ny*width/2});
+          right.push({x:sampled[i].x-nx*width/2,y:sampled[i].y-ny*width/2});
         }
 
-        const tail=sampled[0];
-        const head=sampled[sampled.length-1];
-        const gradient=trailCtx.createLinearGradient(tail.x,tail.y,head.x,head.y);
         const hue=cursorState.lineHue;
-        gradient.addColorStop(0.00, `hsla(${hue},94%,60%,0)`);
-        gradient.addColorStop(0.055, `hsla(${hue},94%,60%,.20)`);
-        gradient.addColorStop(0.10, `hsla(${hue},94%,60%,.82)`);
-        gradient.addColorStop(1.00, `hsla(${hue},94%,60%,.90)`);
-
-        trailCtx.save();
-        trailCtx.beginPath();
-        trailCtx.moveTo(left[0].x,left[0].y);
-        for(let i=1;i<left.length;i++) trailCtx.lineTo(left[i].x,left[i].y);
-        for(let i=right.length-1;i>=0;i--) trailCtx.lineTo(right[i].x,right[i].y);
-        trailCtx.closePath();
-        trailCtx.fillStyle=gradient;
-        trailCtx.fill();
-        trailCtx.restore();
+        // Only the oldest ~7% fades. The rest is one continuous, solid ribbon.
+        const fadeEnd=Math.max(2, Math.floor(sampled.length*.07));
+        for(let i=0;i<fadeEnd;i++){
+          const a=i/Math.max(1,fadeEnd-1);
+          trailCtx.beginPath();
+          trailCtx.moveTo(left[i].x,left[i].y);
+          trailCtx.lineTo(left[i+1].x,left[i+1].y);
+          trailCtx.lineTo(right[i+1].x,right[i+1].y);
+          trailCtx.lineTo(right[i].x,right[i].y);
+          trailCtx.closePath();
+          trailCtx.fillStyle=`hsla(${hue},94%,60%,${(a*.88).toFixed(3)})`;
+          trailCtx.fill();
+        }
+        if(fadeEnd < sampled.length-1){
+          trailCtx.beginPath();
+          trailCtx.moveTo(left[fadeEnd].x,left[fadeEnd].y);
+          for(let i=fadeEnd+1;i<left.length;i++) trailCtx.lineTo(left[i].x,left[i].y);
+          for(let i=right.length-1;i>=fadeEnd;i--) trailCtx.lineTo(right[i].x,right[i].y);
+          trailCtx.closePath();
+          trailCtx.fillStyle=`hsla(${hue},94%,60%,.90)`;
+          trailCtx.fill();
+        }
       }
 
       function updateBlindWindow(now){
@@ -167,12 +185,14 @@ const base = import.meta.env.BASE_URL;
         let overlay = 'rgba(0,0,0,1)', blur = '0px';
         if (v <= 50) {
           const t = v / 50;
-          overlay = `rgba(0,0,0,${1 - t * 0.52})`;
-          blur = `${t * 22}px`;
+          overlay = `rgba(0,0,0,${1 - t * 0.42})`;
+          // Once the background starts to become visible, keep it strongly unreadable.
+          blur = v === 0 ? '0px' : `${26 + t * 10}px`;
         } else {
           const t = (v - 50) / 50;
-          overlay = `rgba(255,255,255,${0.16 + t * 0.82})`;
-          blur = `${(1 - t) * 22}px`;
+          overlay = `rgba(255,255,255,${0.22 + t * 0.73})`;
+          // Bright blind states still retain strong blur rather than revealing text.
+          blur = `${36 - t * 8}px`;
         }
         root.style.setProperty('--blind-overlay-color', overlay);
         root.style.setProperty('--blind-overlay-blur', blur);
@@ -191,10 +211,21 @@ const base = import.meta.env.BASE_URL;
           if (cursorState.style === 'line') {
             const now=performance.now();
             const prev=pathPoints[pathPoints.length-1];
-            if (!prev || Math.hypot(e.clientX-prev.x,e.clientY-prev.y) > 2.2) {
-              pathPoints.push({ x:e.clientX, y:e.clientY, t:now });
-              if (pathPoints.length > 260) pathPoints.splice(0,pathPoints.length-260);
+            if (!prev) {
+              pathPoints.push({x:e.clientX,y:e.clientY,t:now});
+            } else {
+              const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
+              const dist=Math.hypot(dx,dy);
+              if(dist > 2.2){
+                const steps=Math.max(1,Math.ceil(dist/7));
+                const dt=Math.max(1,now-prev.t);
+                for(let s=1;s<=steps;s++){
+                  const u=s/steps;
+                  pathPoints.push({x:prev.x+dx*u,y:prev.y+dy*u,t:prev.t+dt*u});
+                }
+              }
             }
+            if(pathPoints.length>520) pathPoints.splice(0,pathPoints.length-520);
           }
         }, { passive:true });
       }

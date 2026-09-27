@@ -195,6 +195,7 @@ const colorForApp = (slug, index) => {
     // Every page load starts from the requested defaults. Changes last only for this page view.
     let colorIntensity = 50;
     let blindTone = 0;
+    let monoDepth = 58;
     let currentMode = 'color';
     let currentColumns = '4';
     let currentTileLayout = 'mondrian';
@@ -240,8 +241,9 @@ const colorForApp = (slug, index) => {
       if (!screenSlider) return;
       const blind = currentMode === 'blind';
       const color = currentMode === 'color';
-      const value = blind ? blindTone : colorIntensity;
-      screenLabel.textContent = blind ? 'Screen tone' : (color ? 'Color intensity' : 'Color balance');
+      const mono = currentMode === 'mono';
+      const value = blind ? blindTone : (mono ? monoDepth : colorIntensity);
+      screenLabel.textContent = blind ? 'Screen tone' : (mono ? 'Black density' : (color ? 'Color intensity' : 'Color balance'));
       screenSlider.value = String(value);
       screenValue.textContent = `${value}%`;
     };
@@ -258,6 +260,15 @@ const colorForApp = (slug, index) => {
       document.documentElement.style.setProperty('--detail-brightness', String(bright));
       document.documentElement.style.setProperty('--detail-contrast', String(contrast));
       document.documentElement.style.setProperty('--color-level', String(level));
+      const monoLevel = monoDepth / 100;
+      const monoBrightness = 1.13 - monoLevel * .50;
+      const monoContrast = .88 + monoLevel * .72;
+      const monoGray = Math.round(226 - monoLevel * 205);
+      const monoText = monoGray < 118 ? '#fff' : '#080808';
+      document.documentElement.style.setProperty('--mono-brightness', String(monoBrightness));
+      document.documentElement.style.setProperty('--mono-contrast', String(monoContrast));
+      document.documentElement.style.setProperty('--mono-gray', String(monoGray));
+      document.documentElement.style.setProperty('--mono-text', monoText);
       paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === currentMode));
       columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === currentColumns));
       tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === currentTileLayout));
@@ -300,6 +311,8 @@ const colorForApp = (slug, index) => {
       if (currentMode === 'blind') {
         blindTone = value;
         document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value } }));
+      } else if (currentMode === 'mono') {
+        monoDepth = value;
       } else {
         colorIntensity = value;
       }
