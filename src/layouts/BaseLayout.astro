@@ -16,7 +16,8 @@ const base = import.meta.env.BASE_URL;
     <meta name="theme-color" content="#050505" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <link rel="alternate icon" type="image/png" href={`${base}favicon.png`} />
-    <link rel="apple-touch-icon" href={`${base}favicon.png`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${base}apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}site.webmanifest`} />
     <title>{title}</title>
   </head>
   <body>
@@ -37,7 +38,6 @@ const base = import.meta.env.BASE_URL;
       const trailCtx = trailCanvas?.getContext('2d');
       const root = document.documentElement;
       const body = document.body;
-      const finePointer = matchMedia('(pointer:fine)').matches;
       const clampValue = (n, min, max) => Math.max(min, Math.min(max, n));
       const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = { ...cursorDefaults };
@@ -199,36 +199,55 @@ const base = import.meta.env.BASE_URL;
       }
       applyBlindTone(0);
 
-      if (finePointer) {
-        addEventListener('pointermove', (e) => {
-          pointerX=e.clientX; pointerY=e.clientY;
-          if (dot) dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-          if (invertLens) invertLens.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-          root.style.setProperty('--mx', `${(e.clientX / innerWidth - .5) * 2}`);
-          root.style.setProperty('--my', `${(e.clientY / innerHeight - .5) * 2}`);
-          root.style.setProperty('--cursor-x', `${e.clientX}px`);
-          root.style.setProperty('--cursor-y', `${e.clientY}px`);
-          if (cursorState.style === 'line') {
-            const now=performance.now();
-            const prev=pathPoints[pathPoints.length-1];
-            if (!prev) {
-              pathPoints.push({x:e.clientX,y:e.clientY,t:now});
-            } else {
-              const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
-              const dist=Math.hypot(dx,dy);
-              if(dist > 2.2){
-                const steps=Math.max(1,Math.ceil(dist/7));
-                const dt=Math.max(1,now-prev.t);
-                for(let s=1;s<=steps;s++){
-                  const u=s/steps;
-                  pathPoints.push({x:prev.x+dx*u,y:prev.y+dy*u,t:prev.t+dt*u});
-                }
+      function updatePointerPosition(x, y, collectTrail=true){
+        pointerX=x; pointerY=y;
+        if (dot) dot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        if (invertLens) invertLens.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        root.style.setProperty('--mx', `${(x / innerWidth - .5) * 2}`);
+        root.style.setProperty('--my', `${(y / innerHeight - .5) * 2}`);
+        root.style.setProperty('--cursor-x', `${x}px`);
+        root.style.setProperty('--cursor-y', `${y}px`);
+        if (collectTrail && cursorState.style === 'line') {
+          const now=performance.now();
+          const prev=pathPoints[pathPoints.length-1];
+          if (!prev) {
+            pathPoints.push({x,y,t:now});
+          } else {
+            const dx=x-prev.x, dy=y-prev.y;
+            const dist=Math.hypot(dx,dy);
+            if(dist > 2.2){
+              const steps=Math.max(1,Math.ceil(dist/7));
+              const dt=Math.max(1,now-prev.t);
+              for(let step=1;step<=steps;step++){
+                const u=step/steps;
+                pathPoints.push({x:prev.x+dx*u,y:prev.y+dy*u,t:prev.t+dt*u});
               }
             }
-            if(pathPoints.length>520) pathPoints.splice(0,pathPoints.length-520);
           }
-        }, { passive:true });
+          if(pathPoints.length>520) pathPoints.splice(0,pathPoints.length-520);
+        }
       }
+
+      addEventListener('pointermove', (e) => {
+        updatePointerPosition(e.clientX, e.clientY, true);
+        if (e.pointerType === 'touch') body.classList.add('touch-cursor-ready');
+      }, { passive:true });
+      addEventListener('pointerdown', (e) => {
+        updatePointerPosition(e.clientX, e.clientY, false);
+        if (e.pointerType === 'touch') body.classList.add('touch-cursor-ready');
+      }, { passive:true });
+      addEventListener('touchstart', (e) => {
+        const t=e.touches?.[0];
+        if(!t) return;
+        body.classList.add('touch-cursor-ready');
+        updatePointerPosition(t.clientX,t.clientY,false);
+      }, { passive:true });
+      addEventListener('touchmove', (e) => {
+        const t=e.touches?.[0];
+        if(!t) return;
+        body.classList.add('touch-cursor-ready');
+        updatePointerPosition(t.clientX,t.clientY,true);
+      }, { passive:true });
       applyCursorSettings(cursorState);
       document.addEventListener('scd:update-cursor', (event) => applyCursorSettings(event.detail || {}));
       document.addEventListener('scd:update-blind-tone', (event) => applyBlindTone(event.detail?.value ?? 0));
