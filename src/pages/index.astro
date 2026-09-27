@@ -52,8 +52,28 @@ import apps from '../data/apps.generated.json';
       <div class="people-grid people-grid--single">
         <div class="person-primary">
           <h2>Akihiro Osaki</h2>
-          <p>Associate Professor<br />Kagawa University<br />Program in Media and Product Design</p>
+          <p>Associate Professor</p>
           <a class="person-link" href="https://researchmap.jp/osaki" target="_blank" rel="noreferrer">researchmap.jp/osaki ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="text-section contact-section">
+      <div class="section-kicker"><span>03</span><span>Contact</span></div>
+      <div class="contact-grid">
+        <div class="contact-copy">
+          <h2>Science Communication Design Laboratory</h2>
+          <address>
+            <p>〒760-8521<br />香川県高松市幸町 1-1<br />研究交流棟4F 403号室</p>
+          </address>
+          <dl class="contact-list">
+            <div><dt>Tel</dt><dd><a data-contact-phone aria-label="電話番号"></a></dd></div>
+            <div><dt>Email</dt><dd><a data-contact-email aria-label="メールアドレス"></a></dd></div>
+          </dl>
+          <noscript><p class="contact-noscript">電話番号・メールアドレスの表示にはJavaScriptを有効にしてください。</p></noscript>
+        </div>
+        <div class="contact-map" aria-label="香川大学 幸町キャンパス 研究交流棟の地図">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d857.8036472331239!2d134.03579716832738!3d34.34247160649481!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3553ebea56330f3d%3A0x1ef6801acfb5c4c7!2z44CSNzYwLTAwMTYg6aaZ5bed55yM6auY5p2-5biC5bm455S677yRIOeglOeptuS6pOa1geajnw!5e1!3m2!1sja!2sjp!4v1790520764449!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" title="Science Communication Design Laboratory map"></iframe>
         </div>
       </div>
     </section>
@@ -64,6 +84,25 @@ import apps from '../data/apps.generated.json';
       <span><a href="./privacy/">Privacy / Analytics</a> · © 2026</span>
     </footer>
   </main>
+
+
+<script is:inline>
+(() => {
+  const fromCodes = (codes) => String.fromCharCode(...codes);
+  const phone = [48,56,55,45,56,51,50,45,49,55,51,54];
+  const email = [111,115,97,107,105,46,97,107,105,104,105,114,111,64,107,97,103,97,119,97,45,117,46,97,99,46,106,112];
+  const phoneText = fromCodes(phone);
+  const emailText = fromCodes(email);
+  document.querySelectorAll('[data-contact-phone]').forEach((el) => {
+    el.textContent = phoneText;
+    el.href = 'tel:' + phoneText;
+  });
+  document.querySelectorAll('[data-contact-email]').forEach((el) => {
+    el.textContent = emailText;
+    el.href = 'mailto:' + emailText;
+  });
+})();
+</script>
 
 <script is:inline>
 (() => {

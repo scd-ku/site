@@ -115,6 +115,7 @@ async function inspectRepo(repo, index) {
     repoUrl: repo.html_url,
     tags,
     size: preset.size || sizes[index % sizes.length],
+    year: preset.year ?? 2026,
     updatedAt: repo.pushed_at || repo.updated_at || null
   };
 }

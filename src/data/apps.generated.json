@@ -13,7 +13,8 @@
       "Visualization"
     ],
     "size": "large",
-    "updatedAt": null
+    "updatedAt": null,
+    "year": 2026
   },
   {
     "slug": "aifusen",
@@ -29,7 +30,8 @@
       "Firebase"
     ],
     "size": "wide",
-    "updatedAt": null
+    "updatedAt": null,
+    "year": 2025
   },
   {
     "slug": "slidefusen",
@@ -45,12 +47,13 @@
       "Visualization"
     ],
     "size": "tall",
-    "updatedAt": null
+    "updatedAt": null,
+    "year": 2026
   },
   {
     "slug": "lifegame",
     "repo": "scd-ku/lifegame",
-    "title": "FOOD CHAIN QUEST",
+    "title": "食物連鎖",
     "description": "草・鹿・狼の相互作用をフィールドと個体数グラフで観察し、条件を変えながら食物連鎖を考える8bit生態系シミュレーション。",
     "url": "https://scd-ku.github.io/lifegame/",
     "repoUrl": "https://github.com/scd-ku/lifegame",
@@ -61,7 +64,8 @@
       "Education"
     ],
     "size": "wide",
-    "updatedAt": null
+    "updatedAt": null,
+    "year": 2025
   },
   {
     "slug": "3dtenkizu",
@@ -77,7 +81,8 @@
       "Visualization"
     ],
     "size": "large",
-    "updatedAt": null
+    "updatedAt": null,
+    "year": 2025
   },
   {
     "slug": "kagaritemari",
@@ -93,7 +98,8 @@
       "Visualization"
     ],
     "size": "tall",
-    "updatedAt": "2026-09-24T10:18:32Z"
+    "updatedAt": "2026-09-24T10:18:32Z",
+    "year": 2026
   },
   {
     "slug": "camera",
@@ -109,7 +115,8 @@
       "Creative Tool"
     ],
     "size": "normal",
-    "updatedAt": "2026-09-24T10:45:44Z"
+    "updatedAt": "2026-09-24T10:45:44Z",
+    "year": 2025
   },
   {
     "slug": "tsumari",
@@ -125,7 +132,8 @@
       "Learning"
     ],
     "size": "wide",
-    "updatedAt": "2026-09-24T10:26:45Z"
+    "updatedAt": "2026-09-24T10:26:45Z",
+    "year": 2026
   },
   {
     "slug": "seizahayami",
@@ -141,6 +149,7 @@
       "Education"
     ],
     "size": "normal",
-    "updatedAt": "2026-09-24T11:51:15Z"
+    "updatedAt": "2026-09-24T11:51:15Z",
+    "year": 2026
   }
 ]
