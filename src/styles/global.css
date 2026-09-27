@@ -1043,3 +1043,79 @@ html, body { background:#FFFFFF; }
   .object-cube-3d, .object-octa-3d, .object-tetra-3d { min-width:0; width:20vw; }
   .object-k1, .object-k2 { display:none; }
 }
+
+/* v11 — separated ATCG, traced organelles, large floating refractors, orthographic wire solids */
+.optics-canvas {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  pointer-events:none;
+  opacity:.88;
+}
+.science-field { color:#fff; }
+.science-object { position:absolute; z-index:2; color:#fff; opacity:.78; }
+.object-organelle,
+.object-base,
+.object-solid { animation: drift-orbital var(--drift,18s) ease-in-out infinite alternate; }
+.object-organelle svg,
+.object-base svg { width:100%; height:auto; display:block; }
+.object-solid canvas { width:100%; height:100%; display:block; }
+
+@keyframes drift-orbital {
+  0% { transform: translate3d(0,0,0) rotate(0deg); }
+  50% { transform: translate3d(10px,-10px,0) rotate(2deg); }
+  100% { transform: translate3d(-8px,8px,0) rotate(-2deg); }
+}
+
+/* organelles traced from reference illustration */
+.object-organelle { opacity:.52; }
+.organelle-nucleus { right:12%; top:8%; width:23vw; min-width:270px; --drift:22s; }
+.organelle-golgi-a { left:11%; top:46%; width:6vw; min-width:72px; --drift:16s; }
+.organelle-golgi-b { right:16%; top:47%; width:6vw; min-width:72px; --drift:18s; }
+.organelle-mito-a { left:9%; top:57%; width:10vw; min-width:130px; --drift:17s; }
+.organelle-mito-b { left:38%; top:50%; width:9vw; min-width:120px; --drift:19s; }
+.organelle-mito-c { left:59%; top:67%; width:10vw; min-width:130px; --drift:15s; }
+.organelle-chl-a { left:22%; top:52%; width:12vw; min-width:145px; --drift:21s; }
+.organelle-chl-b { right:22%; top:59%; width:12vw; min-width:145px; --drift:20s; }
+
+/* individual bases */
+.object-base { opacity:.42; }
+.object-adenine { left:13%; bottom:2%; width:7vw; min-width:92px; --drift:20s; }
+.object-thymine { left:24%; bottom:0%; width:6.5vw; min-width:82px; --drift:17s; }
+.object-cytosine { left:34%; bottom:4%; width:6.5vw; min-width:82px; --drift:18s; }
+.object-guanine { left:43%; bottom:1%; width:7vw; min-width:92px; --drift:19s; }
+
+/* orthographic solids */
+.object-solid { opacity:.72; }
+.object-cube-3d { left:56%; bottom:15%; width:10.5vw; min-width:160px; height:auto; --drift:24s; }
+.object-octa-3d { left:64%; bottom:6%; width:10vw; min-width:152px; --drift:28s; }
+.object-tetra-3d { left:73%; bottom:14%; width:10vw; min-width:152px; --drift:26s; }
+
+/* remove earlier specific elements not used */
+.object-water,
+.object-chloroplast,
+.object-volvox,
+.object-nh4cl,
+.object-bases,
+.object-k1,
+.object-k2,
+.object-k3 { display:none !important; }
+
+@media (max-width: 920px) {
+  .organelle-nucleus { right:7%; top:9%; width:28vw; min-width:0; }
+  .organelle-chl-a { left:18%; width:15vw; min-width:0; }
+  .organelle-chl-b { right:18%; width:15vw; min-width:0; }
+  .object-base { opacity:.35; }
+  .object-cube-3d, .object-octa-3d, .object-tetra-3d { min-width:0; width:13vw; }
+}
+@media (max-width: 580px) {
+  .optics-canvas { opacity:.72; }
+  .organelle-golgi-a,.organelle-golgi-b { width:10vw; min-width:0; }
+  .organelle-mito-a,.organelle-mito-b,.organelle-mito-c { width:14vw; min-width:0; }
+  .organelle-chl-a,.organelle-chl-b { width:18vw; min-width:0; }
+  .organelle-nucleus { width:36vw; }
+  .object-adenine,.object-thymine,.object-cytosine,.object-guanine { width:12vw; min-width:0; }
+  .object-cube-3d,.object-octa-3d,.object-tetra-3d { width:15vw; }
+}
