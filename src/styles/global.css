@@ -3068,3 +3068,49 @@ footer > span:first-child {
     font-size: 11.5px;
   }
 }
+
+
+/* v41 — unified section titles + accessible project filter hover */
+.text-section .section-kicker {
+  display: block !important;
+  margin: 0 0 24px !important;
+  font-size: clamp(28px, 3.4vw, 48px) !important;
+  line-height: .96 !important;
+  letter-spacing: -.035em !important;
+  font-weight: 300 !important;
+  text-transform: none !important;
+  color: #080808 !important;
+}
+.text-section .section-kicker span {
+  color: inherit !important;
+}
+
+.filter:not(.is-active):hover,
+.filter:not(.is-active):focus-visible {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #111 !important;
+}
+.filter:hover,
+.filter:focus-visible {
+  color: #fff !important;
+}
+
+.card-label {
+  justify-content: flex-start !important;
+}
+.card-label > div {
+  max-width: 100%;
+}
+
+@media (max-width: 920px) {
+  .text-section .section-kicker {
+    margin-bottom: 21px !important;
+  }
+}
+@media (max-width: 580px) {
+  .text-section .section-kicker {
+    font-size: clamp(26px, 9vw, 40px) !important;
+    margin-bottom: 18px !important;
+  }
+}
