@@ -3114,3 +3114,31 @@ footer > span:first-child {
     margin-bottom: 18px !important;
   }
 }
+
+
+/* v42 — clearer section ownership: divider → breathing room → title */
+.text-section {
+  padding-top: 34px !important;
+}
+.contact-section,
+.people-section,
+.about-section {
+  padding-top: 34px !important;
+}
+
+@media (max-width: 920px) {
+  .text-section,
+  .contact-section,
+  .people-section,
+  .about-section {
+    padding-top: 28px !important;
+  }
+}
+@media (max-width: 580px) {
+  .text-section,
+  .contact-section,
+  .people-section,
+  .about-section {
+    padding-top: 24px !important;
+  }
+}
