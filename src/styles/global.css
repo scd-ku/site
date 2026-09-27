@@ -3142,3 +3142,18 @@ footer > span:first-child {
     padding-top: 24px !important;
   }
 }
+
+
+/* v43 — remove divider above About this site */
+.about-block--site {
+  margin-top: 24px;
+}
+.about-divider {
+  display: none !important;
+}
+
+@media (max-width: 580px) {
+  .about-block--site {
+    margin-top: 20px;
+  }
+}

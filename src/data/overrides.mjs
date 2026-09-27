@@ -102,5 +102,10 @@ export default {
   },
   gcodelayers: {
     year: 2026
+  },
+  gcodelayers: {
+    title: 'Gcode Layer Editor',
+    year: 2026,
+    description: 'G-codeを直接編集し、3Dプリンタのノズル移動や樹脂の吐出を制御して造形できるアプリです。'
   }
 };
