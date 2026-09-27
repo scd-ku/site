@@ -1565,3 +1565,179 @@ html[data-site-palette="redblue"] .science-field {
     aspect-ratio: 1 / 1;
   }
 }
+
+
+/* v17 — boundary typography, 4-column default, roomier type system */
+:root {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+}
+body {
+  letter-spacing:.006em;
+}
+
+/* Hero: use the black/white boundary as a typographic crop. */
+.hero {
+  min-height: clamp(318px, 35vh, 365px);
+  overflow:hidden;
+}
+.hero-content {
+  position:absolute;
+  z-index:4;
+  left:0; right:0; bottom:-9px;
+  width:min(1280px, 96vw);
+  padding:0 26px;
+}
+.hero .eyebrow {
+  margin:0 0 18px;
+  font-size:9px;
+  letter-spacing:.145em;
+}
+.hero h1 {
+  margin:0;
+  font-size:clamp(34px,4.65vw,66px);
+  line-height:.91;
+  letter-spacing:-.028em;
+  font-weight:300;
+}
+.hero h1 > span { white-space:nowrap; }
+.hero h1 > span:last-child { display:inline-block; transform:translateY(7px); }
+.scroll-cue { display:none; }
+.hero-index { top:64px; }
+
+/* Pull Projects closer to the hero boundary. */
+.projects-section {
+  padding:46px 42px 100px;
+}
+.section-heading {
+  min-height:48px;
+  padding:0;
+  align-items:center;
+}
+.section-heading h2 {
+  font-size:clamp(28px,2.6vw,40px);
+  letter-spacing:-.025em;
+  line-height:1;
+}
+.filters {
+  padding:22px 0 20px;
+  border-bottom:0;
+  gap:9px;
+}
+.filter {
+  padding:8px 14px;
+  font-size:10px;
+  letter-spacing:.025em;
+}
+.content-band {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:8px;
+  padding:12px 0 14px;
+  border-top:1px solid var(--line);
+  font-size:9px;
+  line-height:1;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* More space between works, while keeping the grid compact and editorial. */
+.app-grid {
+  gap:58px 42px;
+  padding-top:4px;
+}
+html[data-project-columns="3"] .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+html[data-project-columns="4"] .app-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+html[data-project-columns="5"] .app-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.layout-modes--columns { grid-template-columns:repeat(3,1fr); }
+
+/* Small rounded but sharp card typography. */
+.card-label { left:15px; right:15px; bottom:13px; }
+.card-label > div { gap:3px; }
+.card-number {
+  font-size:8px;
+  letter-spacing:.14em;
+}
+.card-title {
+  font-family:"Avenir Next", Avenir, "Helvetica Neue", "Hiragino Sans", system-ui, sans-serif;
+  font-size:clamp(11px,.82vw,14px);
+  line-height:1.25;
+  letter-spacing:.012em;
+  font-weight:500;
+}
+.fallback-art strong {
+  max-width:82%;
+  font-family:"Avenir Next", Avenir, "Helvetica Neue", "Hiragino Sans", system-ui, sans-serif;
+  font-size:clamp(17px,1.8vw,29px);
+  line-height:1.08;
+  letter-spacing:-.012em;
+  font-weight:500;
+}
+.card-detail { padding:17px 17px 18px; }
+.card-detail p {
+  font-size:11.5px;
+  line-height:1.75;
+  letter-spacing:.018em;
+}
+.detail-topline,.card-meta { letter-spacing:.09em; }
+
+/* About: same typographic scale as the primary People name, Japanese copy directly below. */
+.text-section {
+  padding-top:34px;
+}
+.about-section .section-kicker { margin-bottom:42px; }
+.about-copy {
+  max-width:850px;
+}
+.about-copy h2 {
+  margin:0;
+  font-size:clamp(19px,1.65vw,26px);
+  line-height:1.2;
+  letter-spacing:-.018em;
+  font-weight:400;
+}
+.about-copy p {
+  max-width:760px;
+  margin:20px 0 0;
+  font-size:14px;
+  line-height:1.9;
+  letter-spacing:.025em;
+  font-weight:300;
+}
+.person-primary h2 {
+  letter-spacing:-.018em;
+  font-weight:400;
+}
+.text-grid p,.people-list,.person-primary p {
+  letter-spacing:.018em;
+}
+.section-kicker { letter-spacing:.135em; }
+
+@media (max-width:1200px) {
+  html[data-project-columns="5"] .app-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media (max-width:920px) {
+  .hero { min-height:clamp(320px,38vh,350px); }
+  .hero-content { bottom:-6px; padding:0 18px; }
+  .hero h1 { font-size:clamp(31px,5.9vw,48px); }
+  .projects-section { padding:38px 22px 84px; }
+  .app-grid { gap:38px 26px; }
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="4"] .app-grid,
+  html[data-project-columns="5"] .app-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:580px) {
+  .hero { min-height:330px; }
+  .hero-content { bottom:-3px; padding:0 15px; }
+  .hero .eyebrow { margin-bottom:14px; font-size:8px; }
+  .hero h1 { font-size:clamp(27px,7.4vw,37px); line-height:.94; }
+  .hero h1 > span { white-space:normal; }
+  .hero h1 > span:last-child { transform:translateY(4px); }
+  .projects-section { padding:32px 14px 72px; }
+  .app-grid { gap:30px; }
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="4"] .app-grid,
+  html[data-project-columns="5"] .app-grid { grid-template-columns:1fr; }
+  .about-copy p { font-size:13px; line-height:1.85; }
+}

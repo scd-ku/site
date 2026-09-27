@@ -188,3 +188,12 @@ scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 - Playwright/Chromium によるサムネイル撮影は失敗してもデプロイ全体を止めません。
 - Pages artifact は `actions/upload-pages-artifact@v4`、deploy は `actions/deploy-pages@v5` を使用します。
 - 手動で入れ替える場合は `.github/workflows/deploy.yml` を含めてリポジトリのルートを丸ごと置き換えてください。
+
+
+## v17 design changes
+- Hero title lowered so the second line is cropped at the black/white boundary.
+- Projects spacing tightened vertically from hero, while tile-to-tile spacing is enlarged.
+- Public Applications count moved to the content-band directly above the grid.
+- Grid columns now support 3 / 4 / 5; default is 4.
+- About English catchphrase matches People name scale; Japanese copy follows below.
+- Typography uses an Avenir Next-first rounded/minimal system stack and roomier tracking.

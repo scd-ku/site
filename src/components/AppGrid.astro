@@ -19,7 +19,6 @@ const colorForApp = (slug, index) => {
 <section id="projects" class="projects-section">
   <div class="section-heading">
     <div>
-      <p class="eyebrow">Public applications · {apps.length}</p>
       <h2>Projects</h2>
     </div>
     <div class="display-settings">
@@ -44,9 +43,10 @@ const colorForApp = (slug, index) => {
 
         <div class="settings-group">
           <div class="settings-group-label">Columns</div>
-          <div class="layout-modes" role="group" aria-label="Project columns">
-            <button type="button" data-grid-columns="3" class="is-active">3</button>
-            <button type="button" data-grid-columns="4">4</button>
+          <div class="layout-modes layout-modes--columns" role="group" aria-label="Project columns">
+            <button type="button" data-grid-columns="3">3</button>
+            <button type="button" data-grid-columns="4" class="is-active">4</button>
+            <button type="button" data-grid-columns="5">5</button>
           </div>
         </div>
 
@@ -71,6 +71,11 @@ const colorForApp = (slug, index) => {
   <div class="filters" aria-label="Project filters">
     <button class="filter is-active" data-filter="all" type="button">All</button>
     {tags.map((tag) => <button class="filter" data-filter={tag} type="button">{tag}</button>)}
+  </div>
+
+  <div class="content-band" aria-label="Current content type">
+    <span>Public applications</span>
+    <span>{apps.length}</span>
   </div>
 
   <div class="app-grid" id="app-grid">
@@ -178,7 +183,7 @@ const colorForApp = (slug, index) => {
 
     const savedMode = localStorage.getItem('scd_site_palette') || 'color';
     const savedSaturation = Math.max(35, Math.min(145, Number(localStorage.getItem('scd_detail_saturation') || 100)));
-    const savedColumns = localStorage.getItem('scd_project_columns') || '3';
+    const savedColumns = localStorage.getItem('scd_project_columns') || '4';
     const savedTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
     applyDisplaySettings(savedMode, savedSaturation, savedColumns, savedTileLayout);
 
@@ -191,7 +196,7 @@ const colorForApp = (slug, index) => {
       applyDisplaySettings(
         button.dataset.paletteMode || 'color',
         Number(saturationSlider?.value || 100),
-        document.documentElement.dataset.projectColumns || '3',
+        document.documentElement.dataset.projectColumns || '4',
         document.documentElement.dataset.projectLayout || 'ratio'
       );
     }));
@@ -207,7 +212,7 @@ const colorForApp = (slug, index) => {
       applyDisplaySettings(
         document.documentElement.dataset.sitePalette || 'color',
         Number(saturationSlider?.value || 100),
-        document.documentElement.dataset.projectColumns || '3',
+        document.documentElement.dataset.projectColumns || '4',
         button.dataset.tileLayout || 'ratio'
       );
     }));
@@ -215,7 +220,7 @@ const colorForApp = (slug, index) => {
       applyDisplaySettings(
         document.documentElement.dataset.sitePalette || 'color',
         Number(saturationSlider.value),
-        document.documentElement.dataset.projectColumns || '3',
+        document.documentElement.dataset.projectColumns || '4',
         document.documentElement.dataset.projectLayout || 'ratio'
       );
     });
