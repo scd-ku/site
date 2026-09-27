@@ -1741,3 +1741,75 @@ html[data-project-columns="5"] .app-grid { grid-template-columns:repeat(5,minmax
   html[data-project-columns="5"] .app-grid { grid-template-columns:1fr; }
   .about-copy p { font-size:13px; line-height:1.85; }
 }
+
+
+/* v18 — brighter brand, tighter hero typography, new solids, color/anaglyph hero rendering */
+.site-header { mix-blend-mode: difference; }
+.brand-mark { border-width:1.15px; font-weight:400; }
+.brand-name {
+  color:#fff;
+  font-size:13px;
+  letter-spacing:.02em;
+  font-weight:400;
+  opacity:1;
+  text-shadow:0 0 .35px rgba(255,255,255,.95);
+}
+nav { font-weight:400; }
+
+.hero-content { bottom:-2px; }
+.hero .eyebrow {
+  color:rgba(255,255,255,.92);
+  font-size:10px;
+  font-weight:400;
+  letter-spacing:.13em;
+  margin:0 0 12px;
+}
+.hero h1 {
+  font-size:clamp(34px,4.7vw,66px);
+  line-height:.865;
+  letter-spacing:-.034em;
+  font-weight:300;
+}
+.hero h1 > span:first-child { display:inline-block; margin-bottom:-2px; }
+.hero h1 > span:last-child { display:inline-block; transform:translateY(2px); }
+
+.object-cube-3d-large { left:56%; top:13%; width:14.5vw; min-width:190px; opacity:.76; }
+.object-rhombohedron-3d { left:74%; top:18%; width:10.2vw; min-width:136px; opacity:.64; }
+.object-truncated-octahedron-3d { left:70%; top:48%; width:12.5vw; min-width:168px; opacity:.70; }
+.object-hexprism-3d { left:39%; top:49%; width:10vw; min-width:132px; opacity:.60; }
+
+/* remove previous solids no longer used */
+.object-octa-3d, .object-tetra-3d { display:none !important; }
+
+html[data-site-palette="redblue"] .hero,
+html[data-site-palette="redblue"] .site-header {
+  text-shadow:-1.1px 0 rgba(236,44,73,.9), 1.1px 0 rgba(55,208,228,.9);
+}
+html[data-site-palette="redblue"] .brand-mark,
+html[data-site-palette="redblue"] nav a,
+html[data-site-palette="redblue"] .hero .eyebrow,
+html[data-site-palette="redblue"] .hero h1 {
+  filter: drop-shadow(-1px 0 0 rgba(236,44,73,.85)) drop-shadow(1px 0 0 rgba(55,208,228,.85));
+}
+html[data-site-palette="redblue"] .optics-canvas,
+html[data-site-palette="redblue"] .science-object canvas {
+  filter: drop-shadow(-1px 0 0 rgba(236,44,73,.85)) drop-shadow(1px 0 0 rgba(55,208,228,.85));
+}
+
+@media (max-width:920px){
+  .brand-name { font-size:12px; }
+  .hero-content { bottom:0; }
+  .hero .eyebrow { margin-bottom:10px; }
+  .hero h1 { font-size:clamp(31px,5.95vw,49px); line-height:.88; }
+  .hero h1 > span:last-child { transform:translateY(1px); }
+  .object-cube-3d-large { width:17vw; min-width:166px; }
+  .object-rhombohedron-3d { width:12vw; min-width:112px; }
+  .object-truncated-octahedron-3d { width:15vw; min-width:138px; }
+  .object-hexprism-3d { width:11vw; min-width:106px; }
+}
+@media (max-width:580px){
+  .hero .eyebrow { font-size:8px; margin-bottom:9px; }
+  .hero h1 { font-size:clamp(27px,7.4vw,37px); line-height:.9; }
+  .hero h1 > span:last-child { transform:translateY(1px); }
+  .brand-name { display:none; }
+}
