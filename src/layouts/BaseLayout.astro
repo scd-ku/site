@@ -238,11 +238,11 @@ const base = import.meta.env.BASE_URL;
         if(pts.length<2) return;
         ctx.save();
         ctx.strokeStyle=`rgba(255,255,255,${alpha})`;
-        ctx.lineWidth=2;
+        ctx.lineWidth=1.65;
         ctx.lineCap='round';
         if(style==='solid') ctx.setLineDash([]);
-        else if(style==='dashed') ctx.setLineDash([3, 8]);
-        else if(style==='dotted') ctx.setLineDash([0.1, 11]);
+        else if(style==='dashed') ctx.setLineDash([5, 10]);
+        else if(style==='dotted') ctx.setLineDash([0.01, 12]);
         ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
         pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
         ctx.stroke();
@@ -281,20 +281,27 @@ const base = import.meta.env.BASE_URL;
         if(type==='cube'){
           verts=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
           edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-          scale=48;
+          scale=57;
         } else if(type==='octahedron'){
           verts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1.35],[0,0,-1.35]];
           edges=[[0,2],[2,1],[1,3],[3,0],[0,4],[2,4],[1,4],[3,4],[0,5],[2,5],[1,5],[3,5]];
-          scale=52;
+          scale=57;
         } else {
           verts=[[0,0,1.4],[1.15,0,-.55],[-.57,.98,-.55],[-.57,-.98,-.55]];
           edges=[[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]];
-          scale=56;
+          scale=58;
         }
-        const rx=0.75 + t*0.000028, ry=t*0.000036 + (type==='octahedron'?0.3:type==='tetrahedron'?0.8:0), rz=t*0.000018;
+        const speeds = type==='cube'
+          ? {x:0.000012, y:0.000020, z:0.000007}
+          : type==='octahedron'
+            ? {x:0.000010, y:0.000017, z:-0.000006}
+            : {x:0.000014, y:-0.000018, z:0.000005};
+        const rx=0.72 + t*speeds.x;
+        const ry=(type==='octahedron'?0.34:type==='tetrahedron'?0.78:0.12) + t*speeds.y;
+        const rz=t*speeds.z;
         const pverts=verts.map(v=>projectOrtho(rotate3(v,rx,ry,rz), scale, w/2, h/2));
-        ctx.strokeStyle='rgba(255,255,255,.88)';
-        ctx.lineWidth=1.35;
+        ctx.strokeStyle='rgba(255,255,255,.80)';
+        ctx.lineWidth=1.18;
         edges.forEach(([a,b])=>{
           ctx.beginPath(); ctx.moveTo(pverts[a].x,pverts[a].y); ctx.lineTo(pverts[b].x,pverts[b].y); ctx.stroke();
         });

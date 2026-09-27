@@ -4,12 +4,12 @@ const tags = [...new Set(apps.flatMap((app) => app.tags))].sort((a, b) => a.loca
 const base = import.meta.env.BASE_URL;
 const asset = (p) => `${base}${p.replace(/^\//, '')}`;
 const goethePalette = [
-  '#d3a8ac', // brighter muted red
-  '#ddb18d', // brighter muted orange
-  '#dfc98a', // brighter muted yellow
-  '#a8b7a3', // brighter muted green
-  '#aac0cb', // brighter muted blue
-  '#b0abc6', // brighter muted violet
+  '#e4c1c4', // light muted red
+  '#e8c8aa', // light muted orange
+  '#eadca7', // light muted yellow
+  '#c6d1c0', // light muted green
+  '#c4d5dd', // light muted blue
+  '#cdc9dc', // light muted violet
 ];
 const colorForApp = (slug, index) => {
   const seed = [...slug].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) + index * 17;
