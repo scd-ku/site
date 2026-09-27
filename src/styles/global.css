@@ -1400,3 +1400,168 @@ html[data-site-palette="redblue"] .app-card:nth-child(even) .card-detail { backg
   .object-octa-3d { width:18vw; min-width:0; }
   .object-tetra-3d { width:16vw; min-width:0; }
 }
+
+/* v16 — tighter hero + configurable project grid */
+
+/* Compress the opening field so the projects arrive quickly. */
+.hero {
+  min-height: clamp(350px, 40vh, 420px);
+}
+.hero-content {
+  padding-top: clamp(62px, 5vw, 76px);
+  padding-bottom: 10px;
+}
+.hero h1 {
+  font-size: clamp(30px, 3.85vw, 54px);
+  line-height: .92;
+}
+.scroll-cue { bottom: 12px; }
+.hero-index { top: 62px; }
+.object-cube-3d-large {
+  left: 57%;
+  top: 15%;
+  width: 14vw;
+  min-width: 190px;
+}
+.object-octa-3d {
+  left: 78%;
+  top: 48%;
+  width: 8.5vw;
+  min-width: 116px;
+}
+.object-tetra-3d {
+  left: 39%;
+  top: 57%;
+  width: 7.5vw;
+  min-width: 104px;
+}
+.optics-canvas { opacity: .66; }
+
+/* Settings groups */
+.settings-group {
+  padding: 10px 0 12px;
+  border-top: 1px solid rgba(17,17,17,.1);
+}
+.settings-group:first-of-type { border-top: 0; padding-top: 0; }
+.settings-group-label {
+  margin-bottom: 8px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .11em;
+  color: var(--muted);
+}
+.layout-modes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.layout-modes--tiles { grid-template-columns: repeat(3, 1fr); }
+.layout-modes button {
+  border: 1px solid rgba(17,17,17,.16);
+  background: #fff;
+  color: #111;
+  padding: 8px 9px;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 300;
+  cursor: pointer;
+}
+.layout-modes button.is-active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.saturation-control { margin-top: 10px; }
+
+/* Project columns */
+html[data-project-columns="3"] .app-grid {
+  grid-template-columns: repeat(3, minmax(0,1fr));
+}
+html[data-project-columns="4"] .app-grid {
+  grid-template-columns: repeat(4, minmax(0,1fr));
+}
+
+/* Standard 4:3 */
+html[data-project-layout="ratio"] .app-card,
+html[data-project-layout="ratio"] .app-card--wide,
+html[data-project-layout="ratio"] .app-card--tall,
+html[data-project-layout="ratio"] .app-card--large {
+  aspect-ratio: 4 / 3;
+  grid-column: auto;
+  grid-row: auto;
+}
+
+/* Square */
+html[data-project-layout="square"] .app-card,
+html[data-project-layout="square"] .app-card--wide,
+html[data-project-layout="square"] .app-card--tall,
+html[data-project-layout="square"] .app-card--large {
+  aspect-ratio: 1 / 1;
+  grid-column: auto;
+  grid-row: auto;
+}
+
+/* Mondrian-like dense composition */
+html[data-project-layout="mondrian"] .app-grid {
+  grid-auto-flow: dense;
+  grid-auto-rows: clamp(145px, 12vw, 220px);
+}
+html[data-project-layout="mondrian"] .app-card {
+  aspect-ratio: auto;
+  min-height: 0;
+  grid-column: span 1;
+  grid-row: span 1;
+}
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 1) {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 3) {
+  grid-row: span 2;
+}
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 5) {
+  grid-column: span 2;
+}
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 7) {
+  grid-row: span 2;
+}
+
+/* In 4-column mode, give the composite more lateral rhythm. */
+html[data-project-columns="4"][data-project-layout="mondrian"] .app-card:nth-child(10n + 6) {
+  grid-column: span 2;
+}
+
+/* Red/blue mode: tile content remains controlled, while hero faces become translucent red/blue in canvas JS. */
+html[data-site-palette="redblue"] .science-field {
+  filter: none;
+}
+
+/* Preserve useful responsive behavior. */
+@media (max-width: 920px) {
+  .hero { min-height: clamp(360px, 43vh, 410px); }
+  .hero h1 { font-size: clamp(29px, 5.6vw, 46px); }
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="4"] .app-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+  html[data-project-layout="mondrian"] .app-grid {
+    grid-auto-rows: auto;
+  }
+  html[data-project-layout="mondrian"] .app-card,
+  html[data-project-layout="mondrian"] .app-card:nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 4 / 3;
+  }
+}
+@media (max-width: 580px) {
+  .hero { min-height: 370px; }
+  .hero h1 { font-size: clamp(27px, 7.3vw, 37px); }
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="4"] .app-grid {
+    grid-template-columns: 1fr;
+  }
+  html[data-project-layout="square"] .app-card {
+    aspect-ratio: 1 / 1;
+  }
+}

@@ -32,12 +32,33 @@ const colorForApp = (slug, index) => {
       </button>
       <div class="display-settings-popover" id="display-settings-popover" hidden>
         <div class="display-settings-title">Display</div>
-        <div class="palette-modes" role="group" aria-label="Color mode">
-          <button type="button" data-palette-mode="color" class="is-active">Color</button>
-          <button type="button" data-palette-mode="mono">Mono</button>
-          <button type="button" data-palette-mode="gray">Gray</button>
-          <button type="button" data-palette-mode="redblue">Red / Blue</button>
+        <div class="settings-group">
+          <div class="settings-group-label">Color</div>
+          <div class="palette-modes" role="group" aria-label="Color mode">
+            <button type="button" data-palette-mode="color" class="is-active">Color</button>
+            <button type="button" data-palette-mode="mono">Mono</button>
+            <button type="button" data-palette-mode="gray">Gray</button>
+            <button type="button" data-palette-mode="redblue">Red / Blue</button>
+          </div>
         </div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">Columns</div>
+          <div class="layout-modes" role="group" aria-label="Project columns">
+            <button type="button" data-grid-columns="3" class="is-active">3</button>
+            <button type="button" data-grid-columns="4">4</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-label">Tiles</div>
+          <div class="layout-modes layout-modes--tiles" role="group" aria-label="Tile composition">
+            <button type="button" data-tile-layout="ratio" class="is-active">4 : 3</button>
+            <button type="button" data-tile-layout="square">Square</button>
+            <button type="button" data-tile-layout="mondrian">Composite</button>
+          </div>
+        </div>
+
         <label class="saturation-control">
           <span>Description saturation</span>
           <input type="range" min="35" max="145" value="100" step="1" data-detail-saturation />
@@ -131,22 +152,35 @@ const colorForApp = (slug, index) => {
     const settingsButton = document.querySelector('.display-settings-button');
     const settingsPopover = document.querySelector('.display-settings-popover');
     const paletteButtons = [...document.querySelectorAll('[data-palette-mode]')];
+    const columnButtons = [...document.querySelectorAll('[data-grid-columns]')];
+    const tileLayoutButtons = [...document.querySelectorAll('[data-tile-layout]')];
     const saturationSlider = document.querySelector('[data-detail-saturation]');
     const saturationValue = document.querySelector('[data-detail-saturation-value]');
 
-    const applyDisplaySettings = (mode, saturation) => {
+    const applyDisplaySettings = (mode, saturation, columns, tileLayout) => {
       document.documentElement.dataset.sitePalette = mode;
+      document.documentElement.dataset.projectColumns = columns;
+      document.documentElement.dataset.projectLayout = tileLayout;
       document.documentElement.style.setProperty('--detail-saturation', String(saturation / 100));
+
       paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === mode));
+      columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === columns));
+      tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === tileLayout));
+
       if (saturationSlider) saturationSlider.value = String(saturation);
       if (saturationValue) saturationValue.textContent = `${saturation}%`;
+
       localStorage.setItem('scd_site_palette', mode);
       localStorage.setItem('scd_detail_saturation', String(saturation));
+      localStorage.setItem('scd_project_columns', columns);
+      localStorage.setItem('scd_project_layout', tileLayout);
     };
 
     const savedMode = localStorage.getItem('scd_site_palette') || 'color';
     const savedSaturation = Math.max(35, Math.min(145, Number(localStorage.getItem('scd_detail_saturation') || 100)));
-    applyDisplaySettings(savedMode, savedSaturation);
+    const savedColumns = localStorage.getItem('scd_project_columns') || '3';
+    const savedTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
+    applyDisplaySettings(savedMode, savedSaturation, savedColumns, savedTileLayout);
 
     settingsButton?.addEventListener('click', () => {
       const willOpen = settingsPopover?.hasAttribute('hidden');
@@ -154,10 +188,36 @@ const colorForApp = (slug, index) => {
       settingsButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
     paletteButtons.forEach((button) => button.addEventListener('click', () => {
-      applyDisplaySettings(button.dataset.paletteMode || 'color', Number(saturationSlider?.value || 100));
+      applyDisplaySettings(
+        button.dataset.paletteMode || 'color',
+        Number(saturationSlider?.value || 100),
+        document.documentElement.dataset.projectColumns || '3',
+        document.documentElement.dataset.projectLayout || 'ratio'
+      );
+    }));
+    columnButtons.forEach((button) => button.addEventListener('click', () => {
+      applyDisplaySettings(
+        document.documentElement.dataset.sitePalette || 'color',
+        Number(saturationSlider?.value || 100),
+        button.dataset.gridColumns || '3',
+        document.documentElement.dataset.projectLayout || 'ratio'
+      );
+    }));
+    tileLayoutButtons.forEach((button) => button.addEventListener('click', () => {
+      applyDisplaySettings(
+        document.documentElement.dataset.sitePalette || 'color',
+        Number(saturationSlider?.value || 100),
+        document.documentElement.dataset.projectColumns || '3',
+        button.dataset.tileLayout || 'ratio'
+      );
     }));
     saturationSlider?.addEventListener('input', () => {
-      applyDisplaySettings(document.documentElement.dataset.sitePalette || 'color', Number(saturationSlider.value));
+      applyDisplaySettings(
+        document.documentElement.dataset.sitePalette || 'color',
+        Number(saturationSlider.value),
+        document.documentElement.dataset.projectColumns || '3',
+        document.documentElement.dataset.projectLayout || 'ratio'
+      );
     });
     document.addEventListener('pointerdown', (event) => {
       if (!settingsPopover || settingsPopover.hasAttribute('hidden')) return;
