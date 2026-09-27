@@ -69,7 +69,7 @@ const colorForApp = (slug, index) => {
           <div class="settings-group-label">Cursor</div>
           <div class="layout-modes layout-modes--cursor" role="group" aria-label="Cursor mode">
             <button type="button" data-cursor-style="stripe" class="is-active">Stripe</button>
-            <button type="button" data-cursor-style="volvox">Volvox</button>
+            <button type="button" data-cursor-style="invert">Invert</button>
             <button type="button" data-cursor-style="pulse">Circle</button>
             <button type="button" data-cursor-style="line">Line</button>
           </div>
@@ -179,8 +179,8 @@ const colorForApp = (slug, index) => {
     const paletteButtons = [...document.querySelectorAll('[data-palette-mode]')];
     const columnButtons = [...document.querySelectorAll('[data-grid-columns]')];
     const tileLayoutButtons = [...document.querySelectorAll('[data-tile-layout]')];
-    const saturationSlider = document.querySelector('[data-detail-saturation]');
-    const saturationValue = document.querySelector('[data-detail-saturation-value]');
+    const screenSlider = document.querySelector('[data-detail-saturation]');
+    const screenValue = document.querySelector('[data-detail-saturation-value]');
     const screenLabel = document.querySelector('[data-screen-label]');
     const cursorButtons = [...document.querySelectorAll('[data-cursor-style]')];
     const cursorSlider1 = document.querySelector('[data-cursor-slider1]');
@@ -189,148 +189,154 @@ const colorForApp = (slug, index) => {
     const cursorSlider2Label = document.querySelector('[data-cursor-slider2-label]');
     const cursorSlider1Value = document.querySelector('[data-cursor-slider1-value]');
     const cursorSlider2Value = document.querySelector('[data-cursor-slider2-value]');
+    const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
-    const updateCursorControls = (style, state) => {
+    // v20 deliberately starts from full color once, so earlier Blind/Gray test states do not persist into the new default.
+    if (localStorage.getItem('scd_v20_default_migrated') !== '1') {
+      localStorage.setItem('scd_site_palette_v20', 'color');
+      localStorage.setItem('scd_v20_default_migrated', '1');
+    }
+
+    let detailSaturation = clamp(Number(localStorage.getItem('scd_detail_saturation') || 68), 0, 100);
+    let blindTone = clamp(Number(localStorage.getItem('scd_blind_tone') || 0), 0, 100);
+    let currentMode = localStorage.getItem('scd_site_palette_v20') || 'color';
+    let currentColumns = localStorage.getItem('scd_project_columns') || '4';
+    let currentTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
+
+    const getCursorState = () => {
+      const stored = localStorage.getItem('scd_cursor_style');
+      return {
+        style: stored === 'volvox' ? 'invert' : (stored || 'stripe'),
+        motion: clamp(Number(localStorage.getItem('scd_cursor_motion') || 54), 0, 100),
+        size: clamp(Number(localStorage.getItem('scd_cursor_size') || 48), 20, 110),
+        lineHue: clamp(Number(localStorage.getItem('scd_cursor_line_hue') || 210), 0, 360),
+        invertHue: clamp(Number(localStorage.getItem('scd_cursor_invert_hue') || 0), 0, 360),
+        trail: clamp(Number(localStorage.getItem('scd_cursor_trail') || 42), 0, 100),
+      };
+    };
+
+    const updateCursorControls = (state) => {
+      const style = state.style;
       cursorButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.cursorStyle === style));
       if (!cursorSlider1 || !cursorSlider2) return;
       if (style === 'line') {
-        cursorSlider1Label.textContent = 'Trail';
-        cursorSlider1.min = '0';
-        cursorSlider1.max = '100';
-        cursorSlider1.value = String(state.trail ?? 42);
-        cursorSlider1Value.textContent = `${cursorSlider1.value}%`;
-        cursorSlider2Label.textContent = 'Hue';
-        cursorSlider2.min = '0';
-        cursorSlider2.max = '360';
-        cursorSlider2.value = String(state.lineHue ?? 210);
-        cursorSlider2Value.textContent = `${cursorSlider2.value}°`;
+        cursorSlider1Label.textContent = 'Trail length';
+        cursorSlider1.min='0'; cursorSlider1.max='100'; cursorSlider1.value=String(state.trail);
+        cursorSlider1Value.textContent=`${state.trail}%`;
+        cursorSlider2Label.textContent='Hue';
+        cursorSlider2.min='0'; cursorSlider2.max='360'; cursorSlider2.value=String(state.lineHue);
+        cursorSlider2Value.textContent=`${state.lineHue}°`;
+      } else if (style === 'invert') {
+        cursorSlider1Label.textContent = 'Circle size';
+        cursorSlider1.min='20'; cursorSlider1.max='110'; cursorSlider1.value=String(state.size);
+        cursorSlider1Value.textContent=String(state.size);
+        cursorSlider2Label.textContent='Invert hue';
+        cursorSlider2.min='0'; cursorSlider2.max='360'; cursorSlider2.value=String(state.invertHue);
+        cursorSlider2Value.textContent=`${state.invertHue}°`;
       } else {
         cursorSlider1Label.textContent = style === 'pulse' ? 'Amplitude' : 'Motion';
-        cursorSlider1.min = '0';
-        cursorSlider1.max = '100';
-        cursorSlider1.value = String(state.motion ?? 54);
-        cursorSlider1Value.textContent = `${cursorSlider1.value}%`;
-        cursorSlider2Label.textContent = 'Size';
-        cursorSlider2.min = '20';
-        cursorSlider2.max = '110';
-        cursorSlider2.value = String(state.size ?? 48);
-        cursorSlider2Value.textContent = `${cursorSlider2.value}`;
+        cursorSlider1.min='0'; cursorSlider1.max='100'; cursorSlider1.value=String(state.motion);
+        cursorSlider1Value.textContent=`${state.motion}%`;
+        cursorSlider2Label.textContent='Size';
+        cursorSlider2.min='20'; cursorSlider2.max='110'; cursorSlider2.value=String(state.size);
+        cursorSlider2Value.textContent=String(state.size);
       }
     };
 
-    const getCursorState = () => ({
-      style: localStorage.getItem('scd_cursor_style') || 'stripe',
-      motion: Math.max(0, Math.min(100, Number(localStorage.getItem('scd_cursor_motion') || 54))),
-      size: Math.max(20, Math.min(110, Number(localStorage.getItem('scd_cursor_size') || 48))),
-      lineHue: Math.max(0, Math.min(360, Number(localStorage.getItem('scd_cursor_line_hue') || 210))),
-      trail: Math.max(0, Math.min(100, Number(localStorage.getItem('scd_cursor_trail') || 42))),
-    });
-
     const emitCursorState = (state) => {
       document.dispatchEvent(new CustomEvent('scd:update-cursor', { detail: state }));
-      updateCursorControls(state.style, state);
+      updateCursorControls(state);
     };
 
-    const applyDisplaySettings = (mode, saturation, columns, tileLayout) => {
-      document.documentElement.dataset.sitePalette = mode;
-      document.documentElement.dataset.projectColumns = columns;
-      document.documentElement.dataset.projectLayout = tileLayout;
-      document.documentElement.style.setProperty('--detail-saturation', String(0.45 + (saturation / 100) * 1.05));
+    const updateScreenControl = () => {
+      if (!screenSlider) return;
+      const blind = currentMode === 'blind';
+      const value = blind ? blindTone : detailSaturation;
+      screenLabel.textContent = blind ? 'Screen tone' : 'Description saturation';
+      screenSlider.value = String(value);
+      screenValue.textContent = `${value}%`;
+    };
 
-      paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === mode));
-      columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === columns));
-      tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === tileLayout));
-
-      if (saturationSlider) saturationSlider.value = String(saturation);
-      if (saturationValue) saturationValue.textContent = `${saturation}%`;
-      if (screenLabel) screenLabel.textContent = mode === 'blind' ? 'Screen tone' : 'Description saturation';
-
-      localStorage.setItem('scd_site_palette', mode);
-      localStorage.setItem('scd_detail_saturation', String(saturation));
-      localStorage.setItem('scd_project_columns', columns);
-      localStorage.setItem('scd_project_layout', tileLayout);
-      if (mode === 'blind') {
-        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: saturation } }));
-        const currentCursor = getCursorState();
-        if (currentCursor.style !== 'pulse') {
-          currentCursor.style = 'pulse';
-          localStorage.setItem('scd_cursor_style', 'pulse');
-          emitCursorState(currentCursor);
+    const applyDisplaySettings = () => {
+      document.documentElement.dataset.sitePalette = currentMode;
+      document.documentElement.dataset.projectColumns = currentColumns;
+      document.documentElement.dataset.projectLayout = currentTileLayout;
+      document.documentElement.style.setProperty('--detail-saturation', String(0.38 + (detailSaturation / 100) * 1.15));
+      paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === currentMode));
+      columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === currentColumns));
+      tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === currentTileLayout));
+      localStorage.setItem('scd_site_palette_v20', currentMode);
+      localStorage.setItem('scd_detail_saturation', String(detailSaturation));
+      localStorage.setItem('scd_blind_tone', String(blindTone));
+      localStorage.setItem('scd_project_columns', currentColumns);
+      localStorage.setItem('scd_project_layout', currentTileLayout);
+      updateScreenControl();
+      if (currentMode === 'blind') {
+        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: blindTone } }));
+        const state = getCursorState();
+        if (state.style !== 'pulse') {
+          state.style='pulse';
+          emitCursorState(state);
         }
       }
     };
 
-    const savedMode = localStorage.getItem('scd_site_palette') || 'color';
-    const savedSaturation = Math.max(0, Math.min(100, Number(localStorage.getItem('scd_detail_saturation') || 72)));
-    const savedColumns = localStorage.getItem('scd_project_columns') || '4';
-    const savedTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
-    applyDisplaySettings(savedMode, savedSaturation, savedColumns, savedTileLayout);
-    updateCursorControls(getCursorState().style, getCursorState());
+    applyDisplaySettings();
+    updateCursorControls(getCursorState());
 
     settingsButton?.addEventListener('click', () => {
       const willOpen = settingsPopover?.hasAttribute('hidden');
       settingsPopover?.toggleAttribute('hidden', !willOpen);
       settingsButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
+
     paletteButtons.forEach((button) => button.addEventListener('click', () => {
-      applyDisplaySettings(
-        button.dataset.paletteMode || 'color',
-        Number(saturationSlider?.value || 100),
-        document.documentElement.dataset.projectColumns || '4',
-        document.documentElement.dataset.projectLayout || 'ratio'
-      );
+      currentMode = button.dataset.paletteMode || 'color';
+      if (currentMode === 'blind' && localStorage.getItem('scd_blind_tone') === null) blindTone = 0;
+      applyDisplaySettings();
     }));
     columnButtons.forEach((button) => button.addEventListener('click', () => {
-      applyDisplaySettings(
-        document.documentElement.dataset.sitePalette || 'color',
-        Number(saturationSlider?.value || 100),
-        button.dataset.gridColumns || '3',
-        document.documentElement.dataset.projectLayout || 'ratio'
-      );
+      currentColumns = button.dataset.gridColumns || '4';
+      applyDisplaySettings();
     }));
     tileLayoutButtons.forEach((button) => button.addEventListener('click', () => {
-      applyDisplaySettings(
-        document.documentElement.dataset.sitePalette || 'color',
-        Number(saturationSlider?.value || 100),
-        document.documentElement.dataset.projectColumns || '4',
-        button.dataset.tileLayout || 'ratio'
-      );
+      currentTileLayout = button.dataset.tileLayout || 'ratio';
+      applyDisplaySettings();
     }));
-    saturationSlider?.addEventListener('input', () => {
-      applyDisplaySettings(
-        document.documentElement.dataset.sitePalette || 'color',
-        Number(saturationSlider.value),
-        document.documentElement.dataset.projectColumns || '4',
-        document.documentElement.dataset.projectLayout || 'ratio'
-      );
-      if ((document.documentElement.dataset.sitePalette || 'color') === 'blind') {
-        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: Number(saturationSlider.value) } }));
+    screenSlider?.addEventListener('input', () => {
+      const value = Number(screenSlider.value);
+      if (currentMode === 'blind') {
+        blindTone = value;
+        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value } }));
+      } else {
+        detailSaturation = value;
       }
+      applyDisplaySettings();
     });
 
     cursorButtons.forEach((button) => button.addEventListener('click', () => {
-      const state = getCursorState();
-      state.style = button.dataset.cursorStyle || 'stripe';
+      const state=getCursorState();
+      state.style=button.dataset.cursorStyle || 'stripe';
       emitCursorState(state);
     }));
     cursorSlider1?.addEventListener('input', () => {
-      const state = getCursorState();
-      if (state.style === 'line') {
-        state.trail = Number(cursorSlider1.value);
-      } else {
-        state.motion = Number(cursorSlider1.value);
-      }
+      const state=getCursorState();
+      const value=Number(cursorSlider1.value);
+      if (state.style === 'line') state.trail=value;
+      else if (state.style === 'invert') state.size=value;
+      else state.motion=value;
       emitCursorState(state);
     });
     cursorSlider2?.addEventListener('input', () => {
-      const state = getCursorState();
-      if (state.style === 'line') {
-        state.lineHue = Number(cursorSlider2.value);
-      } else {
-        state.size = Number(cursorSlider2.value);
-      }
+      const state=getCursorState();
+      const value=Number(cursorSlider2.value);
+      if (state.style === 'line') state.lineHue=value;
+      else if (state.style === 'invert') state.invertHue=value;
+      else state.size=value;
       emitCursorState(state);
     });
+
+    document.addEventListener('scd:cursor-state-applied', (event) => updateCursorControls(event.detail));
     document.addEventListener('pointerdown', (event) => {
       if (!settingsPopover || settingsPopover.hasAttribute('hidden')) return;
       if (!event.target.closest('.display-settings')) {
@@ -349,8 +355,7 @@ const colorForApp = (slug, index) => {
       };
       paint();
       button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+        event.preventDefault(); event.stopPropagation();
         const liked = localStorage.getItem(key) === '1';
         localStorage.setItem(key, liked ? '0' : '1');
         paint();

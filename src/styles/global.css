@@ -1890,3 +1890,66 @@ html[data-site-palette="mono"] .card-detail { background:#111 !important; filter
 html[data-site-palette="redblue"] .card-visual img { filter:grayscale(.55) contrast(1.02) !important; }
 html[data-site-palette="redblue"] .app-card:nth-child(odd) .card-detail { background:#a9454e !important; filter:saturate(var(--detail-saturation,1)); }
 html[data-site-palette="redblue"] .app-card:nth-child(even) .card-detail { background:#3f6785 !important; filter:saturate(var(--detail-saturation,1)); }
+
+
+/* v20 — visible trail, invert lens, single pulse ring, stronger blind, tighter vertical rhythm */
+/* Hero / Projects / About vertical rhythm */
+.projects-section { padding-top:18px; }
+.filters { padding-top:14px; }
+.about-section { min-height:0; padding-top:20px; padding-bottom:40px; }
+.about-section .section-kicker { margin-bottom:22px; }
+.about-copy p { margin-top:12px; }
+
+/* Stronger saturation contrast in the default full-color mode. */
+html[data-site-palette="color"] .card-visual img { filter:saturate(.34) brightness(.96) contrast(.98); }
+html[data-site-palette="color"] .app-card:hover .card-visual img,
+html[data-site-palette="color"] .app-card:focus-within .card-visual img { filter:saturate(1) brightness(1) contrast(1); }
+
+/* Trail must sit above Blind but below the cursor itself. */
+.cursor-trail { z-index:980; width:100vw; height:100vh; }
+.cursor-trail path {
+  stroke:hsl(var(--cursor-line-hue,210) 92% 60% / .95);
+  stroke-width:2.6;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 2px hsl(var(--cursor-line-hue,210) 92% 55% / .35));
+}
+.blind-overlay { z-index:950; }
+
+/* Blind: almost absolute black at the left end and a crisp circular viewport. */
+html[data-site-palette="blind"] .blind-overlay {
+  background:var(--blind-overlay-color, rgba(0,0,0,.995));
+  mask-image:radial-gradient(circle var(--cursor-window,76px) at var(--cursor-x,50vw) var(--cursor-y,50vh), transparent 0 98.7%, #000 100%);
+  -webkit-mask-image:radial-gradient(circle var(--cursor-window,76px) at var(--cursor-x,50vw) var(--cursor-y,50vh), transparent 0 98.7%, #000 100%);
+}
+html[data-site-palette="blind"] body[data-cursor-style="pulse"] .cursor-dot::before { box-shadow:inset 0 0 0 1.25px rgba(255,255,255,.98); }
+
+/* Invert lens replaces Volvox. The content beneath the circle is truly backdrop-inverted and hue-rotated. */
+body[data-cursor-style="invert"] .cursor-dot {
+  mix-blend-mode:normal;
+  border:1px solid rgba(255,255,255,.72);
+  background:rgba(255,255,255,.002);
+  backdrop-filter:invert(1) hue-rotate(var(--cursor-invert-hue,0deg));
+  -webkit-backdrop-filter:invert(1) hue-rotate(var(--cursor-invert-hue,0deg));
+}
+body[data-cursor-style="invert"] .cursor-dot::before,
+body[data-cursor-style="invert"] .cursor-dot::after { display:none; }
+
+/* Circle uses one crisp outline only. */
+body[data-cursor-style="pulse"] .cursor-dot::before {
+  inset:2px;
+  background:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.95);
+  animation:cursor-pulse var(--cursor-spin-duration,11s) ease-in-out infinite;
+}
+body[data-cursor-style="pulse"] .cursor-dot::after { display:none; }
+
+/* Line cursor itself is a small point; its actual movement history is rendered by cursor-trail. */
+body[data-cursor-style="line"] .cursor-dot { width:10px; height:10px; top:-5px; left:-5px; mix-blend-mode:normal; }
+body[data-cursor-style="line"] .cursor-dot::before { inset:2px; border-radius:50%; background:hsl(var(--cursor-line-hue,210) 92% 60%); box-shadow:none; animation:none; }
+body[data-cursor-style="line"] .cursor-dot::after { display:none; }
+body[data-cursor-style="line"] .cursor-dot span { display:none; }
+
+@media (max-width:920px){
+  .projects-section { padding-top:16px; }
+  .about-section { padding-top:18px; padding-bottom:34px; }
+}

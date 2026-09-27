@@ -20,7 +20,7 @@ const base = import.meta.env.BASE_URL;
     <title>{title}</title>
   </head>
   <body>
-    <svg class="cursor-trail" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none"><path d=""/></svg>
+    <svg class="cursor-trail" aria-hidden="true" preserveAspectRatio="none"><path d=""/></svg>
     <div class="blind-overlay" aria-hidden="true"></div>
     <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
     <slot />
@@ -34,64 +34,93 @@ const base = import.meta.env.BASE_URL;
       const body = document.body;
       const finePointer = matchMedia('(pointer:fine)').matches;
       const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-      const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, trail: 42 };
+      const migratedStyle = (localStorage.getItem('scd_cursor_style') === 'volvox') ? 'invert' : localStorage.getItem('scd_cursor_style');
+      const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = {
-        style: localStorage.getItem('scd_cursor_style') || cursorDefaults.style,
+        style: migratedStyle || cursorDefaults.style,
         motion: clamp(Number(localStorage.getItem('scd_cursor_motion') || cursorDefaults.motion), 0, 100),
         size: clamp(Number(localStorage.getItem('scd_cursor_size') || cursorDefaults.size), 20, 110),
         lineHue: clamp(Number(localStorage.getItem('scd_cursor_line_hue') || cursorDefaults.lineHue), 0, 360),
+        invertHue: clamp(Number(localStorage.getItem('scd_cursor_invert_hue') || cursorDefaults.invertHue), 0, 360),
         trail: clamp(Number(localStorage.getItem('scd_cursor_trail') || cursorDefaults.trail), 0, 100),
       };
       let pathPoints = [];
+
+      function syncTrailViewport(){
+        if (!trailSvg) return;
+        trailSvg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
+        trailSvg.setAttribute('width', String(innerWidth));
+        trailSvg.setAttribute('height', String(innerHeight));
+      }
+      syncTrailViewport();
+      addEventListener('resize', syncTrailViewport, { passive:true });
+
       function persistCursorState(){
         localStorage.setItem('scd_cursor_style', cursorState.style);
         localStorage.setItem('scd_cursor_motion', String(cursorState.motion));
         localStorage.setItem('scd_cursor_size', String(cursorState.size));
         localStorage.setItem('scd_cursor_line_hue', String(cursorState.lineHue));
+        localStorage.setItem('scd_cursor_invert_hue', String(cursorState.invertHue));
         localStorage.setItem('scd_cursor_trail', String(cursorState.trail));
       }
-      function drawTrail(){
-        if (!trailPath || cursorState.style !== 'line' || !pathPoints.length) {
+      function drawTrail(now = performance.now()){
+        if (!trailPath || cursorState.style !== 'line') {
           if (trailPath) trailPath.setAttribute('d', '');
           return;
         }
-        const d = pathPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+        const lifetime = 120 + (cursorState.trail / 100) * 2300;
+        pathPoints = pathPoints.filter((p) => now - p.t <= lifetime);
+        if (pathPoints.length < 2) {
+          trailPath.setAttribute('d', '');
+          return;
+        }
+        const d = pathPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
         trailPath.setAttribute('d', d);
       }
+      function trailFrame(now){
+        if (cursorState.style === 'line') drawTrail(now);
+        requestAnimationFrame(trailFrame);
+      }
+      requestAnimationFrame(trailFrame);
+
       function applyCursorSettings(settings = {}) {
         Object.assign(cursorState, settings);
+        if (cursorState.style === 'volvox') cursorState.style = 'invert';
         body.dataset.cursorStyle = cursorState.style;
         root.style.setProperty('--cursor-size', `${cursorState.size}px`);
         const spinDuration = `${22 - (cursorState.motion / 100) * 18}s`;
-        const pulseScale = `${1 + (cursorState.motion / 100) * .36}`;
+        const pulseScale = `${1 + (cursorState.motion / 100) * .32}`;
         root.style.setProperty('--cursor-spin-duration', spinDuration);
         root.style.setProperty('--cursor-spin-duration-fast', `${16 - (cursorState.motion / 100) * 13}s`);
         root.style.setProperty('--cursor-pulse-scale', pulseScale);
         root.style.setProperty('--cursor-line-hue', String(cursorState.lineHue));
-        root.style.setProperty('--cursor-line-alpha', `${0.35 + (cursorState.motion / 100) * .45}`);
-        root.style.setProperty('--cursor-window', `${cursorState.size * 1.75}px`);
+        root.style.setProperty('--cursor-invert-hue', `${cursorState.invertHue}deg`);
+        root.style.setProperty('--cursor-window', `${cursorState.size * 1.55}px`);
         trailSvg?.classList.toggle('is-active', cursorState.style === 'line');
+        if (cursorState.style !== 'line') pathPoints = [];
         persistCursorState();
         drawTrail();
         document.dispatchEvent(new CustomEvent('scd:cursor-state-applied', { detail: { ...cursorState } }));
       }
+
       function applyBlindTone(value){
         const v = clamp(Number(value), 0, 100);
-        let overlay = 'rgba(0,0,0,.96)', blur = '0px';
+        let overlay = 'rgba(0,0,0,.995)', blur = '0px';
         if (v <= 50) {
           const t = v / 50;
-          overlay = `rgba(0,0,0,${0.96 - t * 0.58})`;
-          blur = `${t * 18}px`;
+          overlay = `rgba(0,0,0,${0.995 - t * 0.43})`;
+          blur = `${t * 20}px`;
         } else {
           const t = (v - 50) / 50;
-          overlay = `rgba(255,255,255,${0.18 + t * 0.74})`;
-          blur = `${(1 - t) * 18}px`;
+          overlay = `rgba(255,255,255,${0.12 + t * 0.84})`;
+          blur = `${(1 - t) * 20}px`;
         }
         root.style.setProperty('--blind-overlay-color', overlay);
         root.style.setProperty('--blind-overlay-blur', blur);
       }
       const savedBlindTone = clamp(Number(localStorage.getItem('scd_blind_tone') || 0), 0, 100);
       applyBlindTone(savedBlindTone);
+
       if (finePointer) {
         addEventListener('pointermove', (e) => {
           dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
@@ -100,9 +129,8 @@ const base = import.meta.env.BASE_URL;
           root.style.setProperty('--cursor-x', `${e.clientX}px`);
           root.style.setProperty('--cursor-y', `${e.clientY}px`);
           if (cursorState.style === 'line') {
-            const maxPoints = Math.round(10 + (cursorState.trail / 100) * 42);
-            pathPoints.push({ x: e.clientX, y: e.clientY });
-            if (pathPoints.length > maxPoints) pathPoints.shift();
+            pathPoints.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+            if (pathPoints.length > 180) pathPoints.splice(0, pathPoints.length - 180);
             drawTrail();
           }
         }, { passive: true });
