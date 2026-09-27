@@ -106,7 +106,7 @@ const colorForApp = (slug, index) => {
         data-slug={app.slug}
         style={`--index:${index};--detail-bg:${colorForApp(app.slug, index)}`}
       >
-        <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug}>
+        <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo}>
           <div class="card-visual" aria-hidden="true">
             <div class="fallback-art">
               <span>{String(index + 1).padStart(2, '0')}</span>
@@ -139,7 +139,7 @@ const colorForApp = (slug, index) => {
             </div>
           </div>
         </a>
-        <button class="like-button" type="button" data-like={app.slug} aria-pressed="false" aria-label={`${app.title} にいいね`}>
+        <button class="like-button" type="button" data-like={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo} aria-pressed="false" aria-label={`${app.title} にいいね`}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
         </button>
       </article>
@@ -169,9 +169,19 @@ const colorForApp = (slug, index) => {
       card.addEventListener('pointerleave', () => delete document.body.dataset.cursor);
     });
 
+    const trackProjectOpen = (link) => {
+      window.scdTrack?.('project_open', {
+        project_slug: link.dataset.projectOpen || '',
+        project_title: link.dataset.projectTitle || '',
+        project_url: link.dataset.projectUrl || link.href || '',
+        project_repo: link.dataset.projectRepo || '',
+        content_type: 'web_app'
+      });
+    };
     document.querySelectorAll('[data-project-open]').forEach((link) => {
-      link.addEventListener('click', () => {
-        window.scdTrack?.('project_open', { project_slug: link.dataset.projectOpen });
+      link.addEventListener('click', () => trackProjectOpen(link));
+      link.addEventListener('auxclick', (event) => {
+        if (event.button === 1) trackProjectOpen(link);
       });
     });
 
@@ -366,7 +376,13 @@ const colorForApp = (slug, index) => {
         const liked = localStorage.getItem(key) === '1';
         localStorage.setItem(key, liked ? '0' : '1');
         paint();
-        window.scdTrack?.(liked ? 'project_unlike' : 'project_like', { project_slug: slug });
+        window.scdTrack?.(liked ? 'project_unlike' : 'project_like', {
+          project_slug: slug || '',
+          project_title: button.dataset.projectTitle || '',
+          project_url: button.dataset.projectUrl || '',
+          project_repo: button.dataset.projectRepo || '',
+          content_type: 'web_app'
+        });
       });
     });
     })();

@@ -231,3 +231,16 @@ For the current GitHub Pages deployment, open:
 
 The page displays both the build-time Analytics configuration state and this browser's current consent state.
 If the repository variable was added after the last successful deployment, re-run the latest **Deploy Astro site to GitHub Pages** workflow so the variable is injected into the built static files.
+
+
+## Project analytics events
+
+With analytics consent enabled, the site sends:
+
+- `project_open` — a public application tile was opened
+- `project_like` — the heart was turned on
+- `project_unlike` — the heart was turned off
+
+Each event includes `project_slug`, `project_title`, `project_url`, `project_repo`, and `content_type=web_app`.
+
+To break reports down by app in GA4, create event-scoped custom dimensions for `project_slug`, `project_title`, `project_url`, and `project_repo` in **Admin → Data display → Custom definitions**.
