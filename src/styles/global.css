@@ -2053,3 +2053,97 @@ body[data-cursor-style="invert"] .cursor-dot::after { display:none; }
 
 /* v22 — deterministic reload defaults */
 html:not([data-project-columns]) .app-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+
+
+/* v23 — single blind viewport, full-circle invert, smooth fading ribbon, extended cursor controls */
+.cursor-trail {
+  position:fixed;
+  inset:0;
+  z-index:980;
+  pointer-events:none;
+  width:100vw;
+  height:100vh;
+  display:none;
+}
+.cursor-trail.is-active { display:block; }
+
+/* Blind uses the viewport itself as the cursor: one crisp ring, no inner cursor circle. */
+.blind-window-ring {
+  position:fixed;
+  z-index:999;
+  pointer-events:none;
+  display:none;
+  border:1.25px solid rgba(255,255,255,.96);
+  border-radius:50%;
+  box-shadow:0 0 0 .35px rgba(0,0,0,.42);
+  will-change:transform,width,height;
+}
+html[data-site-palette="blind"] .blind-window-ring { display:block; }
+html[data-site-palette="blind"] .cursor-dot,
+html[data-site-palette="blind"] .cursor-invert-lens { opacity:0 !important; display:none !important; }
+html[data-site-palette="blind"] .blind-overlay {
+  background:var(--blind-overlay-color, rgba(0,0,0,1));
+  backdrop-filter:blur(var(--blind-overlay-blur,0px));
+  -webkit-backdrop-filter:blur(var(--blind-overlay-blur,0px));
+  mask-image:radial-gradient(circle var(--blind-window-radius-live,90px) at var(--cursor-x,50vw) var(--cursor-y,50vh), transparent 0 99.35%, #000 100%);
+  -webkit-mask-image:radial-gradient(circle var(--blind-window-radius-live,90px) at var(--cursor-x,50vw) var(--cursor-y,50vh), transparent 0 99.35%, #000 100%);
+}
+
+/* Circle: one outline only. Right side of Motion reaches about three times the former max frequency. */
+body[data-cursor-style="pulse"] .cursor-dot::before {
+  inset:1px;
+  background:none;
+  box-shadow:inset 0 0 0 1.1px rgba(255,255,255,.96);
+  animation:cursor-pulse var(--cursor-pulse-duration,6s) ease-in-out infinite;
+}
+body[data-cursor-style="pulse"] .cursor-dot::after { display:none !important; }
+
+/* Invert: the full disk is the inversion surface, not merely its outline. */
+.cursor-invert-lens {
+  width:var(--cursor-size,48px);
+  height:var(--cursor-size,48px);
+  top:calc(var(--cursor-size,48px) * -.5);
+  left:calc(var(--cursor-size,48px) * -.5);
+  border:1px solid rgba(255,255,255,.82);
+  border-radius:50%;
+  background:#fff;
+  mix-blend-mode:difference;
+  overflow:hidden;
+  isolation:isolate;
+}
+.cursor-invert-lens::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:hsl(var(--cursor-invert-hue,0) 88% 55% / .28);
+  mix-blend-mode:hue;
+}
+body[data-cursor-style="invert"] .cursor-invert-lens { display:block; }
+body[data-cursor-style="invert"] .cursor-dot { opacity:0 !important; }
+
+/* Line mode uses a canvas-drawn ribbon; the oldest end fades completely to transparent. */
+body[data-cursor-style="line"] .cursor-dot { width:8px; height:8px; top:-4px; left:-4px; mix-blend-mode:normal; }
+body[data-cursor-style="line"] .cursor-dot::before { inset:1px; background:hsl(var(--cursor-line-hue,210) 94% 62%); box-shadow:none; animation:none; }
+body[data-cursor-style="line"] .cursor-dot::after { display:none; }
+
+/* Color intensity: left = desaturated, center = bright, right = vivid / fluorescent-like. */
+html[data-site-palette="color"] .card-detail {
+  filter:saturate(var(--detail-saturation,1.1)) brightness(var(--detail-brightness,1.12)) contrast(var(--detail-contrast,1));
+}
+html[data-site-palette="color"] .science-object canvas {
+  filter:saturate(var(--detail-saturation,1.1)) brightness(var(--detail-brightness,1.12));
+}
+html[data-site-palette="color"] .card-visual img {
+  filter:saturate(.24) brightness(.95) contrast(.99);
+}
+html[data-site-palette="color"] .app-card:hover .card-visual img,
+html[data-site-palette="color"] .app-card:focus-within .card-visual img {
+  filter:saturate(1) brightness(1) contrast(1);
+}
+
+/* v23.1 — ensure the invert disk itself owns the inversion effect */
+.cursor-invert-lens {
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}

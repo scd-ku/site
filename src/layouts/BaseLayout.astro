@@ -20,8 +20,9 @@ const base = import.meta.env.BASE_URL;
     <title>{title}</title>
   </head>
   <body>
-    <svg class="cursor-trail" aria-hidden="true" preserveAspectRatio="none"><path d=""/></svg>
+    <canvas class="cursor-trail" aria-hidden="true"></canvas>
     <div class="blind-overlay" aria-hidden="true"></div>
+    <div class="blind-window-ring" aria-hidden="true"></div>
     <div class="cursor-invert-lens" aria-hidden="true"></div>
     <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
     <slot />
@@ -31,107 +32,146 @@ const base = import.meta.env.BASE_URL;
       (() => {
       const dot = document.querySelector('.cursor-dot');
       const invertLens = document.querySelector('.cursor-invert-lens');
-      const trailSvg = document.querySelector('.cursor-trail');
-      const trailPath = trailSvg?.querySelector('path');
+      const trailCanvas = document.querySelector('.cursor-trail');
+      const blindRing = document.querySelector('.blind-window-ring');
+      const trailCtx = trailCanvas?.getContext('2d');
       const root = document.documentElement;
       const body = document.body;
       const finePointer = matchMedia('(pointer:fine)').matches;
-      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const clampValue = (n, min, max) => Math.max(min, Math.min(max, n));
       const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = { ...cursorDefaults };
       let pathPoints = [];
+      let pointerX = innerWidth / 2;
+      let pointerY = innerHeight / 2;
+      let deviceScale = Math.max(1, Math.min(2, devicePixelRatio || 1));
 
       function syncTrailViewport(){
-        if (!trailSvg) return;
-        trailSvg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
-        trailSvg.setAttribute('width', String(innerWidth));
-        trailSvg.setAttribute('height', String(innerHeight));
+        if (!trailCanvas || !trailCtx) return;
+        deviceScale = Math.max(1, Math.min(2, devicePixelRatio || 1));
+        trailCanvas.width = Math.round(innerWidth * deviceScale);
+        trailCanvas.height = Math.round(innerHeight * deviceScale);
+        trailCanvas.style.width = `${innerWidth}px`;
+        trailCanvas.style.height = `${innerHeight}px`;
+        trailCtx.setTransform(deviceScale,0,0,deviceScale,0,0);
       }
       syncTrailViewport();
       addEventListener('resize', syncTrailViewport, { passive:true });
 
-      function persistCursorState(){
-        // Display/cursor preferences intentionally reset on every reload.
+      function smoothPoint(a,b){ return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
+      function drawRibbon(now = performance.now()){
+        if (!trailCtx || !trailCanvas) return;
+        trailCtx.clearRect(0,0,innerWidth,innerHeight);
+        if (cursorState.style !== 'line') return;
+        const lifetime = 140 + (cursorState.trail / 100) * 3000;
+        pathPoints = pathPoints.filter(p => now - p.t <= lifetime);
+        if (pathPoints.length < 2) return;
+
+        const hue = cursorState.lineHue;
+        const n = pathPoints.length;
+        for (let i=0;i<n-1;i++){
+          const a = pathPoints[Math.max(0,i-1)];
+          const b = pathPoints[i];
+          const c = pathPoints[i+1];
+          const start = smoothPoint(a,b);
+          const end = smoothPoint(b,c);
+          const age = i / Math.max(1,n-2); // 0 = trailing end, 1 = pointer end
+          const alpha = Math.pow(age, 1.7) * .78;
+          const width = .2 + Math.pow(age, .72) * 9.2;
+          trailCtx.beginPath();
+          trailCtx.moveTo(start.x,start.y);
+          trailCtx.quadraticCurveTo(b.x,b.y,end.x,end.y);
+          trailCtx.strokeStyle = `hsla(${hue},92%,60%,${alpha})`;
+          trailCtx.lineWidth = width;
+          trailCtx.lineCap = 'round';
+          trailCtx.lineJoin = 'round';
+          trailCtx.stroke();
+        }
       }
-      function drawTrail(now = performance.now()){
-        if (!trailPath || cursorState.style !== 'line') {
-          if (trailPath) trailPath.setAttribute('d', '');
+
+      function updateBlindWindow(now){
+        const blind = root.dataset.sitePalette === 'blind';
+        if (!blind) {
+          if (blindRing) blindRing.style.display='none';
           return;
         }
-        const lifetime = 120 + (cursorState.trail / 100) * 2300;
-        pathPoints = pathPoints.filter((p) => now - p.t <= lifetime);
-        if (pathPoints.length < 2) {
-          trailPath.setAttribute('d', '');
-          return;
+        const freqSeconds = 12 - (cursorState.motion / 100) * 10.7; // 12s → ~1.3s
+        const amplitude = (cursorState.motion / 100) * .18;
+        const phase = (now / 1000) * (Math.PI * 2 / Math.max(1.3,freqSeconds));
+        const scale = 1 + Math.sin(phase) * amplitude;
+        const diameter = clampValue(cursorState.size * scale, 20, 390);
+        const radius = diameter / 2;
+        root.style.setProperty('--blind-window-radius-live', `${radius}px`);
+        root.style.setProperty('--blind-window-diameter-live', `${diameter}px`);
+        if (blindRing) {
+          blindRing.style.display='block';
+          blindRing.style.width=`${diameter}px`;
+          blindRing.style.height=`${diameter}px`;
+          blindRing.style.transform=`translate3d(${pointerX-diameter/2}px,${pointerY-diameter/2}px,0)`;
         }
-        const d = pathPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-        trailPath.setAttribute('d', d);
       }
-      function trailFrame(now){
-        if (cursorState.style === 'line') drawTrail(now);
-        requestAnimationFrame(trailFrame);
+
+      function animationFrame(now){
+        drawRibbon(now);
+        updateBlindWindow(now);
+        requestAnimationFrame(animationFrame);
       }
-      requestAnimationFrame(trailFrame);
+      requestAnimationFrame(animationFrame);
 
       function applyCursorSettings(settings = {}) {
         Object.assign(cursorState, settings);
-        if (cursorState.style === 'volvox') cursorState.style = 'invert';
         body.dataset.cursorStyle = cursorState.style;
         root.style.setProperty('--cursor-size', `${cursorState.size}px`);
-        const spinDuration = `${22 - (cursorState.motion / 100) * 18}s`;
-        const pulseScale = `${1 + (cursorState.motion / 100) * .32}`;
-        root.style.setProperty('--cursor-spin-duration', spinDuration);
+        root.style.setProperty('--cursor-spin-duration', `${22 - (cursorState.motion / 100) * 18}s`);
         root.style.setProperty('--cursor-spin-duration-fast', `${16 - (cursorState.motion / 100) * 13}s`);
-        root.style.setProperty('--cursor-pulse-scale', pulseScale);
+        root.style.setProperty('--cursor-pulse-duration', `${12 - (cursorState.motion / 100) * 10.7}s`);
+        root.style.setProperty('--cursor-pulse-scale', `${1 + (cursorState.motion / 100) * .38}`);
         root.style.setProperty('--cursor-line-hue', String(cursorState.lineHue));
-        root.style.setProperty('--cursor-invert-hue', `${cursorState.invertHue}deg`);
-        root.style.setProperty('--cursor-window', `${cursorState.size * 1.55}px`);
-        trailSvg?.classList.toggle('is-active', cursorState.style === 'line');
+        root.style.setProperty('--cursor-invert-hue', String(cursorState.invertHue));
+        trailCanvas?.classList.toggle('is-active', cursorState.style === 'line');
         if (cursorState.style !== 'line') pathPoints = [];
-        persistCursorState();
-        drawTrail();
         document.dispatchEvent(new CustomEvent('scd:cursor-state-applied', { detail: { ...cursorState } }));
       }
 
       function applyBlindTone(value){
-        const v = clamp(Number(value), 0, 100);
-        let overlay = 'rgba(0,0,0,.995)', blur = '0px';
+        const v = clampValue(Number(value), 0, 100);
+        let overlay = 'rgba(0,0,0,1)', blur = '0px';
         if (v <= 50) {
           const t = v / 50;
-          overlay = `rgba(0,0,0,${0.995 - t * 0.43})`;
-          blur = `${t * 20}px`;
+          overlay = `rgba(0,0,0,${1 - t * 0.52})`;
+          blur = `${t * 22}px`;
         } else {
           const t = (v - 50) / 50;
-          overlay = `rgba(255,255,255,${0.12 + t * 0.84})`;
-          blur = `${(1 - t) * 20}px`;
+          overlay = `rgba(255,255,255,${0.16 + t * 0.82})`;
+          blur = `${(1 - t) * 22}px`;
         }
         root.style.setProperty('--blind-overlay-color', overlay);
         root.style.setProperty('--blind-overlay-blur', blur);
       }
-      const savedBlindTone = 0;
-      applyBlindTone(savedBlindTone);
+      applyBlindTone(0);
 
       if (finePointer) {
         addEventListener('pointermove', (e) => {
-          dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          pointerX=e.clientX; pointerY=e.clientY;
+          if (dot) dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
           if (invertLens) invertLens.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
           root.style.setProperty('--mx', `${(e.clientX / innerWidth - .5) * 2}`);
           root.style.setProperty('--my', `${(e.clientY / innerHeight - .5) * 2}`);
           root.style.setProperty('--cursor-x', `${e.clientX}px`);
           root.style.setProperty('--cursor-y', `${e.clientY}px`);
           if (cursorState.style === 'line') {
-            pathPoints.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-            if (pathPoints.length > 180) pathPoints.splice(0, pathPoints.length - 180);
-            drawTrail();
+            const now=performance.now();
+            const prev=pathPoints[pathPoints.length-1];
+            if (!prev || Math.hypot(e.clientX-prev.x,e.clientY-prev.y) > 2.2) {
+              pathPoints.push({ x:e.clientX, y:e.clientY, t:now });
+              if (pathPoints.length > 260) pathPoints.splice(0,pathPoints.length-260);
+            }
           }
-        }, { passive: true });
+        }, { passive:true });
       }
       applyCursorSettings(cursorState);
       document.addEventListener('scd:update-cursor', (event) => applyCursorSettings(event.detail || {}));
-      document.addEventListener('scd:update-blind-tone', (event) => {
-        const value = clamp(Number(event.detail?.value ?? 0), 0, 100);
-        applyBlindTone(value);
-      });
+      document.addEventListener('scd:update-blind-tone', (event) => applyBlindTone(event.detail?.value ?? 0));
       })();
     </script>
 
@@ -403,14 +443,12 @@ const base = import.meta.env.BASE_URL;
         return common >= 2;
       }
       function faceColorsForSolid(faces, seed=0){
-        const palette = [
-          'rgba(187,120,126,.32)',
-          'rgba(201,136,88,.32)',
-          'rgba(213,180,95,.32)',
-          'rgba(123,143,104,.32)',
-          'rgba(112,143,170,.32)',
-          'rgba(123,114,156,.32)'
-        ];
+        const level = Math.max(0, Math.min(100, Number(getComputedStyle(document.documentElement).getPropertyValue('--color-level') || 50)));
+        const sat = level <= 50 ? 18 + level * .94 : 65 + (level - 50) * .70;
+        const light = level <= 50 ? 62 + level * .12 : 68 - (level - 50) * .16;
+        const alpha = level <= 50 ? .22 + level * .002 : .32 + (level - 50) * .0022;
+        const hues = [356, 27, 48, 103, 207, 274];
+        const palette = hues.map(h => `hsla(${h},${sat}%,${light}%,${alpha})`);
         const adjacency = faces.map((face,i)=>faces.map((other,j)=> i!==j && facesShareEdge(face,other) ? j : -1).filter(v=>v>=0));
         const assigned = new Array(faces.length).fill(null);
         for(let i=0;i<faces.length;i++){
