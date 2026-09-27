@@ -36,7 +36,7 @@ const colorForApp = (slug, index) => {
           <div class="palette-modes" role="group" aria-label="Color mode">
             <button type="button" data-palette-mode="color" class="is-active">Color</button>
             <button type="button" data-palette-mode="mono">Mono</button>
-            <button type="button" data-palette-mode="gray">Gray</button>
+            <button type="button" data-palette-mode="blind">Blind</button>
             <button type="button" data-palette-mode="redblue">Red / Blue</button>
           </div>
         </div>
@@ -60,10 +60,30 @@ const colorForApp = (slug, index) => {
         </div>
 
         <label class="saturation-control">
-          <span>Description saturation</span>
-          <input type="range" min="35" max="145" value="100" step="1" data-detail-saturation />
-          <output data-detail-saturation-value>100%</output>
+          <span data-screen-label>Description saturation</span>
+          <input type="range" min="0" max="100" value="72" step="1" data-detail-saturation />
+          <output data-detail-saturation-value>72%</output>
         </label>
+
+        <div class="settings-group settings-group--cursor">
+          <div class="settings-group-label">Cursor</div>
+          <div class="layout-modes layout-modes--cursor" role="group" aria-label="Cursor mode">
+            <button type="button" data-cursor-style="stripe" class="is-active">Stripe</button>
+            <button type="button" data-cursor-style="volvox">Volvox</button>
+            <button type="button" data-cursor-style="pulse">Circle</button>
+            <button type="button" data-cursor-style="line">Line</button>
+          </div>
+          <label class="cursor-control">
+            <span data-cursor-slider1-label>Motion</span>
+            <input type="range" min="0" max="100" value="54" step="1" data-cursor-slider1 />
+            <output data-cursor-slider1-value>54%</output>
+          </label>
+          <label class="cursor-control">
+            <span data-cursor-slider2-label>Size</span>
+            <input type="range" min="20" max="110" value="48" step="1" data-cursor-slider2 />
+            <output data-cursor-slider2-value>48</output>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -161,12 +181,61 @@ const colorForApp = (slug, index) => {
     const tileLayoutButtons = [...document.querySelectorAll('[data-tile-layout]')];
     const saturationSlider = document.querySelector('[data-detail-saturation]');
     const saturationValue = document.querySelector('[data-detail-saturation-value]');
+    const screenLabel = document.querySelector('[data-screen-label]');
+    const cursorButtons = [...document.querySelectorAll('[data-cursor-style]')];
+    const cursorSlider1 = document.querySelector('[data-cursor-slider1]');
+    const cursorSlider2 = document.querySelector('[data-cursor-slider2]');
+    const cursorSlider1Label = document.querySelector('[data-cursor-slider1-label]');
+    const cursorSlider2Label = document.querySelector('[data-cursor-slider2-label]');
+    const cursorSlider1Value = document.querySelector('[data-cursor-slider1-value]');
+    const cursorSlider2Value = document.querySelector('[data-cursor-slider2-value]');
+
+    const updateCursorControls = (style, state) => {
+      cursorButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.cursorStyle === style));
+      if (!cursorSlider1 || !cursorSlider2) return;
+      if (style === 'line') {
+        cursorSlider1Label.textContent = 'Trail';
+        cursorSlider1.min = '0';
+        cursorSlider1.max = '100';
+        cursorSlider1.value = String(state.trail ?? 42);
+        cursorSlider1Value.textContent = `${cursorSlider1.value}%`;
+        cursorSlider2Label.textContent = 'Hue';
+        cursorSlider2.min = '0';
+        cursorSlider2.max = '360';
+        cursorSlider2.value = String(state.lineHue ?? 210);
+        cursorSlider2Value.textContent = `${cursorSlider2.value}°`;
+      } else {
+        cursorSlider1Label.textContent = style === 'pulse' ? 'Amplitude' : 'Motion';
+        cursorSlider1.min = '0';
+        cursorSlider1.max = '100';
+        cursorSlider1.value = String(state.motion ?? 54);
+        cursorSlider1Value.textContent = `${cursorSlider1.value}%`;
+        cursorSlider2Label.textContent = 'Size';
+        cursorSlider2.min = '20';
+        cursorSlider2.max = '110';
+        cursorSlider2.value = String(state.size ?? 48);
+        cursorSlider2Value.textContent = `${cursorSlider2.value}`;
+      }
+    };
+
+    const getCursorState = () => ({
+      style: localStorage.getItem('scd_cursor_style') || 'stripe',
+      motion: Math.max(0, Math.min(100, Number(localStorage.getItem('scd_cursor_motion') || 54))),
+      size: Math.max(20, Math.min(110, Number(localStorage.getItem('scd_cursor_size') || 48))),
+      lineHue: Math.max(0, Math.min(360, Number(localStorage.getItem('scd_cursor_line_hue') || 210))),
+      trail: Math.max(0, Math.min(100, Number(localStorage.getItem('scd_cursor_trail') || 42))),
+    });
+
+    const emitCursorState = (state) => {
+      document.dispatchEvent(new CustomEvent('scd:update-cursor', { detail: state }));
+      updateCursorControls(state.style, state);
+    };
 
     const applyDisplaySettings = (mode, saturation, columns, tileLayout) => {
       document.documentElement.dataset.sitePalette = mode;
       document.documentElement.dataset.projectColumns = columns;
       document.documentElement.dataset.projectLayout = tileLayout;
-      document.documentElement.style.setProperty('--detail-saturation', String(saturation / 100));
+      document.documentElement.style.setProperty('--detail-saturation', String(0.45 + (saturation / 100) * 1.05));
 
       paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === mode));
       columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === columns));
@@ -174,18 +243,29 @@ const colorForApp = (slug, index) => {
 
       if (saturationSlider) saturationSlider.value = String(saturation);
       if (saturationValue) saturationValue.textContent = `${saturation}%`;
+      if (screenLabel) screenLabel.textContent = mode === 'blind' ? 'Screen tone' : 'Description saturation';
 
       localStorage.setItem('scd_site_palette', mode);
       localStorage.setItem('scd_detail_saturation', String(saturation));
       localStorage.setItem('scd_project_columns', columns);
       localStorage.setItem('scd_project_layout', tileLayout);
+      if (mode === 'blind') {
+        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: saturation } }));
+        const currentCursor = getCursorState();
+        if (currentCursor.style !== 'pulse') {
+          currentCursor.style = 'pulse';
+          localStorage.setItem('scd_cursor_style', 'pulse');
+          emitCursorState(currentCursor);
+        }
+      }
     };
 
     const savedMode = localStorage.getItem('scd_site_palette') || 'color';
-    const savedSaturation = Math.max(35, Math.min(145, Number(localStorage.getItem('scd_detail_saturation') || 100)));
+    const savedSaturation = Math.max(0, Math.min(100, Number(localStorage.getItem('scd_detail_saturation') || 72)));
     const savedColumns = localStorage.getItem('scd_project_columns') || '4';
     const savedTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
     applyDisplaySettings(savedMode, savedSaturation, savedColumns, savedTileLayout);
+    updateCursorControls(getCursorState().style, getCursorState());
 
     settingsButton?.addEventListener('click', () => {
       const willOpen = settingsPopover?.hasAttribute('hidden');
@@ -223,6 +303,33 @@ const colorForApp = (slug, index) => {
         document.documentElement.dataset.projectColumns || '4',
         document.documentElement.dataset.projectLayout || 'ratio'
       );
+      if ((document.documentElement.dataset.sitePalette || 'color') === 'blind') {
+        document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: Number(saturationSlider.value) } }));
+      }
+    });
+
+    cursorButtons.forEach((button) => button.addEventListener('click', () => {
+      const state = getCursorState();
+      state.style = button.dataset.cursorStyle || 'stripe';
+      emitCursorState(state);
+    }));
+    cursorSlider1?.addEventListener('input', () => {
+      const state = getCursorState();
+      if (state.style === 'line') {
+        state.trail = Number(cursorSlider1.value);
+      } else {
+        state.motion = Number(cursorSlider1.value);
+      }
+      emitCursorState(state);
+    });
+    cursorSlider2?.addEventListener('input', () => {
+      const state = getCursorState();
+      if (state.style === 'line') {
+        state.lineHue = Number(cursorSlider2.value);
+      } else {
+        state.size = Number(cursorSlider2.value);
+      }
+      emitCursorState(state);
     });
     document.addEventListener('pointerdown', (event) => {
       if (!settingsPopover || settingsPopover.hasAttribute('hidden')) return;
