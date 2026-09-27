@@ -2582,3 +2582,161 @@ html[data-site-palette="mono"] .card-detail p {
     transition: none;
   }
 }
+
+
+/* v36 — compact vertical rhythm and unified About/People typographic scale */
+.about-lead {
+  max-width: none;
+  font-size: clamp(19px, 1.65vw, 26px);
+  line-height: 1.32;
+  letter-spacing: -.018em;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+.person-primary h2 {
+  font-size: clamp(19px, 1.65vw, 26px);
+  line-height: 1.32;
+  letter-spacing: -.018em;
+  font-weight: 400;
+}
+
+/* Keep the same horizontal grid as Projects, but tighten the vertical rhythm. */
+.projects-section {
+  padding-top: 26px;
+  padding-bottom: 68px;
+}
+.section-heading {
+  min-height: 38px;
+}
+.filters {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.content-band {
+  margin-top: 4px;
+  padding-top: 10px;
+  padding-bottom: 11px;
+}
+.app-grid {
+  gap: 38px 30px;
+  padding-top: 2px;
+}
+
+.text-section {
+  min-height: 0;
+}
+.about-section {
+  padding-top: 20px;
+  padding-bottom: 44px;
+}
+.about-section .section-kicker {
+  margin-bottom: 24px;
+}
+.about-prose {
+  margin-top: 16px;
+  max-width: 900px;
+}
+.about-prose p {
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.82;
+  letter-spacing: .01em;
+}
+.about-divider {
+  margin-top: 30px;
+  margin-bottom: 26px;
+}
+.about-block--site .about-prose {
+  margin-top: 15px;
+}
+
+.people-section {
+  padding-top: 18px;
+  padding-bottom: 38px;
+}
+.people-section .section-kicker {
+  margin-bottom: 24px;
+}
+.person-primary h2 {
+  margin-bottom: 8px;
+}
+.person-primary p {
+  margin-bottom: 11px;
+  line-height: 1.5;
+}
+
+footer {
+  min-height: 0;
+  padding-top: 20px;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 920px) {
+  .projects-section {
+    padding-top: 22px;
+    padding-bottom: 56px;
+  }
+  .app-grid {
+    gap: 30px 22px;
+  }
+  .about-section {
+    padding-top: 18px;
+    padding-bottom: 38px;
+  }
+  .about-section .section-kicker,
+  .people-section .section-kicker {
+    margin-bottom: 20px;
+  }
+  .about-lead,
+  .person-primary h2 {
+    font-size: clamp(19px, 3.2vw, 25px);
+  }
+  .about-prose {
+    margin-top: 14px;
+  }
+  .about-divider {
+    margin: 26px 0 22px;
+  }
+  .people-section {
+    padding-top: 16px;
+    padding-bottom: 34px;
+  }
+}
+
+@media (max-width: 580px) {
+  .projects-section {
+    padding-top: 18px !important;
+    padding-bottom: 44px !important;
+  }
+  .app-grid {
+    gap: 26px 14px;
+  }
+  .about-section {
+    padding-top: 16px !important;
+    padding-bottom: 32px !important;
+  }
+  .about-section .section-kicker,
+  .people-section .section-kicker {
+    margin-bottom: 18px;
+  }
+  .about-lead,
+  .person-primary h2 {
+    font-size: clamp(18px, 5.4vw, 23px);
+    line-height: 1.38;
+  }
+  .about-prose p {
+    font-size: 12.5px;
+    line-height: 1.78;
+  }
+  .about-divider {
+    margin: 24px 0 20px;
+  }
+  .people-section {
+    padding-top: 14px;
+    padding-bottom: 28px !important;
+  }
+  footer {
+    padding-top: 18px;
+    padding-bottom: 20px;
+  }
+}
