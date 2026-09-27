@@ -4,12 +4,12 @@ const tags = [...new Set(apps.flatMap((app) => app.tags))].sort((a, b) => a.loca
 const base = import.meta.env.BASE_URL;
 const asset = (p) => `${base}${p.replace(/^\//, '')}`;
 const goethePalette = [
-  '#e4c1c4', // light muted red
-  '#e8c8aa', // light muted orange
-  '#eadca7', // light muted yellow
-  '#c6d1c0', // light muted green
-  '#c4d5dd', // light muted blue
-  '#cdc9dc', // light muted violet
+  '#b64f56', // red
+  '#c37043', // orange
+  '#a88424', // yellow / ochre
+  '#5f7d63', // green
+  '#50738e', // blue
+  '#725f7f', // violet
 ];
 const colorForApp = (slug, index) => {
   const seed = [...slug].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) + index * 17;
@@ -22,7 +22,29 @@ const colorForApp = (slug, index) => {
       <p class="eyebrow">Public applications · {apps.length}</p>
       <h2>Projects</h2>
     </div>
-    <p class="section-note">Experiments, tools and interfaces<br />published from GitHub.</p>
+    <div class="display-settings">
+      <button class="display-settings-button" type="button" aria-expanded="false" aria-controls="display-settings-popover" title="Color display settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="6" cy="7" r="2.2"/><path d="M8.2 7H21"/>
+          <circle cx="16" cy="12" r="2.2"/><path d="M3 12h10.8M18.2 12H21"/>
+          <circle cx="9" cy="17" r="2.2"/><path d="M3 17h3.8M11.2 17H21"/>
+        </svg>
+      </button>
+      <div class="display-settings-popover" id="display-settings-popover" hidden>
+        <div class="display-settings-title">Display</div>
+        <div class="palette-modes" role="group" aria-label="Color mode">
+          <button type="button" data-palette-mode="color" class="is-active">Color</button>
+          <button type="button" data-palette-mode="mono">Mono</button>
+          <button type="button" data-palette-mode="gray">Gray</button>
+          <button type="button" data-palette-mode="redblue">Red / Blue</button>
+        </div>
+        <label class="saturation-control">
+          <span>Description saturation</span>
+          <input type="range" min="35" max="145" value="100" step="1" data-detail-saturation />
+          <output data-detail-saturation-value>100%</output>
+        </label>
+      </div>
+    </div>
   </div>
 
   <div class="filters" aria-label="Project filters">
@@ -104,6 +126,45 @@ const colorForApp = (slug, index) => {
       link.addEventListener('click', () => {
         window.scdTrack?.('project_open', { project_slug: link.dataset.projectOpen });
       });
+    });
+
+    const settingsButton = document.querySelector('.display-settings-button');
+    const settingsPopover = document.querySelector('.display-settings-popover');
+    const paletteButtons = [...document.querySelectorAll('[data-palette-mode]')];
+    const saturationSlider = document.querySelector('[data-detail-saturation]');
+    const saturationValue = document.querySelector('[data-detail-saturation-value]');
+
+    const applyDisplaySettings = (mode, saturation) => {
+      document.documentElement.dataset.sitePalette = mode;
+      document.documentElement.style.setProperty('--detail-saturation', String(saturation / 100));
+      paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === mode));
+      if (saturationSlider) saturationSlider.value = String(saturation);
+      if (saturationValue) saturationValue.textContent = `${saturation}%`;
+      localStorage.setItem('scd_site_palette', mode);
+      localStorage.setItem('scd_detail_saturation', String(saturation));
+    };
+
+    const savedMode = localStorage.getItem('scd_site_palette') || 'color';
+    const savedSaturation = Math.max(35, Math.min(145, Number(localStorage.getItem('scd_detail_saturation') || 100)));
+    applyDisplaySettings(savedMode, savedSaturation);
+
+    settingsButton?.addEventListener('click', () => {
+      const willOpen = settingsPopover?.hasAttribute('hidden');
+      settingsPopover?.toggleAttribute('hidden', !willOpen);
+      settingsButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    paletteButtons.forEach((button) => button.addEventListener('click', () => {
+      applyDisplaySettings(button.dataset.paletteMode || 'color', Number(saturationSlider?.value || 100));
+    }));
+    saturationSlider?.addEventListener('input', () => {
+      applyDisplaySettings(document.documentElement.dataset.sitePalette || 'color', Number(saturationSlider.value));
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (!settingsPopover || settingsPopover.hasAttribute('hidden')) return;
+      if (!event.target.closest('.display-settings')) {
+        settingsPopover.setAttribute('hidden', '');
+        settingsButton?.setAttribute('aria-expanded', 'false');
+      }
     });
 
     document.querySelectorAll('[data-like]').forEach((button) => {

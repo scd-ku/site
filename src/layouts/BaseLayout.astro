@@ -95,99 +95,119 @@ const base = import.meta.env.BASE_URL;
         const t1 = (-B - s)/(2*A), t2 = (-B + s)/(2*A);
         return [t1,t2].filter(t=>t>1e-4).map(t=>({ point:V.add(p,V.mul(d,t)), t }));
       }
+      function regularPolygon(center, radius, sides, angle=0){
+        return Array.from({length:sides}, (_,i)=>{
+          const a=angle - Math.PI/2 + i*Math.PI*2/sides;
+          return {x:center.x+Math.cos(a)*radius, y:center.y+Math.sin(a)*radius};
+        });
+      }
       function makeOpticShapes(t,w,h){
-        const boxCenter = {x:w*0.52 + Math.sin(t*0.00011)*28, y:h*0.22 + Math.cos(t*0.00009)*14};
-        const triCenter = {x:w*0.62 + Math.sin(t*0.00008+1.4)*32, y:h*0.55 + Math.cos(t*0.0001)*18};
-        const hemiCenter = {x:w*0.83 + Math.sin(t*0.00007+0.8)*24, y:h*0.28 + Math.cos(t*0.00008+0.3)*14};
-        const boxAngle = Math.sin(t*0.00007)*0.28;
-        const triAngle = Math.cos(t*0.00005)*0.24;
-        const hemiAngle = Math.sin(t*0.00006)*0.22;
+        const u=Math.min(w,h);
+        const boxCenter={x:w*.57 + Math.sin(t*.00008)*u*.018, y:h*.23 + Math.cos(t*.00007)*u*.018};
+        const triCenter={x:w*.70 + Math.sin(t*.00007+1.3)*u*.022, y:h*.58 + Math.cos(t*.00008)*u*.020};
+        const hemiCenter={x:w*.87 + Math.sin(t*.00006+.8)*u*.018, y:h*.30 + Math.cos(t*.00007+.3)*u*.018};
+        const hexCenter={x:w*.46 + Math.sin(t*.000055+2.0)*u*.020, y:h*.55 + Math.cos(t*.000060+.5)*u*.018};
+        const circleCenter={x:w*.78 + Math.sin(t*.000050+.4)*u*.020, y:h*.73 + Math.cos(t*.000055+1.2)*u*.016};
+        const boxAngle=Math.sin(t*.000045)*.22;
+        const triAngle=Math.cos(t*.000042)*.20;
+        const hemiAngle=Math.sin(t*.000040)*.18;
+        const hexAngle=t*.000025;
 
-        const rectBase = [{x:-120,y:-42},{x:120,y:-42},{x:120,y:42},{x:-120,y:42}].map(p=>rotate2({x:boxCenter.x+p.x,y:boxCenter.y+p.y},boxCenter,boxAngle));
-        const triBase = [{x:-110,y:-82},{x:110,y:0},{x:-110,y:82}].map(p=>rotate2({x:triCenter.x+p.x,y:triCenter.y+p.y},triCenter,triAngle));
-        const hemiR = 92;
-
+        const bw=u*.19, bh=u*.065;
+        const rectBase=[{x:-bw,y:-bh},{x:bw,y:-bh},{x:bw,y:bh},{x:-bw,y:bh}].map(p=>rotate2({x:boxCenter.x+p.x,y:boxCenter.y+p.y},boxCenter,boxAngle));
+        const tw=u*.17, th=u*.15;
+        const triBase=[{x:-tw,y:-th},{x:tw,y:th},{x:-tw,y:th}].map(p=>rotate2({x:triCenter.x+p.x,y:triCenter.y+p.y},triCenter,triAngle));
+        const hemiR=u*.105;
+        const hexR=u*.085;
+        const circleR=u*.095;
         return {
-          rect:{ type:'polygon', n:1.52, points:rectBase, center:boxCenter },
-          tri:{ type:'polygon', n:1.52, points:triBase, center:triCenter },
-          hemi:{ type:'hemi', n:1.52, center:hemiCenter, radius:hemiR, angle:hemiAngle }
+          rect:{type:'polygon',n:1.52,points:rectBase,center:boxCenter,alpha:.52},
+          tri:{type:'polygon',n:1.52,points:triBase,center:triCenter,alpha:.48},
+          hemi:{type:'hemi',n:1.52,center:hemiCenter,radius:hemiR,angle:hemiAngle,alpha:.48},
+          hex:{type:'polygon',n:1.52,points:regularPolygon(hexCenter,hexR,6,hexAngle),center:hexCenter,alpha:.44},
+          circle:{type:'circle',n:1.52,center:circleCenter,radius:circleR,alpha:.42}
         };
       }
       function drawShapes(ctx, shapes){
         ctx.save();
-        ctx.strokeStyle='rgba(255,255,255,.82)';
-        ctx.fillStyle='rgba(255,255,255,.03)';
-        ctx.lineWidth=1.2;
-        [shapes.rect, shapes.tri].forEach(shape=>{
+        ctx.lineWidth=1.08;
+        Object.values(shapes).forEach(shape=>{
+          ctx.strokeStyle=`rgba(255,255,255,${shape.alpha ?? .5})`;
+          ctx.fillStyle='rgba(255,255,255,.018)';
           ctx.beginPath();
-          ctx.moveTo(shape.points[0].x, shape.points[0].y);
-          for(let i=1;i<shape.points.length;i++) ctx.lineTo(shape.points[i].x, shape.points[i].y);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
+          if(shape.type==='polygon'){
+            ctx.moveTo(shape.points[0].x,shape.points[0].y);
+            for(let i=1;i<shape.points.length;i++) ctx.lineTo(shape.points[i].x,shape.points[i].y);
+            ctx.closePath();
+          } else if(shape.type==='circle'){
+            ctx.arc(shape.center.x,shape.center.y,shape.radius,0,Math.PI*2);
+          } else {
+            ctx.arc(shape.center.x,shape.center.y,shape.radius,Math.PI+shape.angle,2*Math.PI+shape.angle);
+            const l=rotate2({x:shape.center.x-shape.radius,y:shape.center.y},shape.center,shape.angle);
+            const r=rotate2({x:shape.center.x+shape.radius,y:shape.center.y},shape.center,shape.angle);
+            ctx.lineTo(r.x,r.y); ctx.moveTo(l.x,l.y); ctx.lineTo(r.x,r.y);
+          }
+          ctx.fill(); ctx.stroke();
         });
-        const h = shapes.hemi;
-        ctx.beginPath();
-        ctx.arc(h.center.x, h.center.y, h.radius, Math.PI+h.angle, 2*Math.PI+h.angle);
-        const l = rotate2({x:h.center.x-h.radius,y:h.center.y}, h.center, h.angle);
-        const r = rotate2({x:h.center.x+h.radius,y:h.center.y}, h.center, h.angle);
-        ctx.lineTo(r.x,r.y); ctx.moveTo(l.x,l.y); ctx.lineTo(r.x,r.y); ctx.fill(); ctx.stroke();
         ctx.restore();
       }
       function polygonEdges(shape){
         const out=[]; const pts=shape.points;
-        for(let i=0;i<pts.length;i++){
-          out.push([pts[i], pts[(i+1)%pts.length]]);
-        }
+        for(let i=0;i<pts.length;i++) out.push([pts[i],pts[(i+1)%pts.length]]);
         return out;
       }
       function hemiEdges(shape){
-        const left = rotate2({x:shape.center.x-shape.radius,y:shape.center.y}, shape.center, shape.angle);
-        const right = rotate2({x:shape.center.x+shape.radius,y:shape.center.y}, shape.center, shape.angle);
+        const left=rotate2({x:shape.center.x-shape.radius,y:shape.center.y},shape.center,shape.angle);
+        const right=rotate2({x:shape.center.x+shape.radius,y:shape.center.y},shape.center,shape.angle);
         return [[left,right]];
       }
-      function insidePolygon(pt, shape){
+      function insidePolygon(pt,shape){
         let c=false; const pts=shape.points;
         for(let i=0,j=pts.length-1;i<pts.length;j=i++){
-          if (((pts[i].y>pt.y)!==(pts[j].y>pt.y)) && (pt.x < (pts[j].x-pts[i].x)*(pt.y-pts[i].y)/(pts[j].y-pts[i].y)+pts[i].x)) c=!c;
+          if(((pts[i].y>pt.y)!==(pts[j].y>pt.y)) && (pt.x<(pts[j].x-pts[i].x)*(pt.y-pts[i].y)/(pts[j].y-pts[i].y)+pts[i].x)) c=!c;
         }
         return c;
       }
-      function insideHemi(pt, shape){
-        const q = rotate2(pt, shape.center, -shape.angle);
-        const dx=q.x-shape.center.x, dy=q.y-shape.center.y;
-        return dx*dx + dy*dy <= shape.radius*shape.radius + 1e-2 && q.y <= shape.center.y + 1e-2;
+      function insideCircle(pt,shape){
+        const dx=pt.x-shape.center.x, dy=pt.y-shape.center.y;
+        return dx*dx+dy*dy<=shape.radius*shape.radius+1e-2;
       }
-      function nearestHitAgainstShape(p,d,shape, inside=false){
+      function insideHemi(pt,shape){
+        const q=rotate2(pt,shape.center,-shape.angle);
+        const dx=q.x-shape.center.x,dy=q.y-shape.center.y;
+        return dx*dx+dy*dy<=shape.radius*shape.radius+1e-2 && q.y<=shape.center.y+1e-2;
+      }
+      function nearestHitAgainstShape(p,d,shape,inside=false){
         const hits=[];
         if(shape.type==='polygon'){
-          polygonEdges(shape).forEach(([a,b])=>{
-            const inter=intersectRaySegment(p,d,a,b); if(inter) hits.push({...inter,a,b,kind:'segment'});
-          });
+          polygonEdges(shape).forEach(([a,b])=>{const inter=intersectRaySegment(p,d,a,b); if(inter) hits.push({...inter,a,b,kind:'segment'});});
+        } else if(shape.type==='circle'){
+          intersectRayCircle(p,d,shape.center,shape.radius).forEach(inter=>hits.push({...inter,kind:'circle'}));
         } else {
-          hemiEdges(shape).forEach(([a,b])=>{
-            const inter=intersectRaySegment(p,d,a,b); if(inter) hits.push({...inter,a,b,kind:'segment'});
-          });
+          hemiEdges(shape).forEach(([a,b])=>{const inter=intersectRaySegment(p,d,a,b); if(inter) hits.push({...inter,a,b,kind:'segment'});});
           intersectRayCircle(p,d,shape.center,shape.radius).forEach(inter=>{
-            const q = rotate2(inter.point, shape.center, -shape.angle);
-            if(q.y <= shape.center.y + 1e-2) hits.push({...inter,kind:'arc'});
+            const q=rotate2(inter.point,shape.center,-shape.angle);
+            if(q.y<=shape.center.y+1e-2) hits.push({...inter,kind:'arc'});
           });
         }
         hits.sort((a,b)=>a.t-b.t);
         for(const h of hits){
           if(shape.type==='polygon'){
-            if(!inside && !insidePolygon(V.add(h.point,V.mul(d,0.3)), shape)) continue;
-            if(inside && insidePolygon(V.add(h.point,V.mul(d,0.3)), shape)) continue;
-            const normal = segmentNormal(h.a,h.b, shape.center);
-            return {...h, normal};
-          } else {
-            if(h.kind==='segment'){
-              if(!inside && !insideHemi(V.add(h.point,V.mul(d,0.3)), shape)) continue;
-              if(inside && insideHemi(V.add(h.point,V.mul(d,0.3)), shape)) continue;
-              const normal = segmentNormal(h.a,h.b, V.add(shape.center, {x:0,y:-10}));
-              return {...h, normal};
-            }
-            const normal = V.norm(V.sub(h.point, shape.center));
-            return {...h, normal};
+            if(!inside && !insidePolygon(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            if(inside && insidePolygon(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            return {...h,normal:segmentNormal(h.a,h.b,shape.center)};
           }
+          if(shape.type==='circle'){
+            if(!inside && !insideCircle(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            if(inside && insideCircle(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            return {...h,normal:V.norm(V.sub(h.point,shape.center))};
+          }
+          if(h.kind==='segment'){
+            if(!inside && !insideHemi(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            if(inside && insideHemi(V.add(h.point,V.mul(d,.3)),shape)) continue;
+            return {...h,normal:segmentNormal(h.a,h.b,V.add(shape.center,{x:0,y:-10}))};
+          }
+          return {...h,normal:V.norm(V.sub(h.point,shape.center))};
         }
         return null;
       }
@@ -249,20 +269,23 @@ const base = import.meta.env.BASE_URL;
         ctx.restore();
       }
       function drawOptics(canvas,t){
+        const cssW=Math.max(1,canvas.clientWidth||canvas.width);
+        const cssH=Math.max(1,canvas.clientHeight||canvas.height);
+        const dpr=Math.min(window.devicePixelRatio||1,2);
+        const targetW=Math.round(cssW*dpr), targetH=Math.round(cssH*dpr);
+        if(canvas.width!==targetW || canvas.height!==targetH){ canvas.width=targetW; canvas.height=targetH; }
         const ctx=canvas.getContext('2d');
-        const w=canvas.width, h=canvas.height;
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        const w=cssW,h=cssH;
         ctx.clearRect(0,0,w,h);
         const shapes=makeOpticShapes(t,w,h);
-        drawShapes(ctx, shapes);
-        const rays = [
-          { start:{x:w*0.10,y:14}, dir:V.norm({x:0.56 + Math.sin(t*0.00008)*0.08, y:0.83}), style:'solid', alpha:.72 },
-          { start:{x:w*0.18,y:18}, dir:V.norm({x:0.28 + Math.sin(t*0.00009+0.6)*0.08, y:0.96}), style:'dashed', alpha:.62 },
-          { start:{x:w*0.86,y:14}, dir:V.norm({x:-0.68 + Math.cos(t*0.00007)*0.06, y:0.74}), style:'dotted', alpha:.72 }
+        drawShapes(ctx,shapes);
+        const rays=[
+          {start:{x:w*.07,y:8},dir:V.norm({x:.78+Math.sin(t*.00005)*.04,y:.63}),style:'solid',alpha:.58},
+          {start:{x:w*.16,y:8},dir:V.norm({x:.55+Math.sin(t*.00006+.7)*.04,y:.83}),style:'dashed',alpha:.52},
+          {start:{x:w*.90,y:8},dir:V.norm({x:-.76+Math.cos(t*.00005)*.04,y:.65}),style:'dotted',alpha:.60}
         ];
-        rays.forEach((ray)=>{
-          const path = traceRay(ray.start, ray.dir, shapes, {w,h});
-          drawRay(ctx, path, ray.alpha, ray.style);
-        });
+        rays.forEach(ray=>drawRay(ctx,traceRay(ray.start,ray.dir,shapes,{w,h}),ray.alpha,ray.style));
       }
 
       function rotate3([x,y,z], rx, ry, rz){
