@@ -88,7 +88,11 @@ export default {
     size: 'wide'
   },
   chiso: {
-    year: 2026
+    title: '柱状図から地層を推測',
+    year: 2026,
+    description: '実際の地形を舞台に、柱状図の情報から地層の広がりやつながりを推測するトレーニングアプリです。実在する地層データを表示するものではありません。',
+    tags: ['Geology', 'Science', 'Education', '3D'],
+    size: 'wide'
   },
   weather: {
     year: 2026

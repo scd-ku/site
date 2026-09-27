@@ -2970,3 +2970,48 @@ footer {
   .contact-list { margin-top: 18px; }
   .contact-map, .contact-map iframe { min-height: 240px; }
 }
+
+
+/* v39 — People identity hierarchy + simplified footer */
+.person-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 0 0 8px;
+}
+.person-name-jp,
+.person-name-en {
+  display: block;
+  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+.person-name-jp {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif;
+}
+.person-name-en {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.people-section .person-primary > p {
+  margin-top: 0;
+}
+
+footer {
+  grid-template-columns: minmax(0,1fr) auto !important;
+  align-items: center;
+}
+footer > span:last-child {
+  justify-self: end;
+}
+
+@media (max-width: 580px) {
+  footer {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  footer > span:last-child {
+    justify-self: start;
+  }
+}
