@@ -23,18 +23,20 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Sync public apps from scd-ku
         run: npm run sync
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SCD_GITHUB_OWNER: scd-ku
@@ -42,16 +44,29 @@ jobs:
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+        continue-on-error: true
 
       - name: Capture app thumbnails
         run: npm run capture
         continue-on-error: true
+
+      - name: Check Google Analytics configuration
+        shell: bash
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+        run: |
+          if [ -z "${PUBLIC_GA_MEASUREMENT_ID}" ]; then
+            echo "::warning::PUBLIC_GA_MEASUREMENT_ID is empty"
+          else
+            echo "Google Analytics Measurement ID is configured."
+          fi
 
       - name: Build Astro
         run: npm run build
         env:
           SITE_URL: https://scd-ku.github.io
           BASE_PATH: /site
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
 
       - name: Disable Jekyll
         run: touch dist/.nojekyll
@@ -60,7 +75,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
@@ -74,4 +89,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
