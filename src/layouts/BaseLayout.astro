@@ -28,6 +28,7 @@ const base = import.meta.env.BASE_URL;
     <PrivacyAnalytics />
 
     <script is:inline>
+      (() => {
       const dot = document.querySelector('.cursor-dot');
       const invertLens = document.querySelector('.cursor-invert-lens');
       const trailSvg = document.querySelector('.cursor-trail');
@@ -36,16 +37,8 @@ const base = import.meta.env.BASE_URL;
       const body = document.body;
       const finePointer = matchMedia('(pointer:fine)').matches;
       const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-      const migratedStyle = (localStorage.getItem('scd_cursor_style') === 'volvox') ? 'invert' : localStorage.getItem('scd_cursor_style');
       const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, invertHue: 0, trail: 42 };
-      const cursorState = {
-        style: migratedStyle || cursorDefaults.style,
-        motion: clamp(Number(localStorage.getItem('scd_cursor_motion') || cursorDefaults.motion), 0, 100),
-        size: clamp(Number(localStorage.getItem('scd_cursor_size') || cursorDefaults.size), 20, 110),
-        lineHue: clamp(Number(localStorage.getItem('scd_cursor_line_hue') || cursorDefaults.lineHue), 0, 360),
-        invertHue: clamp(Number(localStorage.getItem('scd_cursor_invert_hue') || cursorDefaults.invertHue), 0, 360),
-        trail: clamp(Number(localStorage.getItem('scd_cursor_trail') || cursorDefaults.trail), 0, 100),
-      };
+      const cursorState = { ...cursorDefaults };
       let pathPoints = [];
 
       function syncTrailViewport(){
@@ -58,12 +51,7 @@ const base = import.meta.env.BASE_URL;
       addEventListener('resize', syncTrailViewport, { passive:true });
 
       function persistCursorState(){
-        localStorage.setItem('scd_cursor_style', cursorState.style);
-        localStorage.setItem('scd_cursor_motion', String(cursorState.motion));
-        localStorage.setItem('scd_cursor_size', String(cursorState.size));
-        localStorage.setItem('scd_cursor_line_hue', String(cursorState.lineHue));
-        localStorage.setItem('scd_cursor_invert_hue', String(cursorState.invertHue));
-        localStorage.setItem('scd_cursor_trail', String(cursorState.trail));
+        // Display/cursor preferences intentionally reset on every reload.
       }
       function drawTrail(now = performance.now()){
         if (!trailPath || cursorState.style !== 'line') {
@@ -120,7 +108,7 @@ const base = import.meta.env.BASE_URL;
         root.style.setProperty('--blind-overlay-color', overlay);
         root.style.setProperty('--blind-overlay-blur', blur);
       }
-      const savedBlindTone = clamp(Number(localStorage.getItem('scd_blind_tone') || 0), 0, 100);
+      const savedBlindTone = 0;
       applyBlindTone(savedBlindTone);
 
       if (finePointer) {
@@ -142,12 +130,13 @@ const base = import.meta.env.BASE_URL;
       document.addEventListener('scd:update-cursor', (event) => applyCursorSettings(event.detail || {}));
       document.addEventListener('scd:update-blind-tone', (event) => {
         const value = clamp(Number(event.detail?.value ?? 0), 0, 100);
-        localStorage.setItem('scd_blind_tone', String(value));
         applyBlindTone(value);
       });
+      })();
     </script>
 
     <script is:inline>
+      (() => {
       const V = {
         add:(a,b)=>({x:a.x+b.x,y:a.y+b.y}),
         sub:(a,b)=>({x:a.x-b.x,y:a.y-b.y}),
@@ -559,6 +548,7 @@ const base = import.meta.env.BASE_URL;
         requestAnimationFrame(frame);
       }
       animateScience();
+      })();
     </script>
   </body>
 </html>

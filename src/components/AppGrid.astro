@@ -53,9 +53,9 @@ const colorForApp = (slug, index) => {
         <div class="settings-group">
           <div class="settings-group-label">Tiles</div>
           <div class="layout-modes layout-modes--tiles" role="group" aria-label="Tile composition">
-            <button type="button" data-tile-layout="ratio" class="is-active">4 : 3</button>
+            <button type="button" data-tile-layout="ratio">4 : 3</button>
             <button type="button" data-tile-layout="square">Square</button>
-            <button type="button" data-tile-layout="mondrian">Composite</button>
+            <button type="button" data-tile-layout="mondrian" class="is-active">Composite</button>
           </div>
         </div>
 
@@ -147,6 +147,7 @@ const colorForApp = (slug, index) => {
   </div>
 
   <script is:inline>
+    (() => {
     const filters = [...document.querySelectorAll('.filter')];
     const cards = [...document.querySelectorAll('.app-card')];
 
@@ -191,29 +192,15 @@ const colorForApp = (slug, index) => {
     const cursorSlider2Value = document.querySelector('[data-cursor-slider2-value]');
     const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
-    // v20 deliberately starts from full color once, so earlier Blind/Gray test states do not persist into the new default.
-    if (localStorage.getItem('scd_v20_default_migrated') !== '1') {
-      localStorage.setItem('scd_site_palette_v20', 'color');
-      localStorage.setItem('scd_v20_default_migrated', '1');
-    }
+    // Every page load starts from the requested defaults. Changes last only for this page view.
+    let detailSaturation = 68;
+    let blindTone = 0;
+    let currentMode = 'color';
+    let currentColumns = '4';
+    let currentTileLayout = 'mondrian';
+    let uiCursorState = { style:'stripe', motion:54, size:48, lineHue:210, invertHue:0, trail:42 };
 
-    let detailSaturation = clamp(Number(localStorage.getItem('scd_detail_saturation') || 68), 0, 100);
-    let blindTone = clamp(Number(localStorage.getItem('scd_blind_tone') || 0), 0, 100);
-    let currentMode = localStorage.getItem('scd_site_palette_v20') || 'color';
-    let currentColumns = localStorage.getItem('scd_project_columns') || '4';
-    let currentTileLayout = localStorage.getItem('scd_project_layout') || 'ratio';
-
-    const getCursorState = () => {
-      const stored = localStorage.getItem('scd_cursor_style');
-      return {
-        style: stored === 'volvox' ? 'invert' : (stored || 'stripe'),
-        motion: clamp(Number(localStorage.getItem('scd_cursor_motion') || 54), 0, 100),
-        size: clamp(Number(localStorage.getItem('scd_cursor_size') || 48), 20, 110),
-        lineHue: clamp(Number(localStorage.getItem('scd_cursor_line_hue') || 210), 0, 360),
-        invertHue: clamp(Number(localStorage.getItem('scd_cursor_invert_hue') || 0), 0, 360),
-        trail: clamp(Number(localStorage.getItem('scd_cursor_trail') || 42), 0, 100),
-      };
-    };
+    const getCursorState = () => ({ ...uiCursorState });
 
     const updateCursorControls = (state) => {
       const style = state.style;
@@ -244,8 +231,9 @@ const colorForApp = (slug, index) => {
     };
 
     const emitCursorState = (state) => {
-      document.dispatchEvent(new CustomEvent('scd:update-cursor', { detail: state }));
-      updateCursorControls(state);
+      uiCursorState = { ...uiCursorState, ...state };
+      document.dispatchEvent(new CustomEvent('scd:update-cursor', { detail: uiCursorState }));
+      updateCursorControls(uiCursorState);
     };
 
     const updateScreenControl = () => {
@@ -265,11 +253,6 @@ const colorForApp = (slug, index) => {
       paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === currentMode));
       columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === currentColumns));
       tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === currentTileLayout));
-      localStorage.setItem('scd_site_palette_v20', currentMode);
-      localStorage.setItem('scd_detail_saturation', String(detailSaturation));
-      localStorage.setItem('scd_blind_tone', String(blindTone));
-      localStorage.setItem('scd_project_columns', currentColumns);
-      localStorage.setItem('scd_project_layout', currentTileLayout);
       updateScreenControl();
       if (currentMode === 'blind') {
         document.dispatchEvent(new CustomEvent('scd:update-blind-tone', { detail: { value: blindTone } }));
@@ -292,7 +275,7 @@ const colorForApp = (slug, index) => {
 
     paletteButtons.forEach((button) => button.addEventListener('click', () => {
       currentMode = button.dataset.paletteMode || 'color';
-      if (currentMode === 'blind' && localStorage.getItem('scd_blind_tone') === null) blindTone = 0;
+      if (currentMode === 'blind') blindTone = 0;
       applyDisplaySettings();
     }));
     columnButtons.forEach((button) => button.addEventListener('click', () => {
@@ -362,5 +345,6 @@ const colorForApp = (slug, index) => {
         window.scdTrack?.(liked ? 'project_unlike' : 'project_like', { project_slug: slug });
       });
     });
+    })();
   </script>
 </section>

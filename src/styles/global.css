@@ -2049,3 +2049,7 @@ body[data-cursor-style="invert"] .cursor-dot::after { display:none; }
   .hero h1 > span:last-child { transform:translateY(0); }
   .card-detail { height:50%; max-height:50%; }
 }
+
+
+/* v22 — deterministic reload defaults */
+html:not([data-project-columns]) .app-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
