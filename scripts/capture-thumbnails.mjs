@@ -8,7 +8,7 @@ await fs.mkdir(outDir, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
-  viewport: { width: 1440, height: 1000 },
+  viewport: { width: 1040, height: 780 },
   reducedMotion: 'reduce'
 });
 
@@ -17,6 +17,12 @@ for (const app of apps) {
   try {
     await page.goto(app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(1200);
+    await page.evaluate(() => {
+      document.documentElement.style.zoom = '1.10';
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, 0);
+    });
+    await page.waitForTimeout(220);
     await page.screenshot({
       path: path.join(outDir, `${app.slug}.jpg`),
       type: 'jpeg',

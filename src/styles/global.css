@@ -1953,3 +1953,99 @@ body[data-cursor-style="line"] .cursor-dot span { display:none; }
   .projects-section { padding-top:16px; }
   .about-section { padding-top:18px; padding-bottom:34px; }
 }
+
+
+/* v21 — legibility, precise hero crop, reliable invert lens, half-height details, thumbnail recrop */
+:root {
+  --fg:#080808;
+  --muted:rgba(8,8,8,.68);
+}
+body {
+  color:var(--fg);
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:geometricPrecision;
+}
+.section-heading h2,
+.text-section h2,
+.about-copy h2,
+.person-primary h2 { color:#080808; }
+.filter,
+.content-band,
+.people-list,
+.person-primary p,
+.about-copy p,
+.section-kicker,
+.display-settings-popover { font-weight:400; }
+.filter { color:#111; border-color:rgba(8,8,8,.22); }
+.filter:not(.is-active) { background:rgba(255,255,255,.94); }
+
+/* Only the lowest 1–2 px of the title should meet the black/white boundary. */
+.hero-content { bottom:-1px; }
+.hero h1 > span:first-child { margin-bottom:-4px; }
+.hero h1 > span:last-child { transform:translateY(1px); }
+
+/* Thumbnail crop: favor the application UI/header rather than clipping it from the center. */
+.card-visual img {
+  object-position:50% 0%;
+}
+
+/* Description panel may cover no more than half the tile. */
+.card-detail {
+  height:50%;
+  max-height:50%;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  overflow:hidden;
+  padding:13px 15px 14px;
+}
+.card-detail .detail-topline { margin-bottom:7px; }
+.card-detail p {
+  margin:0 0 8px;
+  font-size:11px;
+  line-height:1.55;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.card-meta { margin-top:auto; }
+
+/* Stronger normal/focus contrast in full-color mode. */
+html[data-site-palette="color"] .card-visual img {
+  filter:saturate(.26) brightness(.95) contrast(.99);
+}
+html[data-site-palette="color"] .app-card:hover .card-visual img,
+html[data-site-palette="color"] .app-card:focus-within .card-visual img {
+  filter:saturate(1) brightness(1) contrast(1);
+}
+
+/* Reliable Invert cursor: a dedicated fixed lens follows the pointer independently of the custom cursor. */
+.cursor-invert-lens {
+  position:fixed;
+  z-index:999;
+  pointer-events:none;
+  display:none;
+  width:var(--cursor-size,48px);
+  height:var(--cursor-size,48px);
+  top:calc(var(--cursor-size,48px) * -.5);
+  left:calc(var(--cursor-size,48px) * -.5);
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.88);
+  background:rgba(255,255,255,.004);
+  backdrop-filter:invert(1) hue-rotate(var(--cursor-invert-hue,0deg));
+  -webkit-backdrop-filter:invert(1) hue-rotate(var(--cursor-invert-hue,0deg));
+  will-change:transform;
+}
+body[data-cursor-style="invert"] .cursor-invert-lens { display:block; }
+body[data-cursor-style="invert"] .cursor-dot { opacity:0; }
+body[data-cursor-style="invert"] .cursor-dot::before,
+body[data-cursor-style="invert"] .cursor-dot::after { display:none; }
+
+@media (max-width:920px) {
+  .hero-content { bottom:0; }
+  .hero h1 > span:last-child { transform:translateY(0); }
+  .card-detail { height:50%; max-height:50%; }
+}

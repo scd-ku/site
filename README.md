@@ -197,3 +197,11 @@ scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 - Grid columns now support 3 / 4 / 5; default is 4.
 - About English catchphrase matches People name scale; Japanese copy follows below.
 - Typography uses an Avenir Next-first rounded/minimal system stack and roomier tracking.
+
+
+## v21 adjustments
+- Recropped project thumbnails at 1040×780 and top-aligned them for clearer UI/icon labels.
+- Darkened body/UI text without increasing display-title weight excessively.
+- Reduced hero-title overlap to about 1–2 px at the boundary.
+- Reimplemented Invert cursor with a dedicated fixed lens for reliable pointer tracking.
+- Limited project description overlays to 50% of each tile height.

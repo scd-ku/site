@@ -22,12 +22,14 @@ const base = import.meta.env.BASE_URL;
   <body>
     <svg class="cursor-trail" aria-hidden="true" preserveAspectRatio="none"><path d=""/></svg>
     <div class="blind-overlay" aria-hidden="true"></div>
+    <div class="cursor-invert-lens" aria-hidden="true"></div>
     <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
     <slot />
     <PrivacyAnalytics />
 
     <script is:inline>
       const dot = document.querySelector('.cursor-dot');
+      const invertLens = document.querySelector('.cursor-invert-lens');
       const trailSvg = document.querySelector('.cursor-trail');
       const trailPath = trailSvg?.querySelector('path');
       const root = document.documentElement;
@@ -124,6 +126,7 @@ const base = import.meta.env.BASE_URL;
       if (finePointer) {
         addEventListener('pointermove', (e) => {
           dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          if (invertLens) invertLens.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
           root.style.setProperty('--mx', `${(e.clientX / innerWidth - .5) * 2}`);
           root.style.setProperty('--my', `${(e.clientY / innerHeight - .5) * 2}`);
           root.style.setProperty('--cursor-x', `${e.clientX}px`);
