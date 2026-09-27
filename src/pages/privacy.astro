@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
+const gaConfigured = Boolean(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
 ---
 <BaseLayout title="Privacy / Analytics — Science Communication Design Laboratory">
   <main id="top">
@@ -17,6 +18,9 @@ import Header from '../components/Header.astro';
       <section>
         <h2>Google Analytics</h2>
         <p>本サイトは、設定された場合に Google Analytics 4 を利用します。解析タグは、このサイト上で「許可する」を選ぶまで読み込みません。</p>
+        <p class:list={['analytics-config-status', gaConfigured ? 'is-configured' : 'is-missing']}>
+          現在のビルド状態：{gaConfigured ? 'Google Analytics 設定済み' : 'Google Analytics 未設定'}
+        </p>
         <dl>
           <div><dt>送信先</dt><dd>Google LLC</dd></div>
           <div><dt>主な情報</dt><dd>閲覧ページ、参照元、言語、画面解像度、おおよその地域、ブラウザ・端末情報、サイト内でのプロジェクト操作など</dd></div>

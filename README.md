@@ -205,3 +205,20 @@ scripts/capture-thumbnails.mjs     公開アプリの画面自動撮影
 - Reduced hero-title overlap to about 1–2 px at the boundary.
 - Reimplemented Invert cursor with a dedicated fixed lens for reliable pointer tracking.
 - Limited project description overlays to 50% of each tile height.
+
+## Google Analytics / consent banner
+
+The site only enables Google Analytics when the GitHub Actions repository variable
+`PUBLIC_GA_MEASUREMENT_ID` is set to the GA4 Measurement ID (for example `G-XXXXXXXXXX`).
+
+GitHub: **Settings → Secrets and variables → Actions → Variables → New repository variable**
+
+- Name: `PUBLIC_GA_MEASUREMENT_ID`
+- Value: your GA4 Measurement ID
+
+After saving it, run the Pages workflow again. When this value is missing, both
+Google Analytics and the initial consent banner are intentionally disabled.
+
+If the variable is configured but the banner does not appear, the browser may
+already have `scd_analytics_consent` in localStorage. Use the Privacy / Analytics
+page's reset button or clear that localStorage key and reload.

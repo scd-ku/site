@@ -2384,3 +2384,25 @@ html[data-site-palette="mono"] .card-detail p {
   .object-truncated-octahedron-3d { left:45%; width:34vw; }
   .object-hexprism-3d { left:7%; width:28vw; }
 }
+
+/* v27 — analytics configuration status */
+.analytics-config-status {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin:4px 0 18px !important;
+  padding:7px 10px;
+  border:1px solid rgba(17,17,17,.16);
+  border-radius:999px;
+  color:#111 !important;
+  font-size:10px !important;
+  line-height:1 !important;
+}
+.analytics-config-status::before {
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#111;
+}
+.analytics-config-status.is-missing { opacity:.72; }

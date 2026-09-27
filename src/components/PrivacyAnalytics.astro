@@ -61,9 +61,16 @@ const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
     };
 
     const current = localStorage.getItem(key);
+    window.scdAnalyticsStatus = {
+      configured: Boolean(gaId),
+      consent: current || 'unset'
+    };
+
     if (gaId) {
       if (current === 'accepted') loadAnalytics();
       else if (current !== 'denied') banner.hidden = false;
+    } else {
+      console.warn('[SCD] Google Analytics is disabled because PUBLIC_GA_MEASUREMENT_ID is not configured at build time.');
     }
 
     banner.querySelector('[data-consent="accept"]')?.addEventListener('click', () => setConsent('accepted'));
