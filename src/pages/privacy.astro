@@ -21,6 +21,10 @@ const gaConfigured = Boolean(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
         <p class:list={['analytics-config-status', gaConfigured ? 'is-configured' : 'is-missing']}>
           現在のビルド状態：{gaConfigured ? 'Google Analytics 設定済み' : 'Google Analytics 未設定'}
         </p>
+        <p class="analytics-config-help">
+          「設定済み」なら、GitHub Actions のビルド時に Measurement ID がサイトへ渡っています。「未設定」なら、Repository variable を保存したあとに Actions を再実行してください。
+        </p>
+        <p class="analytics-browser-status" data-analytics-browser-status>このブラウザの選択：確認中…</p>
         <dl>
           <div><dt>送信先</dt><dd>Google LLC</dd></div>
           <div><dt>主な情報</dt><dd>閲覧ページ、参照元、言語、画面解像度、おおよその地域、ブラウザ・端末情報、サイト内でのプロジェクト操作など</dd></div>
@@ -37,7 +41,10 @@ const gaConfigured = Boolean(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
       <section>
         <h2>選択の変更</h2>
         <p>アクセス解析の選択は、いつでもリセットできます。</p>
-        <button class="privacy-reset" type="button" onclick="window.scdResetAnalyticsConsent?.()">アクセス解析の選択をリセット</button>
+        <div class="privacy-choice-actions">
+          <button class="privacy-reset" type="button" data-analytics-reset>アクセス解析の選択をリセット</button>
+          <button class="privacy-reset" type="button" data-analytics-open>同意画面を表示</button>
+        </div>
       </section>
 
       <section>
@@ -51,4 +58,27 @@ const gaConfigured = Boolean(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
       </section>
     </article>
   </main>
+
+<script is:inline>
+  (() => {
+    const status = document.querySelector('[data-analytics-browser-status]');
+    const key = 'scd_analytics_consent';
+    const paint = () => {
+      if (!status) return;
+      const value = localStorage.getItem(key);
+      const label = value === 'accepted' ? '許可済み' : value === 'denied' ? '拒否済み' : '未選択';
+      status.textContent = `このブラウザの選択：${label}`;
+    };
+    paint();
+    document.querySelector('[data-analytics-reset]')?.addEventListener('click', () => {
+      window.scdResetAnalyticsConsent?.();
+      paint();
+    });
+    document.querySelector('[data-analytics-open]')?.addEventListener('click', () => {
+      window.scdOpenPrivacyChoices?.();
+      paint();
+    });
+  })();
+</script>
+
 </BaseLayout>

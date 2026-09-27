@@ -344,10 +344,12 @@ const colorForApp = (slug, index) => {
     document.addEventListener('scd:cursor-state-applied', (event) => updateCursorControls(event.detail));
     document.addEventListener('pointerdown', (event) => {
       if (!settingsPopover || settingsPopover.hasAttribute('hidden')) return;
-      if (!event.target.closest('.display-settings')) {
-        settingsPopover.setAttribute('hidden', '');
-        settingsButton?.setAttribute('aria-expanded', 'false');
-      }
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest('.display-settings-button')) return;
+      if (target.closest('.display-settings-popover button, .display-settings-popover input')) return;
+      settingsPopover.setAttribute('hidden', '');
+      settingsButton?.setAttribute('aria-expanded', 'false');
     });
 
     document.querySelectorAll('[data-like]').forEach((button) => {

@@ -222,3 +222,12 @@ Google Analytics and the initial consent banner are intentionally disabled.
 If the variable is configured but the banner does not appear, the browser may
 already have `scd_analytics_consent` in localStorage. Use the Privacy / Analytics
 page's reset button or clear that localStorage key and reload.
+
+## Analytics status check
+
+For the current GitHub Pages deployment, open:
+
+`https://scd-ku.github.io/site/privacy/`
+
+The page displays both the build-time Analytics configuration state and this browser's current consent state.
+If the repository variable was added after the last successful deployment, re-run the latest **Deploy Astro site to GitHub Pages** workflow so the variable is injected into the built static files.

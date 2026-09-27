@@ -2406,3 +2406,20 @@ html[data-site-palette="mono"] .card-detail p {
   background:#111;
 }
 .analytics-config-status.is-missing { opacity:.72; }
+
+
+/* v28 — settings dismissal + analytics diagnostics */
+.analytics-config-help {
+  max-width:56em;
+  margin:0 0 12px !important;
+  font-size:11px !important;
+  line-height:1.7 !important;
+  color:rgba(17,17,17,.72) !important;
+}
+.analytics-browser-status {
+  margin:0 0 18px !important;
+  font-size:11px !important;
+  font-weight:400 !important;
+  color:#111 !important;
+}
+.privacy-choice-actions { display:flex; flex-wrap:wrap; gap:8px; }
