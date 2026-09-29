@@ -100,12 +100,17 @@ export default {
   weather: {
     year: 2026
   },
-  gcodelayers: {
-    year: 2026
-  },
+
   gcodelayers: {
     title: 'Gcode Layer Editor',
     year: 2026,
     description: 'G-codeを直接編集し、3Dプリンタのノズル移動や樹脂の吐出を制御して造形できるアプリです。'
+  },
+  historybank: {
+    title: '国立銀行の歴史',
+    year: 2026,
+    description: '明治時代の国立銀行条例に基づいて設立された国立銀行の変遷を、名称変更・合併・買収から現在の後身まで、共通の時間軸とツリーでたどるインタラクティブな系譜ビューアです。',
+    tags: ['History', 'Finance', 'Visualization', 'Education'],
+    size: 'wide'
   }
 };
