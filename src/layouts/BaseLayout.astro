@@ -66,11 +66,56 @@ const base = import.meta.env.BASE_URL;
 
       let magnifierSource = null;
       let magnifierClone = null;
+      let magnifierFixedPairs = [];
 
       function stripCloneIds(node){
         if (!(node instanceof Element)) return;
         node.removeAttribute('id');
         node.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+      }
+
+      function copyInteractiveState(sourceRoot, cloneRoot){
+        if (!sourceRoot || !cloneRoot) return;
+
+        const sourceInputs = sourceRoot.matches?.('input,select,textarea') ? [sourceRoot] : [...sourceRoot.querySelectorAll('input,select,textarea')];
+        const cloneInputs = cloneRoot.matches?.('input,select,textarea') ? [cloneRoot] : [...cloneRoot.querySelectorAll('input,select,textarea')];
+        for (let i=0;i<Math.min(sourceInputs.length,cloneInputs.length);i++){
+          const src=sourceInputs[i], dst=cloneInputs[i];
+          if ('value' in src && 'value' in dst) dst.value=src.value;
+          if ('checked' in src && 'checked' in dst) dst.checked=src.checked;
+          if ('selectedIndex' in src && 'selectedIndex' in dst) dst.selectedIndex=src.selectedIndex;
+        }
+
+        const sourceOutputs = sourceRoot.matches?.('output') ? [sourceRoot] : [...sourceRoot.querySelectorAll('output')];
+        const cloneOutputs = cloneRoot.matches?.('output') ? [cloneRoot] : [...cloneRoot.querySelectorAll('output')];
+        for (let i=0;i<Math.min(sourceOutputs.length,cloneOutputs.length);i++) cloneOutputs[i].textContent=sourceOutputs[i].textContent;
+
+        const sourceButtons = sourceRoot.matches?.('button') ? [sourceRoot] : [...sourceRoot.querySelectorAll('button')];
+        const cloneButtons = cloneRoot.matches?.('button') ? [cloneRoot] : [...cloneRoot.querySelectorAll('button')];
+        for (let i=0;i<Math.min(sourceButtons.length,cloneButtons.length);i++){
+          cloneButtons[i].className=sourceButtons[i].className;
+          ['aria-expanded','aria-pressed','disabled'].forEach((name)=>{
+            const value=sourceButtons[i].getAttribute(name);
+            if(value===null) cloneButtons[i].removeAttribute(name); else cloneButtons[i].setAttribute(name,value);
+          });
+        }
+
+        const sourceLabels = [...sourceRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label]')];
+        const cloneLabels = [...cloneRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label]')];
+        for (let i=0;i<Math.min(sourceLabels.length,cloneLabels.length);i++) cloneLabels[i].textContent=sourceLabels[i].textContent;
+      }
+
+      function addFixedMirror(sourceEl, cloneRoot){
+        if (!(sourceEl instanceof Element) || !magnifierScene) return;
+        const fixedClone=sourceEl.cloneNode(true);
+        stripCloneIds(fixedClone);
+        fixedClone.classList.add('magnifier-fixed-copy');
+        fixedClone.removeAttribute('hidden');
+        fixedClone.setAttribute('aria-hidden','true');
+        if ('inert' in fixedClone) fixedClone.inert=true;
+        magnifierScene.appendChild(fixedClone);
+        magnifierFixedPairs.push({ source:sourceEl, clone:fixedClone });
+        copyInteractiveState(sourceEl,fixedClone);
       }
 
       function rebuildMagnifier(){
@@ -80,15 +125,28 @@ const base = import.meta.env.BASE_URL;
         const clone = source.cloneNode(true);
         stripCloneIds(clone);
         clone.setAttribute('aria-hidden','true');
+        clone.classList.add('magnifier-document-copy');
         if ('inert' in clone) clone.inert = true;
         clone.querySelectorAll('iframe').forEach((frame) => {
           frame.setAttribute('tabindex','-1');
           frame.setAttribute('aria-hidden','true');
         });
+
+        // Fixed-position UI is mirrored separately in document coordinates.
+        clone.querySelectorAll('.site-header,.display-settings-popover').forEach((el)=>el.remove());
+
         magnifierScene.replaceChildren(clone);
         magnifierSource = source;
         magnifierClone = clone;
+        magnifierFixedPairs = [];
         magnifierScene.style.width = `${document.documentElement.clientWidth}px`;
+
+        const sourceHeader=source.querySelector('.site-header');
+        if(sourceHeader) addFixedMirror(sourceHeader,clone);
+        const sourcePopover=source.querySelector('.display-settings-popover');
+        if(sourcePopover && !sourcePopover.hasAttribute('hidden')) addFixedMirror(sourcePopover,clone);
+
+        copyInteractiveState(source,clone);
       }
 
       function syncMagnifierCanvases(){
@@ -103,9 +161,76 @@ const base = import.meta.env.BASE_URL;
             if (dst.width !== src.width) dst.width = src.width;
             if (dst.height !== src.height) dst.height = src.height;
             const ctx = dst.getContext('2d');
-            if (ctx) ctx.drawImage(src,0,0);
+            if (ctx) {
+              ctx.setTransform(1,0,0,1,0,0);
+              ctx.clearRect(0,0,dst.width,dst.height);
+              ctx.drawImage(src,0,0);
+            }
           } catch {}
         }
+      }
+
+      function syncMagnifierDynamicState(){
+        if (!magnifierSource || !magnifierClone) return;
+        copyInteractiveState(magnifierSource,magnifierClone);
+
+        // Keep filtered cards, active buttons and generated inline styles current.
+        const selectors=['.app-card','.hero-weight-char','.like-button'];
+        selectors.forEach((selector)=>{
+          const src=[...magnifierSource.querySelectorAll(selector)];
+          const dst=[...magnifierClone.querySelectorAll(selector)];
+          for(let i=0;i<Math.min(src.length,dst.length);i++){
+            if(selector!=='.hero-weight-char') dst[i].className=src[i].className;
+            if(src[i].hasAttribute('hidden')) dst[i].setAttribute('hidden',''); else dst[i].removeAttribute('hidden');
+            if(selector==='.hero-weight-char') dst[i].style.cssText=src[i].style.cssText;
+          }
+        });
+
+        // Mirror the project card currently under the real pointer, including its description panel.
+        magnifierClone.querySelectorAll('.is-magnifier-hover').forEach((el)=>el.classList.remove('is-magnifier-hover'));
+        const underneath=document.elementFromPoint(pointerX,pointerY);
+        const hoveredCard=underneath?.closest?.('.app-card');
+        if(hoveredCard?.dataset?.slug){
+          magnifierClone.querySelector(`.app-card[data-slug="${CSS.escape(hoveredCard.dataset.slug)}"]`)?.classList.add('is-magnifier-hover');
+        }
+
+        // Fixed UI (header/settings) follows the exact current viewport position.
+        const livePopover=magnifierSource.querySelector('.display-settings-popover');
+        const hasPopoverPair=magnifierFixedPairs.some((pair)=>pair.source===livePopover);
+        if(livePopover && !livePopover.hasAttribute('hidden') && !hasPopoverPair){
+          addFixedMirror(livePopover,magnifierClone);
+        }
+        if(livePopover?.hasAttribute('hidden') && hasPopoverPair){
+          const pair=magnifierFixedPairs.find((item)=>item.source===livePopover);
+          pair?.clone.remove();
+          magnifierFixedPairs=magnifierFixedPairs.filter((item)=>item!==pair);
+        }
+
+        magnifierFixedPairs.forEach((pair)=>{
+          const rect=pair.source.getBoundingClientRect();
+          pair.clone.style.position='absolute';
+          pair.clone.style.left=`${window.scrollX+rect.left}px`;
+          pair.clone.style.top=`${window.scrollY+rect.top}px`;
+          pair.clone.style.width=`${rect.width}px`;
+          pair.clone.style.height=`${rect.height}px`;
+          pair.clone.style.margin='0';
+          pair.clone.style.transform='none';
+          pair.clone.style.display=getComputedStyle(pair.source).display;
+          copyInteractiveState(pair.source,pair.clone);
+        });
+
+        // Match the moving hero geometry rather than running a second independent animation.
+        const animatedSelectors=['.science-object','.science-object svg','.optics-canvas','.hero-weight-char'];
+        animatedSelectors.forEach((selector)=>{
+          const src=[...magnifierSource.querySelectorAll(selector)];
+          const dst=[...magnifierClone.querySelectorAll(selector)];
+          for(let i=0;i<Math.min(src.length,dst.length);i++){
+            const cs=getComputedStyle(src[i]);
+            dst[i].style.transform=cs.transform==='none'?'':cs.transform;
+            dst[i].style.opacity=cs.opacity;
+            dst[i].style.filter=cs.filter==='none'?'':cs.filter;
+          }
+        });
       }
 
       function updateMagnifier(){
@@ -125,10 +250,22 @@ const base = import.meta.env.BASE_URL;
         magnifierLens.style.transform=`translate3d(${pointerX-radius}px,${pointerY-radius}px,0)`;
         const docX = window.scrollX + pointerX;
         const docY = window.scrollY + pointerY;
-        magnifierScene.style.transform = `translate3d(${radius-docX*zoom}px,${radius-docY*zoom}px,0) scale(${zoom})`;
+
+        syncMagnifierDynamicState();
         syncMagnifierCanvases();
+
+        // The pixel directly below the pointer remains at the centre of the lens.
+        magnifierScene.style.transform = `translate3d(${radius-docX*zoom}px,${radius-docY*zoom}px,0) scale(${zoom})`;
       }
 
+      const requestMagnifierRefresh=()=>{
+        if(cursorState.style!=='pulse' || root.dataset.sitePalette==='blind') return;
+        rebuildMagnifier();
+      };
+      document.addEventListener('input',()=>requestAnimationFrame(requestMagnifierRefresh),true);
+      document.addEventListener('change',()=>requestAnimationFrame(requestMagnifierRefresh),true);
+      document.addEventListener('click',()=>requestAnimationFrame(requestMagnifierRefresh),true);
+      document.addEventListener('scd:cursor-state-applied',()=>requestAnimationFrame(requestMagnifierRefresh));
       function resampleTrail(points, spacing=5){
         if(points.length < 2) return points.slice();
         const out=[{...points[0]}];
