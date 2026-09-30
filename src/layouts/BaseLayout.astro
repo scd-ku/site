@@ -524,6 +524,21 @@ const base = import.meta.env.BASE_URL;
         const t1 = (-B - s)/(2*A), t2 = (-B + s)/(2*A);
         return [t1,t2].filter(t=>t>1e-4).map(t=>({ point:V.add(p,V.mul(d,t)), t }));
       }
+      function rayToHeroEdge(p,d,bounds){
+        const eps=1e-5;
+        const hits=[];
+        if(d.x > eps) hits.push({t:(bounds.w-p.x)/d.x, edge:'right'});
+        if(d.x < -eps) hits.push({t:(0-p.x)/d.x, edge:'left'});
+        if(d.y > eps) hits.push({t:(bounds.h-p.y)/d.y, edge:'bottom'});
+        if(d.y < -eps) hits.push({t:(0-p.y)/d.y, edge:'top'});
+        const valid=hits.filter(h=>h.t>1e-3).sort((a,b)=>a.t-b.t);
+        if(!valid.length) return null;
+        const hit=valid[0];
+        return { point:V.add(p,V.mul(d,hit.t)), t:hit.t, edge:hit.edge };
+      }
+      function pointOnHeroEdge(p,bounds,tol=1.2){
+        return p.x<=tol || p.x>=bounds.w-tol || p.y<=tol || p.y>=bounds.h-tol;
+      }
       function regularPolygon(center, radius, sides, angle=0){
         return Array.from({length:sides}, (_,i)=>{
           const a=angle - Math.PI/2 + i*Math.PI*2/sides;
@@ -643,43 +658,71 @@ const base = import.meta.env.BASE_URL;
       function traceRay(start, dir, shapes, bounds){
         const points=[start];
         let p={...start}, d=V.norm(dir), medium='air', currentShape=null;
-        for(let bounce=0; bounce<9; bounce++){
+        let completed=false;
+        for(let bounce=0; bounce<18; bounce++){
           const candidates=[];
-          // walls: left, right, bottom reflection surfaces
+          // Left/right/bottom remain reflective hero boundaries. Top is an exit boundary.
           [['left', {x:1,y:0}, {x:0,y:0}, {x:0,y:bounds.h}], ['right',{x:-1,y:0},{x:bounds.w,y:0},{x:bounds.w,y:bounds.h}], ['bottom',{x:0,y:-1},{x:0,y:bounds.h},{x:bounds.w,y:bounds.h}]].forEach(([name,n,a,b])=>{
-            const inter=intersectRaySegment(p,d,a,b); if(inter) candidates.push({...inter,kind:'wall',normal:n,name});
+            const inter=intersectRaySegment(p,d,a,b);
+            if(inter) candidates.push({...inter,kind:'wall',normal:n,name});
           });
           if(medium==='air'){
             Object.values(shapes).forEach(shape=>{
-              const hit=nearestHitAgainstShape(p,d,shape,false); if(hit) candidates.push({...hit,kind:'enter',shape});
+              const hit=nearestHitAgainstShape(p,d,shape,false);
+              if(hit) candidates.push({...hit,kind:'enter',shape});
             });
           } else if(currentShape) {
-            const hit=nearestHitAgainstShape(p,d,currentShape,true); if(hit) candidates.push({...hit,kind:'exit',shape:currentShape});
+            const hit=nearestHitAgainstShape(p,d,currentShape,true);
+            if(hit) candidates.push({...hit,kind:'exit',shape:currentShape});
           }
+
+          // If the ray is heading toward the top (or has no nearer optical hit),
+          // terminate exactly at the hero boundary rather than an arbitrary 400 px.
+          const boundary=rayToHeroEdge(p,d,bounds);
+          if(boundary && boundary.edge==='top') candidates.push({...boundary,kind:'terminal'});
+
           candidates.sort((a,b)=>a.t-b.t);
           const hit=candidates[0];
-          if(!hit) {
-            points.push(V.add(p, V.mul(d, 400)));
+          if(!hit){
+            const terminal=rayToHeroEdge(p,d,bounds);
+            if(terminal) points.push(terminal.point);
+            completed=true;
             break;
           }
+
           points.push(hit.point);
+          if(hit.kind==='terminal'){
+            completed=true;
+            break;
+          }
           if(hit.kind==='wall'){
             d = reflect(d, hit.normal);
-            p = V.add(hit.point, V.mul(d, 0.4));
+            p = V.add(hit.point, V.mul(d, 0.45));
           } else if(hit.kind==='enter') {
-            const nd = refract(d, hit.normal, 1.0, hit.shape.n) || reflect(d, hit.normal);
-            currentShape = hit.shape;
-            medium = (nd === d ? 'air' : 'shape');
-            d = nd;
-            p = V.add(hit.point, V.mul(d, 0.4));
-          } else if(hit.kind==='exit') {
-            const nd = refract(d, hit.normal, hit.shape.n, 1.0) || reflect(d, hit.normal);
-            if (refract(d, hit.normal, hit.shape.n, 1.0)) {
-              medium='air'; currentShape=null;
+            const refracted = refract(d, hit.normal, 1.0, hit.shape.n);
+            d = refracted || reflect(d, hit.normal);
+            if(refracted){
+              currentShape = hit.shape;
+              medium = 'shape';
             }
-            d = nd;
-            p = V.add(hit.point, V.mul(d, 0.4));
+            p = V.add(hit.point, V.mul(d, 0.45));
+          } else if(hit.kind==='exit') {
+            const refracted = refract(d, hit.normal, hit.shape.n, 1.0);
+            d = refracted || reflect(d, hit.normal);
+            if(refracted){
+              medium='air';
+              currentShape=null;
+            }
+            p = V.add(hit.point, V.mul(d, 0.45));
           }
+        }
+
+        // Numerical edge cases / interaction limit: always finish at the exact
+        // visible edge so none of the three rays stops in the middle of the hero.
+        const last=points[points.length-1];
+        if(!completed && !pointOnHeroEdge(last,bounds)){
+          const terminal=rayToHeroEdge(p,d,bounds);
+          if(terminal) points.push(terminal.point);
         }
         return points;
       }
@@ -709,10 +752,28 @@ const base = import.meta.env.BASE_URL;
         ctx.clearRect(0,0,w,h);
         const shapes=makeOpticShapes(t,w,h);
         drawShapes(ctx,shapes);
+        // Aim each ray through the interior of a refractive object.
+        // This preserves the composition while guaranteeing that the dashed/dotted
+        // lines actually demonstrate refraction from the initial frame onward.
+        const solidStart={x:0,y:h*.17};
+        const dashedStart={x:w*.18,y:0};
+        const dottedStart={x:w,y:h*.11};
+        const triTarget={
+          x:shapes.tri.center.x + Math.sin(t*.000045)*Math.min(w,h)*.012,
+          y:shapes.tri.center.y + Math.cos(t*.000042)*Math.min(w,h)*.010
+        };
+        const rectTarget={
+          x:shapes.rect.center.x + Math.sin(t*.000040+.8)*Math.min(w,h)*.010,
+          y:shapes.rect.center.y + Math.cos(t*.000043+.3)*Math.min(w,h)*.006
+        };
+        const circleTarget={
+          x:shapes.circle.center.x + Math.sin(t*.000038+.5)*shapes.circle.radius*.20,
+          y:shapes.circle.center.y + Math.cos(t*.000041+.9)*shapes.circle.radius*.20
+        };
         const rays=[
-          {start:{x:w*.07,y:8},dir:V.norm({x:.78+Math.sin(t*.00005)*.04,y:.63}),style:'solid',alpha:.58},
-          {start:{x:w*.16,y:8},dir:V.norm({x:.55+Math.sin(t*.00006+.7)*.04,y:.83}),style:'dashed',alpha:.52},
-          {start:{x:w*.90,y:8},dir:V.norm({x:-.76+Math.cos(t*.00005)*.04,y:.65}),style:'dotted',alpha:.60}
+          {start:solidStart,dir:V.norm(V.sub(triTarget,solidStart)),style:'solid',alpha:.58},
+          {start:dashedStart,dir:V.norm(V.sub(rectTarget,dashedStart)),style:'dashed',alpha:.54},
+          {start:dottedStart,dir:V.norm(V.sub(circleTarget,dottedStart)),style:'dotted',alpha:.60}
         ];
         rays.forEach(ray=>drawRay(ctx,traceRay(ray.start,ray.dir,shapes,{w,h}),ray.alpha,ray.style));
       }
@@ -767,6 +828,12 @@ const base = import.meta.env.BASE_URL;
           edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
           faces=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
           scale=58;
+        } else if(type==='octahedron'){
+          // Regular octahedron: 6 vertices, 8 triangular faces.
+          verts=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+          edges=[[0,2],[2,1],[1,3],[3,0],[0,4],[2,4],[1,4],[3,4],[0,5],[2,5],[1,5],[3,5]];
+          faces=[[0,2,4],[2,1,4],[1,3,4],[3,0,4],[2,0,5],[1,2,5],[3,1,5],[0,3,5]];
+          scale=68;
         } else if(type==='hexPrism'){
           verts=[];
           for(let i=0;i<6;i++){
@@ -802,12 +869,14 @@ const base = import.meta.env.BASE_URL;
         }
         const speeds = type==='cube'
           ? {x:0.000010, y:0.000018, z:0.000007}
+          : type==='octahedron'
+            ? {x:0.000009, y:-0.000016, z:0.000006}
           : type==='hexPrism'
             ? {x:0.000008, y:-0.000014, z:0.000006}
             : type==='rhombohedron'
               ? {x:0.000009, y:0.000013, z:-0.000005}
               : {x:0.000007, y:0.000011, z:0.000004};
-        const phases = type==='cube' ? {rx:0.70, ry:0.10} : type==='hexPrism' ? {rx:0.95, ry:0.65} : type==='rhombohedron' ? {rx:0.55, ry:1.05} : {rx:0.88, ry:0.32};
+        const phases = type==='cube' ? {rx:0.70, ry:0.10} : type==='octahedron' ? {rx:0.62, ry:0.78} : type==='hexPrism' ? {rx:0.95, ry:0.65} : type==='rhombohedron' ? {rx:0.55, ry:1.05} : {rx:0.88, ry:0.32};
         const rx=phases.rx + t*speeds.x;
         const ry=phases.ry + t*speeds.y;
         const rz=t*speeds.z;
@@ -825,7 +894,7 @@ const base = import.meta.env.BASE_URL;
 
         if(fullColorMode || redBlueMode){
           ctx.save();
-          const colorSeed = type==='cube' ? 0 : type==='hexPrism' ? 2 : type==='rhombohedron' ? 4 : 1;
+          const colorSeed = type==='cube' ? 0 : type==='octahedron' ? 3 : type==='hexPrism' ? 2 : type==='rhombohedron' ? 4 : 1;
           const colorMap = faceColorsForSolid(faces, colorSeed);
           faceData.forEach(({face,index})=>{
             if(redBlueMode){
