@@ -25,7 +25,8 @@ const base = import.meta.env.BASE_URL;
     <div class="blind-overlay" aria-hidden="true"></div>
     <div class="blind-window-ring" aria-hidden="true"></div>
     <div class="cursor-invert-lens" aria-hidden="true"></div>
-    <div class="cursor-dot" aria-hidden="true"><span>↗</span></div>
+    <div class="cursor-magnifier-lens" aria-hidden="true"><div class="cursor-magnifier-scene"></div></div>
+    <div class="cursor-dot" aria-hidden="true"></div>
     <slot />
     <PrivacyAnalytics />
 
@@ -35,11 +36,13 @@ const base = import.meta.env.BASE_URL;
       const invertLens = document.querySelector('.cursor-invert-lens');
       const trailCanvas = document.querySelector('.cursor-trail');
       const blindRing = document.querySelector('.blind-window-ring');
+      const magnifierLens = document.querySelector('.cursor-magnifier-lens');
+      const magnifierScene = document.querySelector('.cursor-magnifier-scene');
       const trailCtx = trailCanvas?.getContext('2d');
       const root = document.documentElement;
       const body = document.body;
       const clampValue = (n, min, max) => Math.max(min, Math.min(max, n));
-      const cursorDefaults = { style: 'stripe', motion: 54, size: 48, lineHue: 210, invertHue: 0, trail: 42 };
+      const cursorDefaults = { style: 'stripe', motion: 54, size: 48, zoom: 1.5, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = { ...cursorDefaults };
       let pathPoints = [];
       let pointerX = innerWidth / 2;
@@ -56,7 +59,75 @@ const base = import.meta.env.BASE_URL;
         trailCtx.setTransform(deviceScale,0,0,deviceScale,0,0);
       }
       syncTrailViewport();
-      addEventListener('resize', syncTrailViewport, { passive:true });
+      addEventListener('resize', () => {
+        syncTrailViewport();
+        rebuildMagnifier();
+      }, { passive:true });
+
+      let magnifierSource = null;
+      let magnifierClone = null;
+
+      function stripCloneIds(node){
+        if (!(node instanceof Element)) return;
+        node.removeAttribute('id');
+        node.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+      }
+
+      function rebuildMagnifier(){
+        if (!magnifierScene) return;
+        const source = document.querySelector('main#top');
+        if (!source) return;
+        const clone = source.cloneNode(true);
+        stripCloneIds(clone);
+        clone.setAttribute('aria-hidden','true');
+        if ('inert' in clone) clone.inert = true;
+        clone.querySelectorAll('iframe').forEach((frame) => {
+          frame.setAttribute('tabindex','-1');
+          frame.setAttribute('aria-hidden','true');
+        });
+        magnifierScene.replaceChildren(clone);
+        magnifierSource = source;
+        magnifierClone = clone;
+        magnifierScene.style.width = `${document.documentElement.clientWidth}px`;
+      }
+
+      function syncMagnifierCanvases(){
+        if (!magnifierSource || !magnifierClone) return;
+        const sourceCanvases = magnifierSource.querySelectorAll('canvas');
+        const cloneCanvases = magnifierClone.querySelectorAll('canvas');
+        const count = Math.min(sourceCanvases.length, cloneCanvases.length);
+        for (let i=0;i<count;i++){
+          const src = sourceCanvases[i], dst = cloneCanvases[i];
+          try {
+            if (!src.width || !src.height) continue;
+            if (dst.width !== src.width) dst.width = src.width;
+            if (dst.height !== src.height) dst.height = src.height;
+            const ctx = dst.getContext('2d');
+            if (ctx) ctx.drawImage(src,0,0);
+          } catch {}
+        }
+      }
+
+      function updateMagnifier(){
+        if (!magnifierLens || !magnifierScene) return;
+        const active = cursorState.style === 'pulse' && root.dataset.sitePalette !== 'blind';
+        if (!active) {
+          magnifierLens.style.display='none';
+          return;
+        }
+        if (!magnifierClone) rebuildMagnifier();
+        const diameter = clampValue(cursorState.size,20,330);
+        const radius = diameter/2;
+        const zoom = clampValue(Number(cursorState.zoom) || 1.5,.1,10);
+        magnifierLens.style.display='block';
+        magnifierLens.style.width=`${diameter}px`;
+        magnifierLens.style.height=`${diameter}px`;
+        magnifierLens.style.transform=`translate3d(${pointerX-radius}px,${pointerY-radius}px,0)`;
+        const docX = window.scrollX + pointerX;
+        const docY = window.scrollY + pointerY;
+        magnifierScene.style.transform = `translate3d(${radius-docX*zoom}px,${radius-docY*zoom}px,0) scale(${zoom})`;
+        syncMagnifierCanvases();
+      }
 
       function resampleTrail(points, spacing=5){
         if(points.length < 2) return points.slice();
@@ -161,6 +232,7 @@ const base = import.meta.env.BASE_URL;
       function animationFrame(now){
         drawRibbon(now);
         updateBlindWindow(now);
+        updateMagnifier();
         requestAnimationFrame(animationFrame);
       }
       requestAnimationFrame(animationFrame);
@@ -172,7 +244,8 @@ const base = import.meta.env.BASE_URL;
         root.style.setProperty('--cursor-spin-duration', `${22 - (cursorState.motion / 100) * 18}s`);
         root.style.setProperty('--cursor-spin-duration-fast', `${16 - (cursorState.motion / 100) * 13}s`);
         root.style.setProperty('--cursor-pulse-duration', `${12 - (cursorState.motion / 100) * 10.7}s`);
-        root.style.setProperty('--cursor-pulse-scale', `${1 + (cursorState.motion / 100) * .38}`);
+        root.style.setProperty('--cursor-pulse-scale', '1');
+        root.style.setProperty('--cursor-zoom', String(cursorState.zoom));
         root.style.setProperty('--cursor-line-hue', String(cursorState.lineHue));
         root.style.setProperty('--cursor-invert-hue', String(cursorState.invertHue));
         trailCanvas?.classList.toggle('is-active', cursorState.style === 'line');
