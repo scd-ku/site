@@ -3157,3 +3157,55 @@ footer > span:first-child {
     margin-top: 20px;
   }
 }
+
+
+/* v44 — cursor cleanup + optical Circle magnifier */
+.cursor-dot span { display:none !important; }
+body[data-cursor="open"] .cursor-dot span { display:none !important; }
+
+.cursor-magnifier-lens {
+  position:fixed;
+  z-index:999;
+  display:none;
+  overflow:hidden;
+  pointer-events:none;
+  border-radius:50%;
+  border:1.15px solid rgba(17,17,17,.88);
+  background:#fff;
+  box-shadow:0 0 0 .45px rgba(255,255,255,.7);
+  will-change:transform,width,height;
+}
+.cursor-magnifier-scene {
+  position:absolute;
+  left:0;
+  top:0;
+  transform-origin:0 0;
+  pointer-events:none;
+  will-change:transform;
+}
+.cursor-magnifier-scene > main {
+  width:100%;
+  min-width:100%;
+  margin:0;
+  pointer-events:none !important;
+}
+.cursor-magnifier-scene a,
+.cursor-magnifier-scene button,
+.cursor-magnifier-scene input,
+.cursor-magnifier-scene iframe {
+  pointer-events:none !important;
+}
+html:not([data-site-palette="blind"]) body[data-cursor-style="pulse"] .cursor-dot {
+  opacity:0 !important;
+}
+html[data-site-palette="blind"] .cursor-magnifier-lens {
+  display:none !important;
+}
+body[data-cursor-style="pulse"] .cursor-dot::before,
+body[data-cursor-style="pulse"] .cursor-dot::after {
+  animation:none !important;
+}
+
+@media (pointer:coarse) {
+  .cursor-magnifier-lens { display:none !important; }
+}
