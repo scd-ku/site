@@ -213,9 +213,21 @@ const colorForApp = (slug, index) => {
     let currentMode = 'color';
     let currentColumns = '4';
     let currentTileLayout = 'mondrian';
-    let uiCursorState = { style:'stripe', motion:54, size:48, lineHue:210, invertHue:0, trail:42 };
+    let uiCursorState = { style:'stripe', motion:54, size:48, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
 
     const getCursorState = () => ({ ...uiCursorState });
+    const sliderToZoom = (raw) => {
+      const v = Math.max(0, Math.min(100, Number(raw)));
+      return v <= 50 ? 0.1 + (v / 50) * 1.9 : 2 + ((v - 50) / 50) * 8;
+    };
+    const zoomToSlider = (zoom) => {
+      const z = Math.max(0.1, Math.min(10, Number(zoom) || 1.5));
+      return z <= 2 ? ((z - 0.1) / 1.9) * 50 : 50 + ((z - 2) / 8) * 50;
+    };
+    const formatZoom = (zoom) => {
+      const z = Math.max(0.1, Math.min(10, Number(zoom) || 1.5));
+      return z < 1 ? z.toFixed(1) : (Math.abs(z - Math.round(z)) < .05 ? String(Math.round(z)) : z.toFixed(1));
+    };
 
     const updateCursorControls = (state) => {
       const style = state.style;
@@ -235,12 +247,19 @@ const colorForApp = (slug, index) => {
         cursorSlider2Label.textContent='Invert hue';
         cursorSlider2.min='0'; cursorSlider2.max='360'; cursorSlider2.value=String(state.invertHue);
         cursorSlider2Value.textContent=`${state.invertHue}°`;
+      } else if (style === 'pulse' && currentMode !== 'blind') {
+        cursorSlider1Label.textContent = 'Magnification';
+        cursorSlider1.min='0'; cursorSlider1.max='100'; cursorSlider1.step='1'; cursorSlider1.value=String(zoomToSlider(state.zoom));
+        cursorSlider1Value.textContent=`${formatZoom(state.zoom)}×`;
+        cursorSlider2Label.textContent = 'Circle size';
+        cursorSlider2.min='20'; cursorSlider2.max='330'; cursorSlider2.step='1'; cursorSlider2.value=String(state.size);
+        cursorSlider2Value.textContent=String(state.size);
       } else {
-        cursorSlider1Label.textContent = currentMode === 'blind' && style === 'pulse' ? 'Window pulse' : (style === 'pulse' ? 'Amplitude' : 'Motion');
-        cursorSlider1.min='0'; cursorSlider1.max='100'; cursorSlider1.value=String(state.motion);
+        cursorSlider1Label.textContent = currentMode === 'blind' && style === 'pulse' ? 'Window pulse' : 'Motion';
+        cursorSlider1.min='0'; cursorSlider1.max='100'; cursorSlider1.step='1'; cursorSlider1.value=String(state.motion);
         cursorSlider1Value.textContent=`${state.motion}%`;
         cursorSlider2Label.textContent = currentMode === 'blind' && style === 'pulse' ? 'Window diameter' : 'Size';
-        cursorSlider2.min='20'; cursorSlider2.max='330'; cursorSlider2.value=String(state.size);
+        cursorSlider2.min='20'; cursorSlider2.max='330'; cursorSlider2.step='1'; cursorSlider2.value=String(state.size);
         cursorSlider2Value.textContent=String(state.size);
       }
     };
@@ -343,6 +362,7 @@ const colorForApp = (slug, index) => {
       const value=Number(cursorSlider1.value);
       if (state.style === 'line') state.trail=value;
       else if (state.style === 'invert') state.size=value;
+      else if (state.style === 'pulse' && currentMode !== 'blind') state.zoom=sliderToZoom(value);
       else state.motion=value;
       emitCursorState(state);
     });
