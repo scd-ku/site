@@ -3209,3 +3209,45 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
 @media (pointer:coarse) {
   .cursor-magnifier-lens { display:none !important; }
 }
+
+
+/* v45 — Circle mirrors the live pixels/state beneath the pointer */
+.cursor-magnifier-lens {
+  background:transparent !important;
+  isolation:isolate;
+  contain:paint;
+}
+.cursor-magnifier-scene {
+  overflow:visible;
+  background:transparent;
+}
+.cursor-magnifier-scene .magnifier-document-copy {
+  pointer-events:none !important;
+}
+.cursor-magnifier-scene .magnifier-fixed-copy {
+  pointer-events:none !important;
+  z-index:80 !important;
+}
+.cursor-magnifier-scene .magnifier-fixed-copy.display-settings-popover {
+  max-height:none !important;
+  overflow:visible !important;
+}
+.cursor-magnifier-scene .app-card.is-magnifier-hover .card-detail {
+  transform:translateY(0) !important;
+}
+.cursor-magnifier-scene .app-card.is-magnifier-hover .card-label {
+  transform:translateY(-112px) !important;
+  opacity:.2 !important;
+}
+.cursor-magnifier-scene .app-card.is-magnifier-hover .card-visual img {
+  transform:scale(1.025) !important;
+  filter:saturate(1) brightness(1) contrast(1) !important;
+}
+.cursor-magnifier-scene .app-card.is-magnifier-hover .like-button {
+  border-color:rgba(17,17,17,.18) !important;
+  background:rgba(255,255,255,.9) !important;
+  color:#111 !important;
+}
+.cursor-magnifier-scene .site-header {
+  mix-blend-mode:difference;
+}
