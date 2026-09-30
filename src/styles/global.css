@@ -3251,3 +3251,24 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
 .cursor-magnifier-scene .site-header {
   mix-blend-mode:difference;
 }
+
+
+/* v46 — restore regular octahedron and rebalance hero solids */
+.object-octahedron-3d {
+  left: 47%;
+  top: 11%;
+  width: 9.2vw;
+  min-width: 128px;
+  opacity: .62;
+  --float-time: 41s;
+  --x1: 6px;
+  --y1: -5px;
+  --x2: -4px;
+  --y2: 6px;
+}
+@media (max-width:920px){
+  .object-octahedron-3d { width:11vw; min-width:108px; left:46%; top:12%; }
+}
+@media (max-width:580px){
+  .object-octahedron-3d { width:16vw; min-width:0; left:43%; top:13%; opacity:.56; }
+}
