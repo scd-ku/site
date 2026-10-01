@@ -3456,3 +3456,86 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
     height:14px !important;
   }
 }
+
+
+/* v50 — valid card interaction structure; keep repo icon beside year */
+.app-card > .app-open {
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  overflow:hidden !important;
+  z-index:1;
+}
+.card-detail {
+  z-index:3 !important;
+}
+.card-detail .detail-app-link,
+.card-detail .repo-link {
+  position:static !important;
+  inset:auto !important;
+  display:inline-flex !important;
+  overflow:visible !important;
+}
+.card-detail .detail-app-link {
+  color:inherit;
+  text-decoration:none;
+  white-space:nowrap;
+  opacity:.96;
+}
+.card-detail .detail-app-link:hover,
+.card-detail .detail-app-link:focus-visible {
+  opacity:.7;
+  outline:none;
+}
+.card-meta {
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:16px !important;
+}
+.card-meta-right {
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex:0 0 auto !important;
+  margin-left:auto;
+}
+.card-meta .project-year {
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:.12em !important;
+  padding:0 !important;
+  white-space:nowrap;
+}
+.card-meta .repo-link {
+  width:15px !important;
+  height:15px !important;
+  flex:0 0 15px !important;
+  place-items:center !important;
+  color:rgba(255,255,255,.94) !important;
+  background:transparent !important;
+  border:0 !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  transform:none !important;
+}
+.card-meta .repo-link svg {
+  width:15px !important;
+  height:15px !important;
+  fill:currentColor !important;
+  display:block;
+}
+.card-meta .repo-link:hover,
+.card-meta .repo-link:focus-visible {
+  color:#fff !important;
+  opacity:.7 !important;
+  outline:none !important;
+}
+@media (max-width:580px){
+  .card-meta-right { gap:6px !important; }
+  .card-meta .repo-link,
+  .card-meta .repo-link svg {
+    width:14px !important;
+    height:14px !important;
+  }
+}
