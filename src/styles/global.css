@@ -3324,3 +3324,85 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
     height:27px;
   }
 }
+
+
+/* v48 — repository icon beside project year + 2025 note */
+.card-detail {
+  position:absolute;
+}
+.card-meta {
+  align-items:center;
+}
+.card-meta .project-year {
+  display:inline-flex;
+  align-items:baseline;
+  gap:.12em;
+  padding-right:26px;
+  white-space:nowrap;
+}
+.project-year-note {
+  font-size:.92em;
+  line-height:1;
+}
+
+.repo-link {
+  top:auto !important;
+  right:15px !important;
+  bottom:14px !important;
+  width:18px !important;
+  height:18px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:rgba(255,255,255,.94) !important;
+  opacity:0;
+  transform:translateY(3px);
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+.repo-link svg {
+  width:16px !important;
+  height:16px !important;
+  fill:currentColor !important;
+}
+.app-card:hover .repo-link,
+.app-card:focus-within .repo-link {
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+.repo-link:hover,
+.repo-link:focus-visible {
+  color:#fff !important;
+  background:transparent !important;
+  outline:1px solid rgba(255,255,255,.7);
+  outline-offset:3px;
+}
+.about-year-note {
+  margin-top:18px !important;
+  font-size:10.5px !important;
+  line-height:1.7 !important;
+  letter-spacing:.01em !important;
+  color:rgba(17,17,17,.58) !important;
+}
+
+@media (max-width:580px){
+  .repo-link {
+    top:auto !important;
+    right:11px !important;
+    bottom:11px !important;
+    width:18px !important;
+    height:18px !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:none !important;
+  }
+  .card-meta .project-year {
+    padding-right:24px;
+  }
+  .about-year-note {
+    margin-top:15px !important;
+    font-size:10px !important;
+    line-height:1.65 !important;
+  }
+}
