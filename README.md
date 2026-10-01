@@ -244,3 +244,14 @@ With analytics consent enabled, the site sends:
 Each event includes `project_slug`, `project_title`, `project_url`, `project_repo`, and `content_type=web_app`.
 
 To break reports down by app in GA4, create event-scoped custom dimensions for `project_slug`, `project_title`, `project_url`, and `project_repo` in **Admin → Data display → Custom definitions**.
+
+## License
+
+© 2026 Science Communication Design Laboratory, Kagawa University
+
+- **Code:** MIT License
+- **Documentation and educational materials:** CC BY 4.0
+- Third-party software, libraries, data, fonts, images, maps, and other external materials remain subject to their respective licenses and terms.
+
+See [LICENSE](./LICENSE) for details.
+
