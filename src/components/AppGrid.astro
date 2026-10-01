@@ -139,7 +139,12 @@ const colorForApp = (slug, index) => {
             <p>{app.description}</p>
             <div class="card-meta">
               <span>{app.tags.join(' · ')}</span>
-              {(app.year || app.updatedAt) && <span>{app.year ?? new Date(app.updatedAt).getFullYear()}</span>}
+              {(app.year || app.updatedAt) && (
+                <span class="project-year">
+                  {app.year ?? new Date(app.updatedAt).getFullYear()}
+                  {(app.year ?? new Date(app.updatedAt).getFullYear()) === 2025 && <span class="project-year-note" aria-label="2025年開発の注記">※</span>}
+                </span>
+              )}
             </div>
           </div>
         </a>
