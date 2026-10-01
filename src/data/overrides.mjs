@@ -112,5 +112,12 @@ export default {
     description: '明治時代の国立銀行条例に基づいて設立された国立銀行の変遷を、名称変更・合併・買収から現在の後身まで、共通の時間軸とツリーでたどるインタラクティブな系譜ビューアです。',
     tags: ['History', 'Finance', 'Visualization', 'Education'],
     size: 'wide'
+  },
+  oto: {
+    title: '音の観察',
+    year: 2025,
+    description: 'マイクから入力した音を時間波形・極座標・リサージュ・スペクトルでリアルタイムに可視化し、波形を記録して重ね合わせながら比較できる音の観察アプリです。',
+    tags: ['Sound', 'Science', 'Education', 'Visualization'],
+    size: 'wide'
   }
 };
