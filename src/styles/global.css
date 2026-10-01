@@ -3406,3 +3406,53 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
     line-height:1.65 !important;
   }
 }
+
+
+/* v49 — place GitHub icon directly to the right of the project year */
+.card-meta-right {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.card-meta .project-year {
+  padding-right:0 !important;
+}
+.card-meta .repo-link {
+  position:static !important;
+  inset:auto !important;
+  width:15px !important;
+  height:15px !important;
+  display:inline-grid !important;
+  place-items:center;
+  flex:0 0 auto;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:rgba(255,255,255,.94) !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  transform:none !important;
+  transition:opacity .18s ease, color .18s ease !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+.card-meta .repo-link svg {
+  width:15px !important;
+  height:15px !important;
+  fill:currentColor !important;
+}
+.card-meta .repo-link:hover,
+.card-meta .repo-link:focus-visible {
+  color:#fff !important;
+  opacity:.72 !important;
+  outline:none !important;
+}
+@media (max-width:580px){
+  .card-meta-right { gap:6px; }
+  .card-meta .repo-link,
+  .card-meta .repo-link svg {
+    width:14px !important;
+    height:14px !important;
+  }
+}
