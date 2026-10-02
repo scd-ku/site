@@ -119,5 +119,12 @@ export default {
     description: 'マイクから入力した音を時間波形・極座標・リサージュ・スペクトルでリアルタイムに可視化し、波形を記録して重ね合わせながら比較できる音の観察アプリです。',
     tags: ['Sound', 'Science', 'Education', 'Visualization'],
     size: 'wide'
+  },
+  dennetsusen: {
+    title: '電熱線による水のあたためデータ集計ボード',
+    year: 2025,
+    description: '班・ニクロム線の太さと長さ・電池のつなぎ方・水温・電圧・電流を共有ボードに記録し、上昇温度や電力を比較しながら、Geminiで記録内容を分類できる理科実験データ集計アプリです。',
+    tags: ['Science', 'Education', 'Data', 'AI'],
+    size: 'wide'
   }
 };
