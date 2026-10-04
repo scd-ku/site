@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import AppGrid from '../components/AppGrid.astro';
 import HeroScienceField from '../components/HeroScienceField.astro';
 import apps from '../data/apps.generated.json';
+import externalProjects from '../data/external-projects.generated.json';
 ---
 <BaseLayout>
   <main id="top">
@@ -21,7 +22,7 @@ import apps from '../data/apps.generated.json';
       </div>
     </section>
 
-    <AppGrid apps={apps} />
+    <AppGrid apps={[...apps, ...externalProjects]} />
 
     <section id="about" class="text-section about-section">
       <div class="section-kicker"><span>About</span></div>
