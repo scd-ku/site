@@ -3539,3 +3539,28 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
     height:14px !important;
   }
 }
+
+
+/* v51 — compact project-type headings with adjacent counts */
+.project-group .content-band {
+  justify-content:flex-start !important;
+  gap:7px !important;
+  white-space:nowrap;
+}
+.project-group .content-band-count {
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.project-group--models {
+  margin-top:54px;
+}
+.project-group--models .content-band {
+  margin-top:0;
+}
+@media (max-width:920px){
+  .project-group--models { margin-top:46px; }
+}
+@media (max-width:580px){
+  .project-group--models { margin-top:38px; }
+  .project-group .content-band { gap:6px !important; }
+}
