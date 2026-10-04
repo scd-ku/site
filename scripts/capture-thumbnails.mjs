@@ -20,9 +20,9 @@ const context = await browser.newContext({
 for (const app of projects) {
   const page = await context.newPage();
   try {
-    await page.goto(app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(app.kind === 'tinkercad' ? 5000 : 1200);
-    if (app.kind === 'tinkercad') {
+    await page.goto(app.captureUrl || app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(app.kind === 'tinkercad' ? 7000 : 1200);
+    if (app.kind === 'tinkercad' && !app.titleLocked) {
       try {
         const rawTitle = await page.title();
         const cleaned = rawTitle
@@ -64,7 +64,7 @@ for (const app of projects) {
           path: path.join(outDir, `${app.slug}.jpg`),
           type: 'jpeg',
           quality: 88,
-          clip: { x: 0, y: 80, width: 780, height: 585 }
+          fullPage: false
         });
       }
     } else {
