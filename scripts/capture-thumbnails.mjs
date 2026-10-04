@@ -3,6 +3,11 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const apps = JSON.parse(await fs.readFile(path.resolve('src/data/apps.generated.json'), 'utf8'));
+const externalSourcePath = path.resolve('src/data/external-projects.source.json');
+const externalGeneratedPath = path.resolve('src/data/external-projects.generated.json');
+let externalProjects = [];
+try { externalProjects = JSON.parse(await fs.readFile(externalSourcePath, 'utf8')); } catch {}
+const projects = [...apps, ...externalProjects];
 const outDir = path.resolve('public/screenshots');
 await fs.mkdir(outDir, { recursive: true });
 
@@ -12,11 +17,21 @@ const context = await browser.newContext({
   reducedMotion: 'reduce'
 });
 
-for (const app of apps) {
+for (const app of projects) {
   const page = await context.newPage();
   try {
     await page.goto(app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(app.kind === 'tinkercad' ? 5000 : 1200);
+    if (app.kind === 'tinkercad') {
+      try {
+        const rawTitle = await page.title();
+        const cleaned = rawTitle
+          .replace(/\s*[|–—-]\s*Tinkercad.*$/i, '')
+          .replace(/^Tinkercad\s*[|–—-]\s*/i, '')
+          .trim();
+        if (cleaned && !/^Tinkercad$/i.test(cleaned)) app.title = cleaned;
+      } catch {}
+    }
     await page.evaluate(() => {
       document.documentElement.style.zoom = '1.10';
       document.documentElement.style.scrollBehavior = 'auto';
@@ -38,3 +53,7 @@ for (const app of apps) {
 }
 
 await browser.close();
+
+if (externalProjects.length) {
+  await fs.writeFile(externalGeneratedPath, `${JSON.stringify(externalProjects, null, 2)}\n`, 'utf8');
+}
