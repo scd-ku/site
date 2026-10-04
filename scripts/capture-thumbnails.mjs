@@ -27,13 +27,37 @@ for (const app of projects) {
       await page.waitForTimeout(2600);
       if (!app.titleLocked) {
         try {
-          const heading = await page.locator('h1').filter({ visible: true }).first().textContent().catch(() => '');
-          const rawTitle = (heading || await page.title() || '').trim();
-          const cleaned = rawTitle
+          const rawTitle = await page.evaluate(() => {
+            const meta = (selector) => document.querySelector(selector)?.getAttribute('content')?.trim() || '';
+            const og = meta('meta[property="og:title"]');
+            const tw = meta('meta[name="twitter:title"]');
+            const h1 = [...document.querySelectorAll('h1')]
+              .map((el) => ({ text:(el.textContent || '').trim(), rect:el.getBoundingClientRect() }))
+              .filter((x) => x.text && x.rect.width > 0 && x.rect.height > 0)
+              .map((x) => x.text)[0] || '';
+            let ld = '';
+            for (const node of document.querySelectorAll('script[type="application/ld+json"]')) {
+              try {
+                const data = JSON.parse(node.textContent || '{}');
+                const list = Array.isArray(data) ? data : [data];
+                const named = list.find((item) => item && typeof item === 'object' && typeof item.name === 'string');
+                if (named?.name) { ld = named.name.trim(); break; }
+              } catch {}
+            }
+            return og || tw || h1 || ld || document.title || '';
+          });
+
+          const cleaned = String(rawTitle || '')
             .replace(/\s*[|–—-]\s*Tinkercad.*$/i, '')
             .replace(/^Tinkercad\s*[|–—-]\s*/i, '')
             .trim();
-          if (cleaned && !/^Tinkercad$/i.test(cleaned) && !/Welcome back/i.test(cleaned)) {
+
+          if (
+            cleaned &&
+            !/^Tinkercad$/i.test(cleaned) &&
+            !/Welcome back/i.test(cleaned) &&
+            !/How do you use Tinkercad/i.test(cleaned)
+          ) {
             app.title = cleaned;
           }
         } catch {}
