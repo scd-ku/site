@@ -38,12 +38,43 @@ for (const app of projects) {
       window.scrollTo(0, 0);
     });
     await page.waitForTimeout(220);
-    await page.screenshot({
-      path: path.join(outDir, `${app.slug}.jpg`),
-      type: 'jpeg',
-      quality: 84,
-      fullPage: false
-    });
+
+    if (app.kind === 'tinkercad') {
+      const viewers = page.locator('canvas, iframe');
+      const count = await viewers.count();
+      let bestIndex = -1;
+      let bestArea = 0;
+      for (let i = 0; i < count; i += 1) {
+        const box = await viewers.nth(i).boundingBox().catch(() => null);
+        if (!box) continue;
+        const area = box.width * box.height;
+        if (box.width > 280 && box.height > 220 && area > bestArea) {
+          bestArea = area;
+          bestIndex = i;
+        }
+      }
+      if (bestIndex >= 0) {
+        await viewers.nth(bestIndex).screenshot({
+          path: path.join(outDir, `${app.slug}.jpg`),
+          type: 'jpeg',
+          quality: 88
+        });
+      } else {
+        await page.screenshot({
+          path: path.join(outDir, `${app.slug}.jpg`),
+          type: 'jpeg',
+          quality: 88,
+          clip: { x: 0, y: 80, width: 780, height: 585 }
+        });
+      }
+    } else {
+      await page.screenshot({
+        path: path.join(outDir, `${app.slug}.jpg`),
+        type: 'jpeg',
+        quality: 84,
+        fullPage: false
+      });
+    }
     console.log(`Captured ${app.slug}`);
   } catch (error) {
     console.warn(`Could not capture ${app.slug}: ${error.message}`);
