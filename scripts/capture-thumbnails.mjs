@@ -20,17 +20,32 @@ const context = await browser.newContext({
 for (const app of projects) {
   const page = await context.newPage();
   try {
-    await page.goto(app.captureUrl || app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(app.kind === 'tinkercad' ? 7000 : 1200);
-    if (app.kind === 'tinkercad' && !app.titleLocked) {
-      try {
-        const rawTitle = await page.title();
-        const cleaned = rawTitle
-          .replace(/\s*[|–—-]\s*Tinkercad.*$/i, '')
-          .replace(/^Tinkercad\s*[|–—-]\s*/i, '')
-          .trim();
-        if (cleaned && !/^Tinkercad$/i.test(cleaned)) app.title = cleaned;
-      } catch {}
+    if (app.kind === 'tinkercad') {
+      // Read the public gallery page first so title/metadata come from the work,
+      // then switch to the embed viewer only for the thumbnail.
+      await page.goto(app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForTimeout(2600);
+      if (!app.titleLocked) {
+        try {
+          const heading = await page.locator('h1').filter({ visible: true }).first().textContent().catch(() => '');
+          const rawTitle = (heading || await page.title() || '').trim();
+          const cleaned = rawTitle
+            .replace(/\s*[|–—-]\s*Tinkercad.*$/i, '')
+            .replace(/^Tinkercad\s*[|–—-]\s*/i, '')
+            .trim();
+          if (cleaned && !/^Tinkercad$/i.test(cleaned) && !/Welcome back/i.test(cleaned)) {
+            app.title = cleaned;
+          }
+        } catch {}
+      }
+      if (app.descriptionAuto && app.title && app.title !== 'Tinkercad 3Dモデル') {
+        app.description = `${app.title}を題材に制作した3Dモデルです。Tinkercad上で立体を回転・拡大しながら確認し、共有データからモデルを閲覧・編集できます。`;
+      }
+      await page.goto(app.captureUrl || app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForTimeout(7000);
+    } else {
+      await page.goto(app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForTimeout(1200);
     }
     await page.evaluate(() => {
       document.documentElement.style.zoom = '1.10';
