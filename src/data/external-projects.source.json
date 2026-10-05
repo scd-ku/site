@@ -87,10 +87,10 @@
     "slug": "tinkercad-jvV1FFhA5G0",
     "kind": "tinkercad",
     "platform": "Tinkercad",
-    "title": "Tinkercad 3Dモデル",
-    "titleLocked": false,
-    "descriptionAuto": true,
-    "description": "Tinkercadで作成した3Dモデルです。共有ページで立体を確認し、モデルを閲覧・編集できます。",
+    "title": "DNAブロック",
+    "titleLocked": true,
+    "descriptionAuto": false,
+    "description": "DNAの構造を組み立てながら学ぶために制作した3Dプリント教材です。Tinkercad上で立体を確認し、共有データからモデルを閲覧・編集できます。",
     "url": "https://www.tinkercad.com/things/jvV1FFhA5G0-dna",
     "captureUrl": "https://www.tinkercad.com/embed/jvV1FFhA5G0?editbtn=1",
     "repoUrl": null,
@@ -101,8 +101,9 @@
       "Fabrication"
     ],
     "size": "normal",
-    "year": 2026,
-    "updatedAt": "2026-10-05T01:33:00+09:00"
+    "year": 2024,
+    "updatedAt": "2026-10-05T01:33:00+09:00",
+    "originNote": "ochanomizu"
   },
   {
     "slug": "tinkercad-2bhVgdQgC3D",
