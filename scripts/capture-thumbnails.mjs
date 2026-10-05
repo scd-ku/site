@@ -9,6 +9,27 @@ let externalProjects = [];
 try { externalProjects = JSON.parse(await fs.readFile(externalSourcePath, 'utf8')); } catch {}
 const projects = [...apps, ...externalProjects];
 const outDir = path.resolve('public/screenshots');
+
+const ochanomizuModelRules = [
+  { names: ['偏光虫眼鏡'], year: 2025 },
+  { names: ['風力発電'], year: 2023 },
+  { names: ['滑車'], year: 2024 },
+  { names: ['マクロレンズ'], year: 2025 },
+  { names: ['マイクロバネばかり', 'マイクロばねばかり'], year: 2024 },
+  { names: ['マイクロマイクロますコース', 'マイクロますコース'], year: 2025 },
+  { names: ['ハンディフォグマシン'], year: 2018 }
+];
+
+const applyExternalMetadataRules = (app) => {
+  if (app.kind !== 'tinkercad') return;
+  const title = String(app.title || '').replace(/\s+/g, '');
+  const rule = ochanomizuModelRules.find((item) =>
+    item.names.some((name) => title.includes(name.replace(/\s+/g, '')))
+  );
+  if (!rule) return;
+  app.year = rule.year;
+  app.originNote = 'ochanomizu';
+};
 await fs.mkdir(outDir, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
@@ -65,6 +86,7 @@ for (const app of projects) {
       if (app.descriptionAuto && app.title && app.title !== 'Tinkercad 3Dモデル') {
         app.description = `${app.title}を題材に制作した3Dモデルです。Tinkercad上で立体を回転・拡大しながら確認し、共有データからモデルを閲覧・編集できます。`;
       }
+      applyExternalMetadataRules(app);
       await page.goto(app.captureUrl || app.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.waitForTimeout(7000);
     } else {
