@@ -3616,3 +3616,50 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
   color:#fff !important;
   border-color:#111 !important;
 }
+
+
+/* v54 — project density options: 3 / 5 / 7 / 11; default 5 */
+.layout-modes--columns {
+  grid-template-columns:repeat(4,1fr) !important;
+}
+html[data-project-columns="3"] .app-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+}
+html[data-project-columns="5"] .app-grid {
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+}
+html[data-project-columns="7"] .app-grid {
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+}
+html[data-project-columns="11"] .app-grid {
+  grid-template-columns:repeat(11,minmax(0,1fr)) !important;
+}
+
+/* Keep dense modes readable on narrower screens rather than forcing tiny cards. */
+@media (max-width:1400px) and (min-width:921px) {
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width:1100px) and (min-width:921px) {
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width:920px) {
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="5"] .app-grid,
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width:580px) {
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="5"] .app-grid,
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:1fr !important;
+  }
+}
