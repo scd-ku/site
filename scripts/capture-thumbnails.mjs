@@ -17,7 +17,15 @@ const ochanomizuModelRules = [
   { names: ['マクロレンズ'], year: 2025 },
   { names: ['マイクロバネばかり', 'マイクロばねばかり'], year: 2024 },
   { names: ['マイクロマイクロますコース', 'マイクロますコース'], year: 2025 },
-  { names: ['ハンディフォグマシン'], year: 2018 }
+  { names: ['ハンディフォグマシン'], year: 2018 },
+  { names: ['細胞模型'], year: 2025 },
+  { names: ['イーゼル'], year: 2025 },
+  { names: ['ガルトンボード', 'Galton Board', 'Galton board'], year: 2025 },
+  { names: ['電熱線による水のあたため', '電熱線による水の温め'], year: 2025 },
+  { names: ['ガチャガチャ'], year: 2025 },
+  { names: ['天秤キット', 'てんびんキット'], year: 2024 },
+  { names: ['力学台車'], year: 2024 },
+  { names: ['水源地'], year: 2024 }
 ];
 
 const applyExternalMetadataRules = (app) => {
