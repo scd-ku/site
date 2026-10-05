@@ -397,5 +397,51 @@
     "size": "normal",
     "year": 2026,
     "updatedAt": "2026-10-05T01:33:00+09:00"
+  },
+  {
+    "slug": "tinkercad-gUAkt2iD9Kq",
+    "kind": "tinkercad",
+    "platform": "Tinkercad",
+    "title": "滑車実験用プーリー",
+    "titleLocked": true,
+    "description": "滑車を使った力学実験のために制作した3Dプリント用プーリーです。Tinkercad上で立体を確認し、共有データからモデルを閲覧・編集できます。",
+    "url": "https://www.tinkercad.com/things/gUAkt2iD9Kq-",
+    "captureUrl": "https://www.tinkercad.com/embed/gUAkt2iD9Kq?editbtn=1",
+    "repoUrl": null,
+    "repo": null,
+    "tags": [
+      "3D Model",
+      "Tinkercad",
+      "Fabrication",
+      "Science",
+      "Education"
+    ],
+    "size": "normal",
+    "year": 2024,
+    "originNote": "ochanomizu",
+    "updatedAt": "2026-10-06T08:10:00+09:00"
+  },
+  {
+    "slug": "tinkercad-1jwnhtlL7q9",
+    "kind": "tinkercad",
+    "platform": "Tinkercad",
+    "title": "風ゴム実験",
+    "titleLocked": true,
+    "description": "風やゴムの力による物体の動きを調べる実験のために制作した3Dプリント教材です。Tinkercad上で立体を確認し、共有データからモデルを閲覧・編集できます。",
+    "url": "https://www.tinkercad.com/things/1jwnhtlL7q9-",
+    "captureUrl": "https://www.tinkercad.com/embed/1jwnhtlL7q9?editbtn=1",
+    "repoUrl": null,
+    "repo": null,
+    "tags": [
+      "3D Model",
+      "Tinkercad",
+      "Fabrication",
+      "Science",
+      "Education"
+    ],
+    "size": "normal",
+    "year": 2024,
+    "originNote": "ochanomizu",
+    "updatedAt": "2026-10-06T08:10:00+09:00"
   }
 ]
