@@ -24,10 +24,10 @@ const colorForApp = (slug, index) => {
   return goethePalette[seed % goethePalette.length];
 };
 ---
-<section id="projects" class="projects-section">
+<section id="library" class="projects-section">
   <div class="section-heading">
     <div>
-      <h2>Projects</h2>
+      <h2>Library</h2>
     </div>
     <div class="display-settings">
       <button class="display-settings-button" type="button" aria-expanded="false" aria-controls="display-settings-popover" title="Color display settings">
@@ -51,7 +51,7 @@ const colorForApp = (slug, index) => {
 
         <div class="settings-group">
           <div class="settings-group-label">Columns</div>
-          <div class="layout-modes layout-modes--columns" role="group" aria-label="Project columns">
+          <div class="layout-modes layout-modes--columns" role="group" aria-label="Library columns">
             <button type="button" data-grid-columns="3">3</button>
             <button type="button" data-grid-columns="5" class="is-active">5</button>
             <button type="button" data-grid-columns="7">7</button>
@@ -97,14 +97,14 @@ const colorForApp = (slug, index) => {
     </div>
   </div>
 
-  <div class="filters filters--primary" aria-label="Project type and development year filters">
+  <div class="filters filters--primary" aria-label="Library type and development year filters">
     <button class="filter is-active" data-filter-type="all" type="button" aria-pressed="true">All</button>
     <button class="filter" data-filter-kind="web_app" type="button" aria-pressed="false">Web App</button>
     <button class="filter" data-filter-kind="tinkercad" type="button" aria-pressed="false">3D Printing</button>
     <span class="filter-label" aria-hidden="true">Development Year</span>
     {years.map((year) => <button class="filter" data-filter-year={String(year)} type="button" aria-pressed="false">{year}</button>)}
   </div>
-  <div class="filters filters--topics" aria-label="Project topic filters">
+  <div class="filters filters--topics" aria-label="Library topic filters">
     {tags.map((tag) => <button class="filter" data-filter-tag={tag} type="button" aria-pressed="false">{tag}</button>)}
   </div>
 
