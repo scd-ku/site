@@ -8,6 +8,7 @@ const sortedApps = [...apps].sort((a, b) => {
 const applicationProjects = sortedApps.filter((app) => app.kind !== 'tinkercad');
 const modelProjects = sortedApps.filter((app) => app.kind === 'tinkercad');
 const tags = [...new Set(sortedApps.flatMap((app) => app.tags))].sort((a, b) => a.localeCompare(b, 'en'));
+const years = [...new Set(sortedApps.map((app) => app.year).filter(Boolean))].sort((a, b) => b - a);
 const base = import.meta.env.BASE_URL;
 const asset = (p) => `${base}${p.replace(/^\//, '')}`;
 const goethePalette = [
@@ -95,9 +96,15 @@ const colorForApp = (slug, index) => {
     </div>
   </div>
 
-  <div class="filters" aria-label="Project filters">
-    <button class="filter is-active" data-filter="all" type="button">All</button>
-    {tags.map((tag) => <button class="filter" data-filter={tag} type="button">{tag}</button>)}
+  <div class="filters filters--primary" aria-label="Project type and development year filters">
+    <button class="filter is-active" data-filter-type="all" type="button">All</button>
+    <button class="filter" data-filter-kind="web_app" type="button">Web App</button>
+    <button class="filter" data-filter-kind="tinkercad" type="button">3D Printing</button>
+    <span class="filter-label" aria-hidden="true">Development Year</span>
+    {years.map((year) => <button class="filter" data-filter-year={String(year)} type="button">{year}</button>)}
+  </div>
+  <div class="filters filters--topics" aria-label="Project topic filters">
+    {tags.map((tag) => <button class="filter" data-filter-tag={tag} type="button">{tag}</button>)}
   </div>
 
   <div class="project-group" data-project-group="applications">
@@ -110,6 +117,8 @@ const colorForApp = (slug, index) => {
         class={`app-card app-card--${app.size}`}
         data-tags={JSON.stringify(app.tags)}
         data-slug={app.slug}
+        data-kind={app.kind || 'web_app'}
+        data-year={String(app.year || '')}
         style={`--index:${index};--detail-bg:${colorForApp(app.slug, index)}`}
       >
         <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}>
@@ -199,6 +208,8 @@ const colorForApp = (slug, index) => {
         class={`app-card app-card--${app.size}`}
         data-tags={JSON.stringify(app.tags)}
         data-slug={app.slug}
+        data-kind={app.kind || 'web_app'}
+        data-year={String(app.year || '')}
         style={`--index:${applicationProjects.length + index};--detail-bg:${colorForApp(app.slug, applicationProjects.length + index)}`}
       >
         <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}>
@@ -282,18 +293,40 @@ const colorForApp = (slug, index) => {
     (() => {
     const filters = [...document.querySelectorAll('.filter')];
     const cards = [...document.querySelectorAll('.app-card')];
+    const projectGroups = [...document.querySelectorAll('[data-project-group]')];
+
+    const applyProjectFilter = (button) => {
+      const filterType = button.dataset.filterType || '';
+      const filterKind = button.dataset.filterKind || '';
+      const filterYear = button.dataset.filterYear || '';
+      const filterTag = button.dataset.filterTag || '';
+
+      filters.forEach((b) => b.classList.toggle('is-active', b === button));
+
+      cards.forEach((card) => {
+        const tags = JSON.parse(card.dataset.tags || '[]');
+        const visible =
+          filterType === 'all' ||
+          (filterKind && card.dataset.kind === filterKind) ||
+          (filterYear && card.dataset.year === filterYear) ||
+          (filterTag && tags.includes(filterTag));
+
+        card.classList.toggle('is-filtered-out', !visible);
+        window.setTimeout(() => card.toggleAttribute('hidden', !visible), visible ? 0 : 180);
+      });
+
+      window.setTimeout(() => {
+        projectGroups.forEach((group) => {
+          const visibleCards = [...group.querySelectorAll('.app-card')].filter((card) => !card.hidden);
+          group.toggleAttribute('hidden', visibleCards.length === 0);
+          const count = group.querySelector('.content-band-count');
+          if (count) count.textContent = String(visibleCards.length);
+        });
+      }, 190);
+    };
 
     filters.forEach((button) => {
-      button.addEventListener('click', () => {
-        const selected = button.dataset.filter;
-        filters.forEach((b) => b.classList.toggle('is-active', b === button));
-        cards.forEach((card) => {
-          const tags = JSON.parse(card.dataset.tags || '[]');
-          const visible = selected === 'all' || tags.includes(selected);
-          card.classList.toggle('is-filtered-out', !visible);
-          window.setTimeout(() => card.toggleAttribute('hidden', !visible), visible ? 0 : 180);
-        });
-      });
+      button.addEventListener('click', () => applyProjectFilter(button));
     });
 
     cards.forEach((card) => {
