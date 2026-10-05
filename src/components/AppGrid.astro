@@ -53,9 +53,9 @@ const colorForApp = (slug, index) => {
           <div class="settings-group-label">Columns</div>
           <div class="layout-modes layout-modes--columns" role="group" aria-label="Library columns">
             <button type="button" data-grid-columns="3">3</button>
-            <button type="button" data-grid-columns="5" class="is-active">5</button>
+            <button type="button" data-grid-columns="5">5</button>
             <button type="button" data-grid-columns="7">7</button>
-            <button type="button" data-grid-columns="11">11</button>
+            <button type="button" data-grid-columns="11" class="is-active">11</button>
           </div>
         </div>
 
@@ -63,8 +63,8 @@ const colorForApp = (slug, index) => {
           <div class="settings-group-label">Tiles</div>
           <div class="layout-modes layout-modes--tiles" role="group" aria-label="Tile composition">
             <button type="button" data-tile-layout="ratio">4 : 3</button>
-            <button type="button" data-tile-layout="square">Square</button>
-            <button type="button" data-tile-layout="mondrian" class="is-active">Composite</button>
+            <button type="button" data-tile-layout="square" class="is-active">Square</button>
+            <button type="button" data-tile-layout="mondrian">Composite</button>
           </div>
         </div>
 
@@ -416,8 +416,8 @@ const colorForApp = (slug, index) => {
     let blindTone = 0;
     let monoDepth = 58;
     let currentMode = 'color';
-    let currentColumns = '5';
-    let currentTileLayout = 'mondrian';
+    let currentColumns = '11';
+    let currentTileLayout = 'square';
     let uiCursorState = { style:'stripe', motion:54, size:48, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
 
     const getCursorState = () => ({ ...uiCursorState });
@@ -537,11 +537,11 @@ const colorForApp = (slug, index) => {
       applyDisplaySettings();
     }));
     columnButtons.forEach((button) => button.addEventListener('click', () => {
-      currentColumns = button.dataset.gridColumns || '5';
+      currentColumns = button.dataset.gridColumns || '11';
       applyDisplaySettings();
     }));
     tileLayoutButtons.forEach((button) => button.addEventListener('click', () => {
-      currentTileLayout = button.dataset.tileLayout || 'ratio';
+      currentTileLayout = button.dataset.tileLayout || 'square';
       applyDisplaySettings();
     }));
     screenSlider?.addEventListener('input', () => {
