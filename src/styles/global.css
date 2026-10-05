@@ -3600,3 +3600,19 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
     font-size:9px;
   }
 }
+
+
+/* v53 — multi-select project filters */
+.filter {
+  user-select:none;
+}
+.filter.is-active {
+  background:#111 !important;
+  color:#fff !important;
+  border-color:#111 !important;
+}
+.filter[aria-pressed="true"] {
+  background:#111 !important;
+  color:#fff !important;
+  border-color:#111 !important;
+}
