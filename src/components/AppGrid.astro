@@ -97,14 +97,14 @@ const colorForApp = (slug, index) => {
   </div>
 
   <div class="filters filters--primary" aria-label="Project type and development year filters">
-    <button class="filter is-active" data-filter-type="all" type="button">All</button>
-    <button class="filter" data-filter-kind="web_app" type="button">Web App</button>
-    <button class="filter" data-filter-kind="tinkercad" type="button">3D Printing</button>
+    <button class="filter is-active" data-filter-type="all" type="button" aria-pressed="true">All</button>
+    <button class="filter" data-filter-kind="web_app" type="button" aria-pressed="false">Web App</button>
+    <button class="filter" data-filter-kind="tinkercad" type="button" aria-pressed="false">3D Printing</button>
     <span class="filter-label" aria-hidden="true">Development Year</span>
-    {years.map((year) => <button class="filter" data-filter-year={String(year)} type="button">{year}</button>)}
+    {years.map((year) => <button class="filter" data-filter-year={String(year)} type="button" aria-pressed="false">{year}</button>)}
   </div>
   <div class="filters filters--topics" aria-label="Project topic filters">
-    {tags.map((tag) => <button class="filter" data-filter-tag={tag} type="button">{tag}</button>)}
+    {tags.map((tag) => <button class="filter" data-filter-tag={tag} type="button" aria-pressed="false">{tag}</button>)}
   </div>
 
   <div class="project-group" data-project-group="applications">
@@ -292,41 +292,70 @@ const colorForApp = (slug, index) => {
   <script is:inline>
     (() => {
     const filters = [...document.querySelectorAll('.filter')];
+    const allFilter = document.querySelector('[data-filter-type="all"]');
     const cards = [...document.querySelectorAll('.app-card')];
     const projectGroups = [...document.querySelectorAll('[data-project-group]')];
 
-    const applyProjectFilter = (button) => {
-      const filterType = button.dataset.filterType || '';
-      const filterKind = button.dataset.filterKind || '';
-      const filterYear = button.dataset.filterYear || '';
-      const filterTag = button.dataset.filterTag || '';
+    const getSelected = (attribute) =>
+      filters
+        .filter((button) => button.classList.contains('is-active') && button.hasAttribute(attribute))
+        .map((button) => button.getAttribute(attribute))
+        .filter(Boolean);
 
-      filters.forEach((b) => b.classList.toggle('is-active', b === button));
+    const refreshProjectGroups = () => {
+      projectGroups.forEach((group) => {
+        const visibleCards = [...group.querySelectorAll('.app-card')].filter((card) => !card.hidden);
+        group.toggleAttribute('hidden', visibleCards.length === 0);
+        const count = group.querySelector('.content-band-count');
+        if (count) count.textContent = String(visibleCards.length);
+      });
+    };
+
+    const applyProjectFilters = () => {
+      const kinds = getSelected('data-filter-kind');
+      const years = getSelected('data-filter-year');
+      const tags = getSelected('data-filter-tag');
+      const hasSelection = kinds.length > 0 || years.length > 0 || tags.length > 0;
+
+      allFilter?.classList.toggle('is-active', !hasSelection);
+      allFilter?.setAttribute('aria-pressed', String(!hasSelection));
+
+      filters.forEach((button) => {
+        if (button === allFilter) return;
+        button.setAttribute('aria-pressed', String(button.classList.contains('is-active')));
+      });
 
       cards.forEach((card) => {
-        const tags = JSON.parse(card.dataset.tags || '[]');
-        const visible =
-          filterType === 'all' ||
-          (filterKind && card.dataset.kind === filterKind) ||
-          (filterYear && card.dataset.year === filterYear) ||
-          (filterTag && tags.includes(filterTag));
+        const cardTags = JSON.parse(card.dataset.tags || '[]');
+
+        // OR inside the same filter group; AND between different groups.
+        const kindMatch = kinds.length === 0 || kinds.includes(card.dataset.kind || '');
+        const yearMatch = years.length === 0 || years.includes(card.dataset.year || '');
+        const tagMatch = tags.length === 0 || tags.some((tag) => cardTags.includes(tag));
+        const visible = kindMatch && yearMatch && tagMatch;
 
         card.classList.toggle('is-filtered-out', !visible);
         window.setTimeout(() => card.toggleAttribute('hidden', !visible), visible ? 0 : 180);
       });
 
-      window.setTimeout(() => {
-        projectGroups.forEach((group) => {
-          const visibleCards = [...group.querySelectorAll('.app-card')].filter((card) => !card.hidden);
-          group.toggleAttribute('hidden', visibleCards.length === 0);
-          const count = group.querySelector('.content-band-count');
-          if (count) count.textContent = String(visibleCards.length);
-        });
-      }, 190);
+      window.setTimeout(refreshProjectGroups, 190);
     };
 
     filters.forEach((button) => {
-      button.addEventListener('click', () => applyProjectFilter(button));
+      button.setAttribute('aria-pressed', String(button.classList.contains('is-active')));
+
+      button.addEventListener('click', () => {
+        if (button === allFilter) {
+          filters.forEach((filter) => {
+            filter.classList.toggle('is-active', filter === allFilter);
+            filter.setAttribute('aria-pressed', String(filter === allFilter));
+          });
+        } else {
+          button.classList.toggle('is-active');
+          allFilter?.classList.remove('is-active');
+        }
+        applyProjectFilters();
+      });
     });
 
     cards.forEach((card) => {
