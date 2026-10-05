@@ -3564,3 +3564,39 @@ body[data-cursor-style="pulse"] .cursor-dot::after {
   .project-group--models { margin-top:38px; }
   .project-group .content-band { gap:6px !important; }
 }
+
+
+/* v52 — project type + development year filters */
+.filters--primary {
+  align-items:center;
+  margin-bottom:10px;
+}
+.filters--topics {
+  margin-top:0;
+}
+.filter-label {
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  margin-left:8px;
+  padding:0 2px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.project-group[hidden] {
+  display:none !important;
+}
+@media (max-width:580px){
+  .filters--primary { margin-bottom:8px; }
+  .filter-label {
+    width:100%;
+    min-height:auto;
+    margin:4px 0 2px;
+    padding:0;
+    font-size:9px;
+  }
+}
