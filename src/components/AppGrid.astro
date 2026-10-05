@@ -157,7 +157,7 @@ const colorForApp = (slug, index) => {
               {(app.year || app.updatedAt) && (
                 <span class="project-year">
                   {app.year ?? new Date(app.updatedAt).getFullYear()}
-                  {(app.year ?? new Date(app.updatedAt).getFullYear()) === 2025 && <span class="project-year-note" aria-label="2025年開発の注記">※</span>}
+                  {((app.year ?? new Date(app.updatedAt).getFullYear()) === 2025 || app.originNote === 'ochanomizu') && <span class="project-year-note" aria-label="開発時期の注記">※</span>}
                 </span>
               )}
               {app.repoUrl && (
@@ -246,7 +246,7 @@ const colorForApp = (slug, index) => {
               {(app.year || app.updatedAt) && (
                 <span class="project-year">
                   {app.year ?? new Date(app.updatedAt).getFullYear()}
-                  {(app.year ?? new Date(app.updatedAt).getFullYear()) === 2025 && <span class="project-year-note" aria-label="2025年開発の注記">※</span>}
+                  {((app.year ?? new Date(app.updatedAt).getFullYear()) === 2025 || app.originNote === 'ochanomizu') && <span class="project-year-note" aria-label="開発時期の注記">※</span>}
                 </span>
               )}
               {app.repoUrl && (
