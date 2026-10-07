@@ -661,8 +661,9 @@ const base = import.meta.env.BASE_URL;
         let completed=false;
         for(let bounce=0; bounce<18; bounce++){
           const candidates=[];
-          // Left/right/bottom remain reflective hero boundaries. Top is an exit boundary.
-          [['left', {x:1,y:0}, {x:0,y:0}, {x:0,y:bounds.h}], ['right',{x:-1,y:0},{x:bounds.w,y:0},{x:bounds.w,y:bounds.h}], ['bottom',{x:0,y:-1},{x:0,y:bounds.h},{x:bounds.w,y:bounds.h}]].forEach(([name,n,a,b])=>{
+          // Only the right and bottom hero boundaries are reflective.
+          // The left and top boundaries are exits.
+          [['right',{x:-1,y:0},{x:bounds.w,y:0},{x:bounds.w,y:bounds.h}], ['bottom',{x:0,y:-1},{x:0,y:bounds.h},{x:bounds.w,y:bounds.h}]].forEach(([name,n,a,b])=>{
             const inter=intersectRaySegment(p,d,a,b);
             if(inter) candidates.push({...inter,kind:'wall',normal:n,name});
           });
@@ -676,10 +677,9 @@ const base = import.meta.env.BASE_URL;
             if(hit) candidates.push({...hit,kind:'exit',shape:currentShape});
           }
 
-          // If the ray is heading toward the top (or has no nearer optical hit),
-          // terminate exactly at the hero boundary rather than an arbitrary 400 px.
+          // Left and top are exit boundaries. End the ray exactly at the edge.
           const boundary=rayToHeroEdge(p,d,bounds);
-          if(boundary && boundary.edge==='top') candidates.push({...boundary,kind:'terminal'});
+          if(boundary && (boundary.edge==='top' || boundary.edge==='left')) candidates.push({...boundary,kind:'terminal'});
 
           candidates.sort((a,b)=>a.t-b.t);
           const hit=candidates[0];
