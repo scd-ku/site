@@ -3859,3 +3859,109 @@ html[data-project-columns="11"] .app-grid {
 .app-card > .like-button {
   z-index:9 !important;
 }
+
+
+/* v59 — true two-row card structure: artwork/description + independent like row */
+.app-card {
+  --like-row-h:20px;
+  display:grid !important;
+  grid-template-rows:minmax(0,1fr) var(--like-row-h) !important;
+  overflow:hidden !important;
+  background:#fff !important;
+}
+.app-card::after {
+  display:none !important;
+  content:none !important;
+}
+.app-card-main {
+  position:relative;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  background:#d8d8d2;
+}
+.app-card-main > .app-open {
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  overflow:hidden !important;
+  z-index:1 !important;
+}
+.app-card-main > .card-detail {
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  max-height:100% !important;
+  z-index:3 !important;
+}
+
+/* Like control is now normal layout content below the visual region. */
+.app-card > .like-button {
+  position:relative !important;
+  inset:auto !important;
+  z-index:1 !important;
+  justify-self:end !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:4px !important;
+  width:auto !important;
+  min-width:31px !important;
+  height:18px !important;
+  margin:0 2px 0 0 !important;
+  padding:0 4px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:rgba(17,17,17,.55) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  transform:none !important;
+}
+.app-card > .like-button svg {
+  width:10px !important;
+  height:10px !important;
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.35 !important;
+}
+.app-card > .like-button .like-count {
+  min-width:.7em !important;
+  font-size:8.5px !important;
+  line-height:1 !important;
+  font-weight:400 !important;
+}
+.app-card > .like-button:hover,
+.app-card > .like-button:focus-visible,
+.app-card:hover > .like-button,
+.app-card:focus-within > .like-button {
+  background:transparent !important;
+  color:#111 !important;
+  border:0 !important;
+  transform:none !important;
+}
+.app-card > .like-button.is-liked {
+  background:transparent !important;
+  color:#111 !important;
+  border:0 !important;
+}
+.app-card > .like-button.is-liked svg {
+  fill:#111 !important;
+  stroke:#111 !important;
+}
+
+/* Undo the previous artificial footer offsets. */
+.app-card > .app-open,
+.app-card > .card-detail {
+  bottom:auto !important;
+}
+
+@media (max-width:580px) {
+  .app-card { --like-row-h:20px; }
+  .app-card > .like-button {
+    min-width:30px !important;
+    height:18px !important;
+  }
+}
