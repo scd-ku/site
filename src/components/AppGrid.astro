@@ -122,6 +122,7 @@ const colorForApp = (slug, index) => {
         data-year={String(app.year || '')}
         style={`--index:${index};--detail-bg:${colorForApp(app.slug, index)}`}
       >
+        <div class="app-card-main">
         <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}>
           <div class="card-visual" aria-hidden="true">
             <div class="fallback-art">
@@ -190,6 +191,7 @@ const colorForApp = (slug, index) => {
             </span>
           </div>
         </div>
+        </div>
         <button class="like-button" type="button" data-like={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'} aria-pressed="false" aria-label={`${app.title} にいいね`}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
           <span class="like-count" data-like-count aria-hidden="true">–</span>
@@ -214,6 +216,7 @@ const colorForApp = (slug, index) => {
         data-year={String(app.year || '')}
         style={`--index:${applicationProjects.length + index};--detail-bg:${colorForApp(app.slug, applicationProjects.length + index)}`}
       >
+        <div class="app-card-main">
         <a class="app-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}>
           <div class="card-visual" aria-hidden="true">
             <div class="fallback-art">
@@ -281,6 +284,7 @@ const colorForApp = (slug, index) => {
               )}
             </span>
           </div>
+        </div>
         </div>
         <button class="like-button" type="button" data-like={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'} aria-pressed="false" aria-label={`${app.title} にいいね`}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
