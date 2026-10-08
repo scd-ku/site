@@ -472,7 +472,7 @@
     "platform": "Tinkercad",
     "title": "コリメート撮影用ステージ",
     "titleLocked": true,
-    "description": "コリメート撮影に用いる機器を安定して配置するための3Dプリント用ステージです。Tinkercad上で立体を確認し、共有データからモデルを閲覧・編集できます。",
+    "description": "顕微鏡の接眼レンズとスマートフォンのカメラレンズの光軸を合わせ、接眼レンズ越しの像を安定して撮影するための3Dプリント用ステージです。Tinkercad上で立体を確認し、共有データからモデルを閲覧・編集できます。",
     "url": "https://www.tinkercad.com/things/7Ilr97DtgSw-",
     "captureUrl": "https://www.tinkercad.com/embed/7Ilr97DtgSw?editbtn=1",
     "repoUrl": null,
