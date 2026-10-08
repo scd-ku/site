@@ -3965,3 +3965,41 @@ html[data-project-columns="11"] .app-grid {
     height:18px !important;
   }
 }
+
+
+/* v60 — aspect ratio belongs to the thumbnail/description region, not the like row */
+html[data-project-layout="square"] .app-card,
+html[data-project-layout="square"] .app-card--wide,
+html[data-project-layout="square"] .app-card--tall,
+html[data-project-layout="square"] .app-card--large {
+  aspect-ratio:auto !important;
+}
+html[data-project-layout="square"] .app-card-main {
+  aspect-ratio:1 / 1 !important;
+  width:100%;
+}
+
+html[data-project-layout="ratio"] .app-card,
+html[data-project-layout="ratio"] .app-card--wide,
+html[data-project-layout="ratio"] .app-card--tall,
+html[data-project-layout="ratio"] .app-card--large {
+  aspect-ratio:auto !important;
+}
+html[data-project-layout="ratio"] .app-card-main {
+  aspect-ratio:4 / 3 !important;
+  width:100%;
+}
+
+/* Mobile keeps the selected visual ratio; the like row is additional height below it. */
+@media (max-width:580px) {
+  html[data-project-layout="square"] .app-card,
+  html[data-project-layout="ratio"] .app-card {
+    aspect-ratio:auto !important;
+  }
+  html[data-project-layout="square"] .app-card-main {
+    aspect-ratio:1 / 1 !important;
+  }
+  html[data-project-layout="ratio"] .app-card-main {
+    aspect-ratio:4 / 3 !important;
+  }
+}
