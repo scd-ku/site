@@ -1,0 +1,396 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import apps from '../../data/apps.generated.json';
+import externalProjects from '../../data/external-projects.generated.json';
+
+const projects = [...apps, ...externalProjects]
+  .map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    kind: item.kind === 'tinkercad' ? '3D Model' : 'Web App'
+  }))
+  .sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+---
+
+<BaseLayout title="Library Like Admin — Science Communication Design Laboratory">
+  <main id="top" class="like-admin">
+    <section class="like-admin-shell">
+      <header class="like-admin-header">
+        <div>
+          <p class="like-admin-eyebrow">PRIVATE ADMINISTRATION</p>
+          <h1>Library Like Admin</h1>
+          <p class="like-admin-intro">公開Libraryの共有いいね数、集計開始日時、操作履歴を管理します。このページはサイト内からリンクしていません。</p>
+        </div>
+        <div class="like-admin-auth">
+          <span data-admin-status>未ログイン</span>
+          <button type="button" data-admin-login>Googleでログイン</button>
+          <button type="button" data-admin-logout hidden>ログアウト</button>
+        </div>
+      </header>
+
+      <div class="like-admin-denied" data-admin-denied hidden>
+        このGoogleアカウントには管理権限がありません。
+      </div>
+
+      <div class="like-admin-content" data-admin-content hidden>
+        <section class="admin-panel admin-global">
+          <div>
+            <p class="admin-label">ALL PROJECTS</p>
+            <h2>全プロジェクトの集計開始日時</h2>
+            <p>指定日時より前のいいねは削除せず、公開カウントから除外します。「現在から」は全カウントを0から再開する操作です。</p>
+          </div>
+          <div class="admin-global-controls">
+            <input type="datetime-local" data-global-cutoff />
+            <button type="button" data-global-apply>指定日時を全件に適用</button>
+            <button type="button" data-global-reset>現在から全件を再集計</button>
+            <button type="button" data-global-alltime>全期間に戻す</button>
+          </div>
+        </section>
+
+        <section class="admin-panel">
+          <div class="admin-section-head">
+            <div>
+              <p class="admin-label">PROJECTS</p>
+              <h2>プロジェクト別設定</h2>
+            </div>
+            <button type="button" data-admin-refresh>再読み込み</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Type</th>
+                  <th>Likes</th>
+                  <th>Count from</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projects.map((project) => (
+                  <tr data-project-row data-slug={project.slug} data-title={project.title}>
+                    <td>
+                      <strong>{project.title}</strong>
+                      <small>{project.slug}</small>
+                    </td>
+                    <td>{project.kind}</td>
+                    <td class="admin-count" data-count>–</td>
+                    <td>
+                      <input type="datetime-local" data-cutoff-input aria-label={`${project.title} の集計開始日時`} />
+                      <small data-cutoff-label>全期間</small>
+                    </td>
+                    <td>
+                      <div class="admin-row-actions">
+                        <button type="button" data-set-cutoff>設定</button>
+                        <button type="button" data-reset-now>現在</button>
+                        <button type="button" data-all-time>全期間</button>
+                        <button type="button" data-show-history>履歴</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-panel admin-history">
+          <div class="admin-section-head">
+            <div>
+              <p class="admin-label">HISTORY</p>
+              <h2 data-history-title>操作履歴</h2>
+              <p>履歴記録機能を導入した時点以降の like / unlike を、新しい順に最大100件表示します。</p>
+            </div>
+            <button type="button" data-history-refresh disabled>履歴を更新</button>
+          </div>
+          <div class="admin-history-list" data-history-list>
+            <p class="admin-empty">プロジェクトの「履歴」を選択してください。</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script id="admin-project-data" type="application/json" set:html={JSON.stringify(projects)}></script>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import {
+      initializeAppCheck,
+      ReCaptchaEnterpriseProvider
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js';
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      onAuthStateChanged,
+      signInWithPopup,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      setDoc,
+      serverTimestamp,
+      Timestamp,
+      query,
+      where,
+      orderBy,
+      limit,
+      getCountFromServer,
+      writeBatch
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'osaki.akihiro@kagawa-u.ac.jp';
+    const firebaseConfig = {
+      apiKey: 'AIzaSyB0aXmlo8zoJ_3pfy-we7bGUjnFqI9izVk',
+      authDomain: 'scd-ku-site.firebaseapp.com',
+      projectId: 'scd-ku-site',
+      storageBucket: 'scd-ku-site.firebasestorage.app',
+      messagingSenderId: '1006783132509',
+      appId: '1:1006783132509:web:c0140ee92f5655787e2eb4'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider('6LfRFeUtAAAAACZ6J7th3SxUUFfnfei27Zbi8aOz'),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ hd: 'kagawa-u.ac.jp' });
+
+    const projects = JSON.parse(document.querySelector('#admin-project-data')?.textContent || '[]');
+    const content = document.querySelector('[data-admin-content]');
+    const denied = document.querySelector('[data-admin-denied]');
+    const status = document.querySelector('[data-admin-status]');
+    const login = document.querySelector('[data-admin-login]');
+    const logout = document.querySelector('[data-admin-logout]');
+    const rows = [...document.querySelectorAll('[data-project-row]')];
+    const historyList = document.querySelector('[data-history-list]');
+    const historyTitle = document.querySelector('[data-history-title]');
+    const historyRefresh = document.querySelector('[data-history-refresh]');
+    let currentHistorySlug = '';
+
+    const isAdmin = (user) =>
+      Boolean(user?.emailVerified && user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+
+    const localInputValue = (date) => {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    const formatTimestamp = (value) => {
+      if (!value?.toDate) return '全期間';
+      return value.toDate().toLocaleString('ja-JP', {
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit'
+      });
+    };
+
+    const getProjectState = async (slug) => {
+      const projectRef = doc(db, 'projects', slug);
+      const likesRef = collection(db, 'projects', slug, 'likes');
+      const projectSnapshot = await getDoc(projectRef);
+      const cutoff = projectSnapshot.exists() && projectSnapshot.data()?.countFrom?.toMillis
+        ? projectSnapshot.data().countFrom
+        : null;
+      const countQuery = cutoff ? query(likesRef, where('createdAt', '>=', cutoff)) : likesRef;
+      const countSnapshot = await getCountFromServer(countQuery);
+      return { cutoff, count: countSnapshot.data().count };
+    };
+
+    const paintRow = async (row) => {
+      const slug = row.dataset.slug;
+      row.classList.add('is-loading');
+      try {
+        const state = await getProjectState(slug);
+        row.querySelector('[data-count]').textContent = String(state.count);
+        row.querySelector('[data-cutoff-label]').textContent = state.cutoff ? formatTimestamp(state.cutoff) : '全期間';
+        const input = row.querySelector('[data-cutoff-input]');
+        input.value = state.cutoff ? localInputValue(state.cutoff.toDate()) : '';
+      } catch (error) {
+        console.error(error);
+        row.querySelector('[data-count]').textContent = '!';
+      } finally {
+        row.classList.remove('is-loading');
+      }
+    };
+
+    const refreshRows = async () => {
+      await Promise.allSettled(rows.map((row) => paintRow(row)));
+    };
+
+    const saveCutoff = async (slug, timestamp) => {
+      await setDoc(doc(db, 'projects', slug), {
+        countFrom: timestamp,
+        countFromUpdatedAt: serverTimestamp(),
+        countFromUpdatedBy: auth.currentUser?.email || ''
+      }, { merge:true });
+    };
+
+    const applyToAll = async (timestamp) => {
+      if (!confirm('全プロジェクトの集計開始日時を変更します。よろしいですか？')) return;
+      const batch = writeBatch(db);
+      projects.forEach((project) => {
+        batch.set(doc(db, 'projects', project.slug), {
+          countFrom: timestamp,
+          countFromUpdatedAt: serverTimestamp(),
+          countFromUpdatedBy: auth.currentUser?.email || ''
+        }, { merge:true });
+      });
+      await batch.commit();
+      await refreshRows();
+    };
+
+    const loadHistory = async (slug) => {
+      currentHistorySlug = slug;
+      historyRefresh.disabled = false;
+      const row = rows.find((item) => item.dataset.slug === slug);
+      historyTitle.textContent = `${row?.dataset.title || slug} — 操作履歴`;
+      historyList.innerHTML = '<p class="admin-empty">読み込み中…</p>';
+
+      try {
+        const eventsRef = collection(db, 'projects', slug, 'events');
+        const snapshot = await getDocs(query(eventsRef, orderBy('createdAt', 'desc'), limit(100)));
+
+        if (snapshot.empty) {
+          historyList.innerHTML = '<p class="admin-empty">記録された履歴はまだありません。</p>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'admin-history-table';
+        table.innerHTML = '<thead><tr><th>日時</th><th>操作</th><th>匿名ID</th></tr></thead><tbody></tbody>';
+        const body = table.querySelector('tbody');
+
+        snapshot.forEach((item) => {
+          const data = item.data();
+          const tr = document.createElement('tr');
+          const uid = String(data.uid || '');
+          const action = data.action === 'like' ? 'LIKE' : data.action === 'unlike' ? 'UNLIKE' : String(data.action || '');
+          tr.innerHTML = `<td>${data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString('ja-JP') : '処理中'}</td><td>${action}</td><td><code>${uid ? uid.slice(0,8) + '…' : '—'}</code></td>`;
+          body.appendChild(tr);
+        });
+        historyList.replaceChildren(table);
+      } catch (error) {
+        console.error(error);
+        historyList.innerHTML = '<p class="admin-empty">履歴を取得できませんでした。Firestore Rulesを確認してください。</p>';
+      }
+    };
+
+    login?.addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error(error);
+        status.textContent = 'ログインに失敗しました';
+      }
+    });
+
+    logout?.addEventListener('click', () => signOut(auth));
+
+    document.querySelector('[data-admin-refresh]')?.addEventListener('click', refreshRows);
+    historyRefresh?.addEventListener('click', () => currentHistorySlug && loadHistory(currentHistorySlug));
+
+    document.querySelector('[data-global-apply]')?.addEventListener('click', async () => {
+      const input = document.querySelector('[data-global-cutoff]');
+      if (!input.value) return alert('日時を指定してください。');
+      await applyToAll(Timestamp.fromDate(new Date(input.value)));
+    });
+    document.querySelector('[data-global-reset]')?.addEventListener('click', () => applyToAll(Timestamp.now()));
+    document.querySelector('[data-global-alltime]')?.addEventListener('click', () => applyToAll(null));
+
+    rows.forEach((row) => {
+      const slug = row.dataset.slug;
+      row.querySelector('[data-set-cutoff]')?.addEventListener('click', async () => {
+        const input = row.querySelector('[data-cutoff-input]');
+        if (!input.value) return alert('日時を指定してください。');
+        await saveCutoff(slug, Timestamp.fromDate(new Date(input.value)));
+        await paintRow(row);
+      });
+      row.querySelector('[data-reset-now]')?.addEventListener('click', async () => {
+        if (!confirm(`${row.dataset.title} の公開いいね数を現在から0として再集計しますか？`)) return;
+        await saveCutoff(slug, Timestamp.now());
+        await paintRow(row);
+      });
+      row.querySelector('[data-all-time]')?.addEventListener('click', async () => {
+        await saveCutoff(slug, null);
+        await paintRow(row);
+      });
+      row.querySelector('[data-show-history]')?.addEventListener('click', () => loadHistory(slug));
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        status.textContent = '未ログイン';
+        login.hidden = false;
+        logout.hidden = true;
+        denied.hidden = true;
+        content.hidden = true;
+        return;
+      }
+
+      status.textContent = user.email || 'ログイン済み';
+      login.hidden = true;
+      logout.hidden = false;
+
+      if (!isAdmin(user)) {
+        denied.hidden = false;
+        content.hidden = true;
+        return;
+      }
+
+      denied.hidden = true;
+      content.hidden = false;
+      await refreshRows();
+    });
+  </script>
+
+  <style>
+    .like-admin{min-height:100vh;background:#f7f7f5;color:#111;padding:46px 26px 100px}
+    .like-admin-shell{width:min(1500px,100%);margin:0 auto}
+    .like-admin-header{display:flex;justify-content:space-between;gap:40px;align-items:flex-start;border-top:1px solid rgba(17,17,17,.22);padding-top:20px;margin-bottom:34px}
+    .like-admin-eyebrow,.admin-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(17,17,17,.55);margin:0 0 10px}
+    .like-admin h1{font-size:clamp(34px,4.2vw,66px);font-weight:300;letter-spacing:-.045em;line-height:.98;margin:0 0 14px}
+    .like-admin-intro{max-width:720px;font-size:12px;line-height:1.75;color:rgba(17,17,17,.65);margin:0}
+    .like-admin-auth{display:flex;align-items:center;gap:9px;font-size:11px;white-space:nowrap}
+    .like-admin button{border:1px solid rgba(17,17,17,.28);background:#fff;color:#111;padding:8px 11px;border-radius:999px;font:inherit;font-size:10.5px;cursor:pointer}
+    .like-admin button:hover{background:#111;color:#fff;border-color:#111}
+    .like-admin button:disabled{opacity:.45;cursor:default}
+    .like-admin-denied{border:1px solid #b73535;background:#fff;padding:16px;font-size:12px}
+    .admin-panel{background:#fff;border-top:1px solid rgba(17,17,17,.22);padding:18px 0 28px;margin-top:26px}
+    .admin-global{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(420px,1.2fr);gap:36px;padding-left:18px;padding-right:18px}
+    .admin-panel h2{font-size:18px;font-weight:400;margin:0 0 8px}
+    .admin-panel p{font-size:11px;line-height:1.7;color:rgba(17,17,17,.62);margin:0;max-width:720px}
+    .admin-global-controls{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+    .like-admin input[type="datetime-local"]{border:1px solid rgba(17,17,17,.22);background:#fff;padding:7px 8px;font:inherit;font-size:10.5px;min-width:178px}
+    .admin-section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;padding:0 18px 16px}
+    .admin-table-wrap{overflow:auto;border-top:1px solid rgba(17,17,17,.12)}
+    .admin-table,.admin-history-table{width:100%;border-collapse:collapse;font-size:10.5px}
+    .admin-table th,.admin-table td,.admin-history-table th,.admin-history-table td{padding:11px 12px;border-bottom:1px solid rgba(17,17,17,.10);vertical-align:middle;text-align:left}
+    .admin-table th,.admin-history-table th{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(17,17,17,.5);font-weight:500}
+    .admin-table strong{font-size:11.5px;font-weight:500;display:block}
+    .admin-table small{display:block;margin-top:3px;color:rgba(17,17,17,.48);font-size:9px}
+    .admin-count{font-size:17px!important;font-variant-numeric:tabular-nums}
+    .admin-row-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .admin-row-actions button{padding:6px 9px;font-size:9.5px}
+    .admin-table tr.is-loading{opacity:.5}
+    .admin-history-list{padding:0 18px}
+    .admin-history-table code{font-size:9.5px}
+    .admin-empty{padding:20px 0!important}
+    @media(max-width:800px){
+      .like-admin{padding:28px 14px 70px}
+      .like-admin-header{display:block}
+      .like-admin-auth{margin-top:20px;white-space:normal}
+      .admin-global{grid-template-columns:1fr}
+      .admin-global-controls{justify-content:flex-start}
+      .admin-table{min-width:940px}
+    }
+  </style>
+</BaseLayout>
