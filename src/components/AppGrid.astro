@@ -598,6 +598,10 @@ const colorForApp = (slug, index) => {
 
   <script type="module" is:inline>
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import {
+      initializeAppCheck,
+      ReCaptchaEnterpriseProvider
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js';
     import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
     import {
       getFirestore,
@@ -620,6 +624,14 @@ const colorForApp = (slug, index) => {
     };
 
     const app = initializeApp(firebaseConfig);
+
+    // App Check must be initialized before Authentication / Firestore access.
+    // reCAPTCHA Enterprise is score-based and invisible to normal visitors.
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider('6LfRFeUtAAAAACZ6J7th3SxUUFfnfei27Zbi8aOz'),
+      isTokenAutoRefreshEnabled: true
+    });
+
     const auth = getAuth(app);
     const db = getFirestore(app);
     const likeButtons = [...document.querySelectorAll('[data-like]')];
