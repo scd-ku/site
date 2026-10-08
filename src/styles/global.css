@@ -3704,3 +3704,36 @@ html[data-project-columns="11"] .app-grid {
   }
   .like-count { font-size:9px; }
 }
+
+
+/* v56 — make shared like totals unmistakably visible */
+.like-button {
+  min-width:48px !important;
+  background:rgba(17,17,17,.34) !important;
+  border-color:rgba(255,255,255,.72) !important;
+  color:#fff !important;
+}
+.like-count {
+  min-width:1.2em !important;
+  font-size:10.5px !important;
+  font-weight:500 !important;
+  opacity:1 !important;
+  color:currentColor !important;
+}
+.like-button:hover,
+.like-button:focus-visible,
+.app-card:hover .like-button,
+.app-card:focus-within .like-button {
+  background:rgba(255,255,255,.96) !important;
+  color:#111 !important;
+  border-color:rgba(17,17,17,.18) !important;
+}
+.like-button.is-liked {
+  background:#fff !important;
+  color:#111 !important;
+  border-color:#fff !important;
+}
+@media (max-width:580px){
+  .like-button { min-width:45px !important; }
+  .like-count { font-size:10px !important; }
+}
