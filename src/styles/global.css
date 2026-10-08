@@ -3737,3 +3737,100 @@ html[data-project-columns="11"] .app-grid {
   .like-button { min-width:45px !important; }
   .like-count { font-size:10px !important; }
 }
+
+
+/* v57 — place the shared like control below each thumbnail */
+.app-card {
+  --like-row-h: 24px;
+  background:#fff !important;
+}
+
+/* Reserve a quiet footer row; image, title and description stay above it. */
+.app-card > .app-open {
+  bottom:var(--like-row-h) !important;
+}
+.app-card > .card-detail {
+  bottom:var(--like-row-h) !important;
+}
+
+/* Like is metadata, not an overlay on the artwork. */
+.app-card > .like-button {
+  position:absolute !important;
+  z-index:8 !important;
+  top:auto !important;
+  right:1px !important;
+  bottom:1px !important;
+  left:auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:4px !important;
+  width:auto !important;
+  min-width:34px !important;
+  height:20px !important;
+  padding:0 5px !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:rgba(17,17,17,.58) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  transform:none !important;
+  font-variant-numeric:tabular-nums;
+}
+.app-card > .like-button svg {
+  width:11px !important;
+  height:11px !important;
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.35 !important;
+}
+.app-card > .like-button .like-count {
+  min-width:.7em !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  font-weight:400 !important;
+  letter-spacing:.01em !important;
+  color:currentColor !important;
+  opacity:1 !important;
+  text-align:right !important;
+}
+.app-card > .like-button:hover,
+.app-card > .like-button:focus-visible,
+.app-card:hover > .like-button,
+.app-card:focus-within > .like-button {
+  background:transparent !important;
+  color:#111 !important;
+  border:0 !important;
+  transform:none !important;
+}
+.app-card > .like-button.is-liked {
+  background:transparent !important;
+  color:#111 !important;
+  border:0 !important;
+}
+.app-card > .like-button.is-liked svg {
+  fill:#111 !important;
+  stroke:#111 !important;
+}
+.app-card > .like-button:focus-visible {
+  outline:1px solid rgba(17,17,17,.35) !important;
+  outline-offset:1px !important;
+}
+
+/* Keep the footer compact on phones as well. */
+@media (max-width:580px) {
+  .app-card { --like-row-h: 23px; }
+  .app-card > .like-button {
+    min-width:33px !important;
+    height:19px !important;
+    padding:0 4px !important;
+  }
+  .app-card > .like-button svg {
+    width:10px !important;
+    height:10px !important;
+  }
+  .app-card > .like-button .like-count {
+    font-size:8.5px !important;
+  }
+}
