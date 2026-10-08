@@ -100,8 +100,8 @@ const base = import.meta.env.BASE_URL;
           });
         }
 
-        const sourceLabels = [...sourceRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label]')];
-        const cloneLabels = [...cloneRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label]')];
+        const sourceLabels = [...sourceRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label],[data-like-count]')];
+        const cloneLabels = [...cloneRoot.querySelectorAll('[data-screen-label],[data-cursor-slider1-label],[data-cursor-slider2-label],[data-like-count]')];
         for (let i=0;i<Math.min(sourceLabels.length,cloneLabels.length);i++) cloneLabels[i].textContent=sourceLabels[i].textContent;
       }
 
