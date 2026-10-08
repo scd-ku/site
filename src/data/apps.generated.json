@@ -1,5 +1,22 @@
 [
   {
+    "slug": "shidouyouryou",
+    "repo": "scd-ku/shidouyouryou",
+    "title": "学指導要領の内容構成",
+    "description": "学習指導要領の内容を学年・領域ごとに可視化し、各単元で身に付ける事項と文部科学省の解説本文をたどれる内容構成マップです。",
+    "url": "https://scd-ku.github.io/shidouyouryou/",
+    "repoUrl": "https://github.com/scd-ku/shidouyouryou",
+    "tags": [
+      "Education",
+      "Science",
+      "Curriculum",
+      "Visualization"
+    ],
+    "size": "wide",
+    "updatedAt": "2026-10-08T03:25:00Z",
+    "year": 2026
+  },
+  {
     "slug": "cad",
     "repo": "scd-ku/cad",
     "title": "3DCAD++",
