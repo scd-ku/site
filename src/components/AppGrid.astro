@@ -192,6 +192,7 @@ const colorForApp = (slug, index) => {
         </div>
         <button class="like-button" type="button" data-like={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'} aria-pressed="false" aria-label={`${app.title} にいいね`}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+          <span class="like-count" data-like-count aria-hidden="true">–</span>
         </button>
       </article>
     ))}
@@ -283,6 +284,7 @@ const colorForApp = (slug, index) => {
         </div>
         <button class="like-button" type="button" data-like={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'} aria-pressed="false" aria-label={`${app.title} にいいね`}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+          <span class="like-count" data-like-count aria-hidden="true">–</span>
         </button>
       </article>
     ))}
@@ -591,29 +593,141 @@ const colorForApp = (slug, index) => {
       settingsButton?.setAttribute('aria-expanded', 'false');
     });
 
-    document.querySelectorAll('[data-like]').forEach((button) => {
+    })();
+  </script>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      setDoc,
+      deleteDoc,
+      serverTimestamp,
+      getCountFromServer
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyB0aXmlo8zoJ_3pfy-we7bGUjnFqI9izVk',
+      authDomain: 'scd-ku-site.firebaseapp.com',
+      projectId: 'scd-ku-site',
+      storageBucket: 'scd-ku-site.firebasestorage.app',
+      messagingSenderId: '1006783132509',
+      appId: '1:1006783132509:web:c0140ee92f5655787e2eb4'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const likeButtons = [...document.querySelectorAll('[data-like]')];
+
+    const setButtonState = (button, liked, count) => {
+      const numericCount = Number.isFinite(Number(count)) ? Number(count) : 0;
+      button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+      button.classList.toggle('is-liked', liked);
+      button.classList.remove('is-like-loading');
+      const counter = button.querySelector('[data-like-count]');
+      if (counter) counter.textContent = String(numericCount);
+      const title = button.dataset.projectTitle || 'このプロジェクト';
+      button.setAttribute('aria-label', `${title} にいいね。現在 ${numericCount} 件`);
+    };
+
+    const getLikeRefs = (slug, uid) => {
+      const likes = collection(db, 'projects', slug, 'likes');
+      const mine = doc(db, 'projects', slug, 'likes', uid);
+      return { likes, mine };
+    };
+
+    const syncLikeButton = async (button, user) => {
       const slug = button.dataset.like;
-      const key = `scd_like_${slug}`;
-      const paint = () => {
-        const liked = localStorage.getItem(key) === '1';
-        button.setAttribute('aria-pressed', liked ? 'true' : 'false');
-        button.classList.toggle('is-liked', liked);
-      };
-      paint();
-      button.addEventListener('click', (event) => {
-        event.preventDefault(); event.stopPropagation();
-        const liked = localStorage.getItem(key) === '1';
-        localStorage.setItem(key, liked ? '0' : '1');
-        paint();
-        window.scdTrack?.(liked ? 'project_unlike' : 'project_like', {
-          project_slug: slug || '',
+      if (!slug || !user) return;
+      button.classList.add('is-like-loading');
+      try {
+        const { likes, mine } = getLikeRefs(slug, user.uid);
+        const [countSnapshot, mineSnapshot] = await Promise.all([
+          getCountFromServer(likes),
+          getDoc(mine)
+        ]);
+        setButtonState(button, mineSnapshot.exists(), countSnapshot.data().count);
+      } catch (error) {
+        console.warn(`Could not load likes for ${slug}`, error);
+        button.classList.remove('is-like-loading');
+        const counter = button.querySelector('[data-like-count]');
+        if (counter) counter.textContent = '–';
+      }
+    };
+
+    const syncAllLikes = async (user) => {
+      await Promise.allSettled(likeButtons.map((button) => syncLikeButton(button, user)));
+    };
+
+    const toggleLike = async (button, user) => {
+      const slug = button.dataset.like;
+      if (!slug || !user || button.disabled) return;
+
+      button.disabled = true;
+      button.classList.add('is-like-loading');
+
+      try {
+        const { likes, mine } = getLikeRefs(slug, user.uid);
+        const mineSnapshot = await getDoc(mine);
+        const wasLiked = mineSnapshot.exists();
+
+        if (wasLiked) {
+          await deleteDoc(mine);
+        } else {
+          await setDoc(mine, { createdAt: serverTimestamp() });
+        }
+
+        const countSnapshot = await getCountFromServer(likes);
+        setButtonState(button, !wasLiked, countSnapshot.data().count);
+
+        window.scdTrack?.(wasLiked ? 'project_unlike' : 'project_like', {
+          project_slug: slug,
           project_title: button.dataset.projectTitle || '',
           project_url: button.dataset.projectUrl || '',
           project_repo: button.dataset.projectRepo || '',
-          content_type: 'web_app'
+          content_type: button.dataset.projectKind || 'web_app'
         });
+      } catch (error) {
+        console.warn(`Could not update like for ${slug}`, error);
+        await syncLikeButton(button, user);
+      } finally {
+        button.disabled = false;
+        button.classList.remove('is-like-loading');
+      }
+    };
+
+    let activeUser = null;
+
+    likeButtons.forEach((button) => {
+      button.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!activeUser) return;
+        await toggleLike(button, activeUser);
       });
     });
-    })();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (error) {
+          console.warn('Anonymous Firebase sign-in failed.', error);
+          likeButtons.forEach((button) => {
+            const counter = button.querySelector('[data-like-count]');
+            if (counter) counter.textContent = '–';
+          });
+        }
+        return;
+      }
+
+      activeUser = user;
+      await syncAllLikes(user);
+    });
   </script>
 </section>
