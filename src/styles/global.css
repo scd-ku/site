@@ -3663,3 +3663,44 @@ html[data-project-columns="11"] .app-grid {
     grid-template-columns:1fr !important;
   }
 }
+
+
+/* v55 — shared Firebase like count */
+.like-button {
+  width:auto !important;
+  min-width:31px;
+  height:31px;
+  grid-template-columns:auto auto;
+  column-gap:5px;
+  padding:0 9px 0 8px !important;
+  border-radius:999px !important;
+  font-variant-numeric:tabular-nums;
+}
+.like-button svg {
+  width:14px !important;
+  height:14px !important;
+}
+.like-count {
+  display:inline-block;
+  min-width:.65em;
+  font-size:9.5px;
+  line-height:1;
+  font-weight:400;
+  letter-spacing:.01em;
+  text-align:right;
+}
+.like-button.is-like-loading .like-count {
+  opacity:.52;
+}
+.like-button:disabled {
+  cursor:wait;
+}
+@media (max-width:580px) {
+  .like-button {
+    min-width:29px;
+    height:29px;
+    padding:0 8px 0 7px !important;
+    column-gap:4px;
+  }
+  .like-count { font-size:9px; }
+}
