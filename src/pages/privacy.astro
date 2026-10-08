@@ -36,7 +36,7 @@ const gaConfigured = Boolean(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
       <section>
         <h2>Project操作の計測</h2>
         <p>Google Analyticsを許可している場合、Projectを開いたときに <code>project_open</code>、ハートを付けたときに <code>project_like</code>、外したときに <code>project_unlike</code> を送信します。各イベントには、Projectを識別する <code>project_slug</code>、<code>project_title</code>、<code>project_url</code>、<code>project_repo</code> を含めます。</p>
-        <p>ハートの選択状態そのものはこのブラウザ内に保存します。個人を特定する氏名・メールアドレス等は送信しない設計です。</p>
+        <p>ハートはFirebaseの匿名認証を利用し、プロジェクトごとの共有いいね数としてCloud Firestoreに保存します。記録されるのは匿名の利用者ID、操作種別、操作日時で、氏名やメールアドレスは一般利用者から取得しません。FirestoreへのアクセスはFirebase App Check（reCAPTCHA Enterprise）で保護しています。</p>
       </section>
 
       <section>
