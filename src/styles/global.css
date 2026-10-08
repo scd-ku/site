@@ -3834,3 +3834,28 @@ html[data-project-columns="11"] .app-grid {
     font-size:8.5px !important;
   }
 }
+
+
+/* v58 — keep the like row visually separate from the hover description */
+.app-card::after {
+  content:"";
+  position:absolute;
+  z-index:7;
+  left:0;
+  right:0;
+  bottom:0;
+  height:var(--like-row-h, 24px);
+  background:#fff;
+  border-top:1px solid rgba(17,17,17,.10);
+  pointer-events:none;
+}
+
+/* The description may slide, but it must never visually occupy the like footer. */
+.app-card > .card-detail {
+  max-height:calc(100% - var(--like-row-h, 24px)) !important;
+}
+
+/* Keep the compact like control above the white footer mask. */
+.app-card > .like-button {
+  z-index:9 !important;
+}
