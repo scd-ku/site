@@ -63,6 +63,14 @@ export default {
     size: 'normal'
   },
 
+  shidouyouryou: {
+    title: '学指導要領の内容構成',
+    year: 2026,
+    description: '学習指導要領の内容を学年・領域ごとに可視化し、各単元で身に付ける事項と文部科学省の解説本文をたどれる内容構成マップです。',
+    tags: ['Education', 'Science', 'Curriculum', 'Visualization'],
+    size: 'wide'
+  },
+
   snowflake: {
     title: '雪結晶シミュレーター',
     year: 2026,
