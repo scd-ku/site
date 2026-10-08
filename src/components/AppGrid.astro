@@ -610,8 +610,11 @@ const colorForApp = (slug, index) => {
       getDoc,
       setDoc,
       deleteDoc,
+      addDoc,
       serverTimestamp,
-      getCountFromServer
+      getCountFromServer,
+      query,
+      where
     } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -625,8 +628,6 @@ const colorForApp = (slug, index) => {
 
     const app = initializeApp(firebaseConfig);
 
-    // App Check must be initialized before Authentication / Firestore access.
-    // reCAPTCHA Enterprise is score-based and invisible to normal visitors.
     initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider('6LfRFeUtAAAAACZ6J7th3SxUUFfnfei27Zbi8aOz'),
       isTokenAutoRefreshEnabled: true
@@ -636,7 +637,11 @@ const colorForApp = (slug, index) => {
     const db = getFirestore(app);
     const likeButtons = [...document.querySelectorAll('[data-like]')];
 
-    const setButtonState = (button, liked, count) => {
+    const timestampMillis = (value) => {
+      try { return value?.toMillis?.() ?? 0; } catch { return 0; }
+    };
+
+    const setButtonState = (button, liked, count, cutoff = null) => {
       const numericCount = Number.isFinite(Number(count)) ? Number(count) : 0;
       button.setAttribute('aria-pressed', liked ? 'true' : 'false');
       button.classList.toggle('is-liked', liked);
@@ -644,26 +649,49 @@ const colorForApp = (slug, index) => {
       const counter = button.querySelector('[data-like-count]');
       if (counter) counter.textContent = String(numericCount);
       const title = button.dataset.projectTitle || 'このプロジェクト';
-      button.setAttribute('aria-label', `${title} にいいね。現在 ${numericCount} 件`);
+      const cutoffText = cutoff?.toDate?.()
+        ? `（${cutoff.toDate().toLocaleString('ja-JP')}以降）`
+        : '';
+      button.setAttribute('aria-label', `${title} にいいね。現在 ${numericCount} 件${cutoffText}`);
     };
 
     const getLikeRefs = (slug, uid) => {
+      const project = doc(db, 'projects', slug);
       const likes = collection(db, 'projects', slug, 'likes');
       const mine = doc(db, 'projects', slug, 'likes', uid);
-      return { likes, mine };
+      const events = collection(db, 'projects', slug, 'events');
+      return { project, likes, mine, events };
+    };
+
+    const getCutoff = (projectSnapshot) => {
+      const value = projectSnapshot.exists() ? projectSnapshot.data()?.countFrom : null;
+      return value?.toMillis ? value : null;
+    };
+
+    const buildCountQuery = (likes, cutoff) =>
+      cutoff ? query(likes, where('createdAt', '>=', cutoff)) : likes;
+
+    const isEffectiveLike = (mineSnapshot, cutoff) => {
+      if (!mineSnapshot.exists()) return false;
+      if (!cutoff) return true;
+      const createdAt = mineSnapshot.data()?.createdAt;
+      return timestampMillis(createdAt) >= timestampMillis(cutoff);
     };
 
     const syncLikeButton = async (button, user) => {
       const slug = button.dataset.like;
       if (!slug || !user) return;
       button.classList.add('is-like-loading');
+
       try {
-        const { likes, mine } = getLikeRefs(slug, user.uid);
-        const [countSnapshot, mineSnapshot] = await Promise.all([
-          getCountFromServer(likes),
+        const { project, likes, mine } = getLikeRefs(slug, user.uid);
+        const [projectSnapshot, mineSnapshot] = await Promise.all([
+          getDoc(project),
           getDoc(mine)
         ]);
-        setButtonState(button, mineSnapshot.exists(), countSnapshot.data().count);
+        const cutoff = getCutoff(projectSnapshot);
+        const countSnapshot = await getCountFromServer(buildCountQuery(likes, cutoff));
+        setButtonState(button, isEffectiveLike(mineSnapshot, cutoff), countSnapshot.data().count, cutoff);
       } catch (error) {
         console.warn(`Could not load likes for ${slug}`, error);
         button.classList.remove('is-like-loading');
@@ -676,6 +704,19 @@ const colorForApp = (slug, index) => {
       await Promise.allSettled(likeButtons.map((button) => syncLikeButton(button, user)));
     };
 
+    const logLikeEvent = async (events, user, action) => {
+      // Event logging is deliberately best-effort so a history write can never block liking.
+      try {
+        await addDoc(events, {
+          uid: user.uid,
+          action,
+          createdAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.warn('Like history could not be recorded.', error);
+      }
+    };
+
     const toggleLike = async (button, user) => {
       const slug = button.dataset.like;
       if (!slug || !user || button.disabled) return;
@@ -684,18 +725,25 @@ const colorForApp = (slug, index) => {
       button.classList.add('is-like-loading');
 
       try {
-        const { likes, mine } = getLikeRefs(slug, user.uid);
-        const mineSnapshot = await getDoc(mine);
-        const wasLiked = mineSnapshot.exists();
+        const { project, likes, mine, events } = getLikeRefs(slug, user.uid);
+        const [projectSnapshot, mineSnapshot] = await Promise.all([
+          getDoc(project),
+          getDoc(mine)
+        ]);
+        const cutoff = getCutoff(projectSnapshot);
+        const wasLiked = isEffectiveLike(mineSnapshot, cutoff);
 
         if (wasLiked) {
           await deleteDoc(mine);
         } else {
+          // If an old like exists before the current counting start, refresh its timestamp.
           await setDoc(mine, { createdAt: serverTimestamp() });
         }
 
-        const countSnapshot = await getCountFromServer(likes);
-        setButtonState(button, !wasLiked, countSnapshot.data().count);
+        await logLikeEvent(events, user, wasLiked ? 'unlike' : 'like');
+
+        const countSnapshot = await getCountFromServer(buildCountQuery(likes, cutoff));
+        setButtonState(button, !wasLiked, countSnapshot.data().count, cutoff);
 
         window.scdTrack?.(wasLiked ? 'project_unlike' : 'project_like', {
           project_slug: slug,
