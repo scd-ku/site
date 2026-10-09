@@ -4658,3 +4658,100 @@ html[data-design-style="neo"] .about-section .about-prose p {
   .contact-grid { grid-template-columns:minmax(0,1fr) !important; gap:26px !important; }
   .contact-name-en { margin-bottom:20px !important; }
 }
+
+
+/* v67 — About: two-column editorial composition with a distinct site note.
+   No markup or application behavior changes: works with Swiss and Neo modes. */
+@media (min-width:1001px) {
+  .about-section {
+    display:grid !important;
+    grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+    column-gap:clamp(32px,4vw,68px);
+    align-items:start;
+  }
+  .about-section > .section-kicker {
+    grid-column:1 / -1;
+    margin-bottom:32px !important;
+  }
+  .about-section > .about-block--lab {
+    grid-column:1;
+    min-width:0;
+    max-width:700px !important;
+  }
+  .about-section > .about-block--site {
+    grid-column:2;
+    min-width:0;
+    width:100%;
+    max-width:none !important;
+    margin-top:0 !important;
+  }
+}
+.about-section > .about-block--lab .about-lead {
+  max-width:25em !important;
+  margin-bottom:20px;
+}
+.about-section > .about-block--lab .about-prose {
+  max-width:660px !important;
+}
+.about-section > .about-block--site {
+  border:1px solid rgba(17,17,17,.18);
+  border-radius:2px;
+  padding:clamp(22px,2.4vw,34px) !important;
+  background:#f3f4f2;
+}
+.about-section > .about-block--site .about-mini-label {
+  margin:0 0 20px !important;
+  color:#111;
+  font-size:clamp(13px,1.05vw,16px) !important;
+  font-weight:600 !important;
+  line-height:1.35;
+  letter-spacing:.015em !important;
+  text-transform:none;
+}
+.about-section > .about-block--site .about-prose {
+  width:100%;
+  max-width:100% !important;
+  margin-top:0 !important;
+}
+.about-section > .about-block--site .about-prose p {
+  max-width:100% !important;
+  font-size:clamp(13.5px,1vw,14.5px) !important;
+  line-height:1.82 !important;
+  margin-bottom:17px !important;
+}
+.about-section > .about-block--site .about-year-note {
+  border-top:1px solid rgba(17,17,17,.17);
+  padding-top:18px;
+  margin-top:25px !important;
+  font-size:12px !important;
+  line-height:1.75 !important;
+}
+html[data-design-style="neo"] .about-section > .about-block--site {
+  border:2px solid #111 !important;
+  border-radius:3px;
+  background:#f1f1ed;
+  box-shadow:none !important;
+}
+html[data-design-style="neo"] .about-section > .about-block--site .about-mini-label {
+  font-family:var(--neo-type) !important;
+  font-weight:600 !important;
+  letter-spacing:0 !important;
+}
+@media (min-width:581px) and (max-width:1000px) {
+  .about-section { display:block !important; }
+  .about-section > .about-block--site {
+    max-width:660px !important;
+    margin-top:38px !important;
+  }
+}
+@media (max-width:580px) {
+  .about-section { display:block !important; }
+  .about-section > .about-block--site {
+    width:100%;
+    max-width:none !important;
+    margin-top:32px !important;
+    padding:20px !important;
+  }
+  .about-section > .about-block--site .about-prose p { font-size:14px !important; }
+  .about-section > .about-block--site .about-mini-label { margin-bottom:16px !important; }
+}
