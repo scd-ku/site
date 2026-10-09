@@ -4470,3 +4470,191 @@ html[data-project-layout="mondrian"] .app-card:nth-child(8n + 7) { grid-column:s
   }
   html[data-project-layout="mondrian"] .app-card-main { aspect-ratio:4/3 !important; height:auto !important; }
 }
+
+
+/* v66 — unified editorial grid across Library, About, People and Contact. */
+:root {
+  --scd-text-measure: 660px;
+  --scd-section-space-top: 44px;
+  --scd-section-space-bottom: 60px;
+  --scd-editorial-gap: clamp(24px, 3vw, 40px);
+}
+.projects-section .section-heading,
+.projects-section .filters,
+.projects-section .content-band,
+.projects-section .app-grid,
+.text-section > .section-kicker,
+.text-section > .about-block,
+.text-section > .people-grid,
+.text-section > .contact-grid {
+  min-width:0;
+}
+.projects-section .section-heading {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:var(--scd-editorial-gap);
+}
+.projects-section .display-settings { justify-self:end; }
+
+/* Filters use an independent, readable control grid while sharing the
+   Library/tile outer alignment. Long labels wrap only at the screen edge. */
+.filters--primary,
+.filters--topics {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px 9px !important;
+  min-width:0;
+}
+.filters--primary { margin-bottom:14px !important; }
+.filters--topics { margin-bottom:8px; }
+.filters .filter { flex:0 0 auto; }
+.filters .filter-label {
+  margin-left:clamp(8px,1.2vw,18px);
+  padding-left:0;
+  font-weight:500;
+}
+.filters--topics { padding-top:10px !important; }
+.projects-section .content-band { margin-top:8px; }
+
+/* Headings, rules and rhythm all share the same editorial baseline. */
+.text-section {
+  padding-top:var(--scd-section-space-top) !important;
+  padding-bottom:var(--scd-section-space-bottom) !important;
+}
+.text-section > .section-kicker {
+  display:block;
+  margin-bottom:32px !important;
+  font-size:11px;
+  letter-spacing:.09em;
+}
+.text-section .about-lead,
+.people-section .person-name,
+.contact-section .contact-name-jp {
+  line-height:1.42 !important;
+  text-wrap:pretty;
+}
+.about-block,
+.about-block--site,
+.about-prose {
+  max-width:var(--scd-text-measure) !important;
+  width:100%;
+}
+.about-section .about-prose p {
+  max-width:var(--scd-text-measure) !important;
+  font-size:clamp(14px,1.05vw,15px) !important;
+  line-height:1.8 !important;
+  letter-spacing:0 !important;
+  margin-bottom:18px !important;
+  overflow-wrap:break-word;
+}
+.about-section .about-prose p:last-child { margin-bottom:0 !important; }
+.about-section .about-prose { margin-top:20px; }
+.about-block--site { margin-top:48px !important; }
+.about-block--site .about-mini-label {
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  line-height:1.5;
+  margin-bottom:16px;
+}
+.about-section .about-year-note { font-size:12px !important; color:var(--muted); }
+
+/* People: restrained 12-column identity line, with reserved label column. */
+.people-grid--single {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  width:100%;
+  max-width:none;
+}
+.people-section .person-primary {
+  display:grid;
+  grid-template-columns:minmax(150px,3fr) minmax(0,9fr);
+  column-gap:var(--scd-editorial-gap);
+  align-items:start;
+  max-width:1100px;
+}
+.people-section .person-primary::before {
+  content:"Principal Investigator";
+  grid-column:1;
+  grid-row:1 / span 3;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.035em;
+  line-height:1.6;
+}
+.people-section .person-primary > .person-name,
+.people-section .person-primary > p,
+.people-section .person-primary > .person-link { grid-column:2; min-width:0; }
+.people-section .person-primary > .person-name { grid-row:1; margin-bottom:12px !important; }
+.people-section .person-primary > p { grid-row:2; }
+.people-section .person-primary > .person-link { grid-row:3; justify-self:start; margin-top:16px; }
+
+/* Contact: 5:7 editorial columns, independent of the tile column mode. */
+.contact-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,5fr) minmax(0,7fr) !important;
+  gap:var(--scd-editorial-gap) !important;
+  align-items:start !important;
+}
+.contact-copy {
+  display:block !important;
+  min-width:0;
+  padding-top:0;
+}
+.contact-copy .contact-name-jp {
+  max-width:24em;
+  margin-bottom:8px !important;
+  overflow-wrap:break-word;
+}
+.contact-name-en { margin-bottom:24px !important; }
+.contact-copy address p { line-height:1.75 !important; }
+.contact-list { margin-top:24px !important; }
+.contact-list > div { grid-template-columns:56px minmax(0,1fr); }
+.contact-list dd { overflow-wrap:anywhere; }
+.contact-map { min-height:300px; }
+.contact-map iframe { min-height:300px; }
+
+/* Neo styling remains selectable: geometry stays shared and type remains legible. */
+html[data-design-style="neo"] .about-section .about-prose p {
+  font-weight:400 !important;
+  letter-spacing:0 !important;
+  line-height:1.8 !important;
+}
+
+@media(max-width:920px) {
+  :root {
+    --scd-text-measure:620px;
+    --scd-section-space-top:36px;
+    --scd-section-space-bottom:48px;
+  }
+  .contact-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .contact-map { width:100%; }
+  .people-section .person-primary { grid-template-columns:minmax(120px,3fr) minmax(0,9fr); }
+}
+@media(max-width:580px) {
+  :root {
+    --scd-text-measure:100%;
+    --scd-section-space-top:28px;
+    --scd-section-space-bottom:40px;
+    --scd-editorial-gap:18px;
+  }
+  .projects-section .section-heading { gap:12px; }
+  .filters--primary,.filters--topics { gap:7px !important; }
+  .filters .filter-label {
+    flex-basis:100%;
+    margin:8px 0 0;
+    padding:0;
+    min-height:auto;
+  }
+  .text-section > .section-kicker { margin-bottom:24px !important; }
+  .about-block--site { margin-top:38px !important; }
+  .about-section .about-prose p { font-size:14px !important; margin-bottom:16px !important; }
+  .people-section .person-primary { display:block; }
+  .people-section .person-primary::before { display:block; margin-bottom:14px; }
+  .people-section .person-primary > .person-name { margin-bottom:10px !important; }
+  .people-section .person-primary > .person-link { margin-top:14px; }
+  .contact-grid { grid-template-columns:minmax(0,1fr) !important; gap:26px !important; }
+  .contact-name-en { margin-bottom:20px !important; }
+}
