@@ -4069,3 +4069,88 @@ html[data-design-style="neo"] .content-band {
     transform:none;
   }
 }
+
+
+/* Neo-Brutalism typography — deliberately scoped to the optional design style.
+   The Swiss default and all content/structure remain unchanged. */
+html[data-design-style="neo"] {
+  --neo-type: "Arial Black", "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+}
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section .section-kicker,
+html[data-design-style="neo"] .content-band,
+html[data-design-style="neo"] .person-primary h2,
+html[data-design-style="neo"] .about-lead {
+  font-family:var(--neo-type) !important;
+  font-weight:800 !important;
+  letter-spacing:-.045em !important;
+}
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section .section-kicker {
+  font-size:clamp(29px,2.9vw,43px) !important;
+  line-height:1.1 !important;
+}
+html[data-design-style="neo"] .content-band {
+  font-size:clamp(11px,1.05vw,14px) !important;
+  letter-spacing:-.015em !important;
+}
+html[data-design-style="neo"] .content-band-count {
+  font-weight:800 !important;
+}
+html[data-design-style="neo"] .card-title {
+  font-family:var(--neo-type) !important;
+  font-weight:800 !important;
+  letter-spacing:-.03em !important;
+  font-size:clamp(12px,1.25vw,19px) !important;
+  line-height:1.25 !important;
+  overflow-wrap:anywhere;
+}
+html[data-design-style="neo"] .card-detail p {
+  font-weight:500 !important;
+  letter-spacing:0 !important;
+}
+html[data-design-style="neo"] .filter,
+html[data-design-style="neo"] .palette-modes button,
+html[data-design-style="neo"] .layout-modes button {
+  font-family:var(--neo-type) !important;
+  font-weight:700 !important;
+  letter-spacing:-.015em !important;
+  font-size:clamp(10px,.75vw,12px) !important;
+}
+html[data-design-style="neo"] .display-settings-title,
+html[data-design-style="neo"] .settings-group-label,
+html[data-design-style="neo"] .filter-label {
+  font-family:var(--neo-type) !important;
+  font-weight:800 !important;
+  letter-spacing:.015em !important;
+}
+html[data-design-style="neo"] .hero h1[data-reactive-weight] {
+  font-family:var(--neo-type) !important;
+  letter-spacing:-.055em !important;
+}
+html[data-design-style="neo"] .hero-weight-char {
+  font-variation-settings:normal !important;
+  font-weight:800 !important;
+}
+html[data-design-style="neo"] .hero .eyebrow {
+  font-weight:700 !important;
+  letter-spacing:.045em !important;
+}
+@media(max-width:920px){
+  html[data-design-style="neo"] .section-heading h2,
+  html[data-design-style="neo"] .text-section .section-kicker {
+    font-size:clamp(25px,5.3vw,36px) !important;
+  }
+  html[data-design-style="neo"] .card-title {
+    font-size:clamp(11px,1.55vw,16px) !important;
+  }
+}
+@media(max-width:580px){
+  html[data-design-style="neo"] .section-heading h2,
+  html[data-design-style="neo"] .text-section .section-kicker {
+    font-size:clamp(27px,8vw,37px) !important;
+  }
+  html[data-design-style="neo"] .card-title {
+    font-size:clamp(13px,3.8vw,18px) !important;
+  }
+}
