@@ -4021,7 +4021,7 @@ html[data-design-style="neo"] .display-settings-button,
 html[data-design-style="neo"] .layout-modes button,
 html[data-design-style="neo"] .palette-modes button {
   border:1.5px solid #111 !important;
-  box-shadow:2px 2px 0 rgba(17,17,17,.65);
+  box-shadow:none !important;
   transition:background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
 }
 html[data-design-style="neo"] .filter:hover,
@@ -4039,12 +4039,12 @@ html[data-design-style="neo"] .palette-modes button.is-active {
 html[data-design-style="neo"] .app-card {
   border:1.5px solid #111;
   border-radius:8px;
-  box-shadow:3px 3px 0 rgba(17,17,17,.82);
+  box-shadow:none !important;
   transition:box-shadow .18s ease,transform .18s ease,opacity .18s ease;
 }
 html[data-design-style="neo"] .app-card:hover,
 html[data-design-style="neo"] .app-card:focus-within {
-  box-shadow:6px 6px 0 #111;
+  box-shadow:6px 6px 0 var(--detail-bg, #111) !important;
   transform:translate(-2px,-2px);
 }
 html[data-design-style="neo"] .app-card-main {
@@ -4058,7 +4058,7 @@ html[data-design-style="neo"] .app-card > .like-button:focus-visible {
 }
 html[data-design-style="neo"] .display-settings-popover {
   border:1.5px solid #111 !important;
-  box-shadow:5px 5px 0 #111 !important;
+  box-shadow:none !important;
 }
 html[data-design-style="neo"] .content-band {
   border-top:1.5px solid #111;
