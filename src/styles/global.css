@@ -4354,3 +4354,119 @@ html[data-design-style="neo"] .people-list > div {
     line-height: 1.14 !important;
   }
 }
+
+
+/* v65 — responsive proportional project-grid system.
+   Column count, thumbnail ratio and composite rhythm are one coordinated system.
+   The 20px like row is outside the artwork and is not part of the ratio. */
+html {
+  --scd-grid-cols: 5;
+  --scd-grid-x: 24px;
+  --scd-grid-y: 32px;
+  --scd-grid-cell: calc((100% - (var(--scd-grid-cols) - 1) * var(--scd-grid-x)) / var(--scd-grid-cols));
+}
+html[data-project-columns="3"] { --scd-grid-cols:3; --scd-grid-x:32px; --scd-grid-y:40px; }
+html[data-project-columns="5"] { --scd-grid-cols:5; --scd-grid-x:24px; --scd-grid-y:32px; }
+html[data-project-columns="7"] { --scd-grid-cols:7; --scd-grid-x:16px; --scd-grid-y:24px; }
+html[data-project-columns="11"] { --scd-grid-cols:11; --scd-grid-x:8px; --scd-grid-y:16px; }
+
+/* A single place controls spacing for every layout, including group grids. */
+html .app-grid {
+  column-gap:var(--scd-grid-x) !important;
+  row-gap:var(--scd-grid-y) !important;
+  min-width:0;
+  align-items:start;
+}
+html[data-project-columns="3"] .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+html[data-project-columns="5"] .app-grid { grid-template-columns:repeat(5,minmax(0,1fr)) !important; }
+html[data-project-columns="7"] .app-grid { grid-template-columns:repeat(7,minmax(0,1fr)) !important; }
+html[data-project-columns="11"] .app-grid { grid-template-columns:repeat(11,minmax(0,1fr)) !important; }
+html .app-card { min-width:0; width:100%; }
+html[data-project-layout="ratio"] .app-card-main { aspect-ratio:4 / 3 !important; }
+html[data-project-layout="square"] .app-card-main { aspect-ratio:1 / 1 !important; }
+
+/* Composite: row heights follow the actual calculated column width.
+   This avoids fixed 145–220px tracks creating inconsistent tile shapes. */
+html[data-project-layout="mondrian"] .app-grid {
+  grid-auto-flow:dense;
+  grid-auto-rows:calc(var(--scd-grid-cell) * .75);
+  align-items:stretch;
+}
+html[data-project-layout="mondrian"] .app-card {
+  aspect-ratio:auto !important;
+  height:100%;
+  min-height:0;
+  align-self:stretch;
+  grid-template-rows:minmax(0,1fr) var(--like-row-h,20px) !important;
+}
+html[data-project-layout="mondrian"] .app-card-main {
+  aspect-ratio:auto !important;
+  height:100%;
+  min-height:0;
+}
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 1) { grid-column:span 2; grid-row:span 2; }
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 3) { grid-column:span 1; grid-row:span 2; }
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 5) { grid-column:span 2; grid-row:span 1; }
+html[data-project-layout="mondrian"] .app-card:nth-child(8n + 7) { grid-column:span 1; grid-row:span 2; }
+
+/* Effective column count changes smoothly at desktop breakpoints. */
+@media (max-width:1400px) and (min-width:1101px) {
+  html[data-project-columns="11"] {
+    --scd-grid-cols:7; --scd-grid-x:16px; --scd-grid-y:24px;
+  }
+  html[data-project-columns="11"] .app-grid { grid-template-columns:repeat(7,minmax(0,1fr)) !important; }
+}
+@media (max-width:1100px) and (min-width:921px) {
+  html[data-project-columns="7"],
+  html[data-project-columns="11"] {
+    --scd-grid-cols:5; --scd-grid-x:24px; --scd-grid-y:32px;
+  }
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid { grid-template-columns:repeat(5,minmax(0,1fr)) !important; }
+}
+@media (max-width:920px) and (min-width:581px) {
+  html[data-project-columns="3"],
+  html[data-project-columns="5"],
+  html[data-project-columns="7"],
+  html[data-project-columns="11"] {
+    --scd-grid-cols:2; --scd-grid-x:14px; --scd-grid-y:24px;
+  }
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="5"] .app-grid,
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+  /* Composite on touch screens becomes a regular, readable gallery. */
+  html[data-project-layout="mondrian"] .app-grid { grid-auto-rows:auto !important; grid-auto-flow:row; align-items:start; }
+  html[data-project-layout="mondrian"] .app-card,
+  html[data-project-layout="mondrian"] .app-card:nth-child(n) {
+    grid-column:auto !important; grid-row:auto !important;
+    height:auto !important;
+  }
+  html[data-project-layout="mondrian"] .app-card-main { aspect-ratio:4/3 !important; height:auto !important; }
+}
+@media (max-width:580px) {
+  html[data-project-columns="3"],
+  html[data-project-columns="5"],
+  html[data-project-columns="7"],
+  html[data-project-columns="11"] {
+    --scd-grid-cols:1; --scd-grid-x:0px; --scd-grid-y:28px;
+  }
+  html .app-grid,
+  html[data-project-columns="3"] .app-grid,
+  html[data-project-columns="5"] .app-grid,
+  html[data-project-columns="7"] .app-grid,
+  html[data-project-columns="11"] .app-grid {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  html[data-project-layout="mondrian"] .app-grid {
+    grid-auto-rows:auto !important; grid-auto-flow:row; align-items:start;
+  }
+  html[data-project-layout="mondrian"] .app-card,
+  html[data-project-layout="mondrian"] .app-card:nth-child(n) {
+    grid-column:auto !important; grid-row:auto !important;
+    height:auto !important;
+  }
+  html[data-project-layout="mondrian"] .app-card-main { aspect-ratio:4/3 !important; height:auto !important; }
+}
