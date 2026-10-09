@@ -50,6 +50,14 @@ const colorForApp = (slug, index) => {
         </div>
 
         <div class="settings-group">
+          <div class="settings-group-label">Design style</div>
+          <div class="layout-modes layout-modes--style" role="group" aria-label="Design style">
+            <button type="button" data-design-style="swiss" class="is-active" aria-pressed="true">Swiss Modernism</button>
+            <button type="button" data-design-style="neo" aria-pressed="false">Neo-Brutalism</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
           <div class="settings-group-label">Columns</div>
           <div class="layout-modes layout-modes--columns" role="group" aria-label="Library columns">
             <button type="button" data-grid-columns="3">3</button>
@@ -403,6 +411,7 @@ const colorForApp = (slug, index) => {
     const settingsButton = document.querySelector('.display-settings-button');
     const settingsPopover = document.querySelector('.display-settings-popover');
     const paletteButtons = [...document.querySelectorAll('[data-palette-mode]')];
+    const designStyleButtons = [...document.querySelectorAll('[data-design-style]')];
     const columnButtons = [...document.querySelectorAll('[data-grid-columns]')];
     const tileLayoutButtons = [...document.querySelectorAll('[data-tile-layout]')];
     const screenSlider = document.querySelector('[data-detail-saturation]');
@@ -422,6 +431,7 @@ const colorForApp = (slug, index) => {
     let blindTone = 0;
     let monoDepth = 58;
     let currentMode = 'color';
+    let currentDesignStyle = 'swiss';
     let currentColumns = '11';
     let currentTileLayout = 'square';
     let uiCursorState = { style:'stripe', motion:54, size:48, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
@@ -494,6 +504,7 @@ const colorForApp = (slug, index) => {
 
     const applyDisplaySettings = () => {
       document.documentElement.dataset.sitePalette = currentMode;
+      document.documentElement.dataset.designStyle = currentDesignStyle;
       document.documentElement.dataset.projectColumns = currentColumns;
       document.documentElement.dataset.projectLayout = currentTileLayout;
       const level = colorIntensity;
@@ -514,6 +525,11 @@ const colorForApp = (slug, index) => {
       document.documentElement.style.setProperty('--mono-gray', String(monoGray));
       document.documentElement.style.setProperty('--mono-text', monoText);
       paletteButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.paletteMode === currentMode));
+      designStyleButtons.forEach((button) => {
+        const active = button.dataset.designStyle === currentDesignStyle;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
       columnButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.gridColumns === currentColumns));
       tileLayoutButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tileLayout === currentTileLayout));
       updateScreenControl();
@@ -527,6 +543,13 @@ const colorForApp = (slug, index) => {
         updateCursorControls(getCursorState());
       }
     };
+
+    designStyleButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        currentDesignStyle = button.dataset.designStyle === 'neo' ? 'neo' : 'swiss';
+        applyDisplaySettings();
+      });
+    });
 
     applyDisplaySettings();
     updateCursorControls(getCursorState());
