@@ -4154,3 +4154,103 @@ html[data-design-style="neo"] .hero .eyebrow {
     font-size:clamp(13px,3.8vw,18px) !important;
   }
 }
+
+
+/* v63 — accessible, restrained neo-brutalist typography and structural dividers.
+   Override the earlier Arial Black/800 treatment only when Neo is selected. */
+html[data-design-style="neo"] {
+  --neo-type:"Helvetica Neue", Helvetica, Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+}
+html[data-design-style="neo"] .hero h1[data-reactive-weight] {
+  font-family:var(--neo-type) !important;
+  font-weight:650 !important;
+  font-synthesis:weight;
+  letter-spacing:-.018em !important;
+  line-height:1.07 !important;
+}
+html[data-design-style="neo"] .hero-weight-char {
+  font-variation-settings:normal !important;
+  font-weight:650 !important;
+  letter-spacing:inherit !important;
+}
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section .section-kicker,
+html[data-design-style="neo"] .person-primary h2,
+html[data-design-style="neo"] .text-section .about-lead,
+html[data-design-style="neo"] .contact-name-jp {
+  font-family:var(--neo-type) !important;
+  font-weight:650 !important;
+  letter-spacing:-.015em !important;
+  line-height:1.35 !important;
+}
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section .section-kicker {
+  font-size:clamp(27px,2.7vw,41px) !important;
+  line-height:1.2 !important;
+}
+html[data-design-style="neo"] .text-section .about-lead,
+html[data-design-style="neo"] .person-primary h2,
+html[data-design-style="neo"] .contact-name-jp {
+  font-size:clamp(19px,1.65vw,26px) !important;
+}
+html[data-design-style="neo"] .content-band {
+  font-family:var(--neo-type) !important;
+  font-weight:650 !important;
+  letter-spacing:.035em !important;
+  font-size:clamp(11px,.95vw,13px) !important;
+}
+html[data-design-style="neo"] .card-title {
+  font-family:var(--neo-type) !important;
+  font-weight:650 !important;
+  letter-spacing:0 !important;
+  font-size:clamp(12px,1.1vw,17px) !important;
+  line-height:1.4 !important;
+}
+html[data-design-style="neo"] .filter,
+html[data-design-style="neo"] .palette-modes button,
+html[data-design-style="neo"] .layout-modes button,
+html[data-design-style="neo"] .display-settings-title,
+html[data-design-style="neo"] .settings-group-label {
+  font-family:var(--neo-type) !important;
+  font-weight:600 !important;
+  letter-spacing:.005em !important;
+}
+html[data-design-style="neo"] .text-section .about-prose p,
+html[data-design-style="neo"] .card-detail p {
+  font-weight:400 !important;
+  letter-spacing:.01em !important;
+  line-height:1.7 !important;
+}
+/* Section boundaries are the visual grammar of this mode too. */
+html[data-design-style="neo"] .text-section {
+  border-top:2px solid #111 !important;
+}
+html[data-design-style="neo"] .content-band {
+  border-top:2px solid #111 !important;
+}
+html[data-design-style="neo"] .contact-list,
+html[data-design-style="neo"] .people-list {
+  border-top:2px solid #111 !important;
+}
+html[data-design-style="neo"] .contact-list > div {
+  border-bottom:1.5px solid #111 !important;
+}
+@media(max-width:920px){
+  html[data-design-style="neo"] .text-section .section-kicker,
+  html[data-design-style="neo"] .section-heading h2 {
+    font-size:clamp(25px,5vw,36px) !important;
+  }
+}
+@media(max-width:580px){
+  html[data-design-style="neo"] .text-section .section-kicker,
+  html[data-design-style="neo"] .section-heading h2 {
+    font-size:clamp(26px,7.5vw,36px) !important;
+  }
+  html[data-design-style="neo"] .text-section .about-lead,
+  html[data-design-style="neo"] .person-primary h2 {
+    font-size:clamp(18px,5.4vw,23px) !important;
+  }
+  html[data-design-style="neo"] .card-title {
+    font-size:clamp(12px,3.6vw,17px) !important;
+  }
+}
