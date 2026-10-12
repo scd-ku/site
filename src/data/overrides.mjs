@@ -114,6 +114,12 @@ export default {
     year: 2026,
     description: 'G-codeを直接編集し、3Dプリンタのノズル移動や樹脂の吐出を制御して造形できるアプリです。'
   },
+  kagawajinkou: {
+    title: '香川県人口動態3D地図',
+    year: 2026,
+    tags: ['3D', 'Population', 'Visualization', 'Kagawa'],
+    size: 'wide'
+  },
   historybank: {
     title: '国立銀行の歴史',
     year: 2026,
