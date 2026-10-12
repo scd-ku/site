@@ -4762,3 +4762,15 @@ html[data-design-style="neo"] .about-section > .about-block--site {
   border:0 !important;
   box-shadow:none !important;
 }
+
+/* v69 — keep the full About mission headline on a single desktop line. */
+@media (min-width:1001px) {
+  .about-section > .about-block--lab .about-lead,
+  html[data-design-style="neo"] .about-section > .about-block--lab .about-lead {
+    max-width:none !important;
+    font-size:clamp(14px, 1.32vw, 20px) !important;
+    letter-spacing:-.025em !important;
+    white-space:nowrap;
+    text-wrap:nowrap;
+  }
+}
