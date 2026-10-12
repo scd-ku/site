@@ -4755,3 +4755,10 @@ html[data-design-style="neo"] .about-section > .about-block--site .about-mini-la
   .about-section > .about-block--site .about-prose p { font-size:14px !important; }
   .about-section > .about-block--site .about-mini-label { margin-bottom:16px !important; }
 }
+
+/* v68 — About this site: retain the subtle panel fill without an outline in either style. */
+.about-section > .about-block--site,
+html[data-design-style="neo"] .about-section > .about-block--site {
+  border:0 !important;
+  box-shadow:none !important;
+}
