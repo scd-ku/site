@@ -85,9 +85,9 @@ const colorForApp = (slug, index) => {
         <div class="settings-group settings-group--cursor">
           <div class="settings-group-label">Cursor</div>
           <div class="layout-modes layout-modes--cursor" role="group" aria-label="Cursor mode">
-            <button type="button" data-cursor-style="stripe" class="is-active">Stripe</button>
-            <button type="button" data-cursor-style="invert">Invert</button>
-            <button type="button" data-cursor-style="pulse">Circle</button>
+            <button type="button" data-cursor-style="stripe">Stripe</button>
+            <button type="button" data-cursor-style="invert" class="is-active">Invert</button>
+            <button type="button" data-cursor-style="pulse">Lens</button>
             <button type="button" data-cursor-style="line">Line</button>
           </div>
           <label class="cursor-control">
@@ -97,7 +97,7 @@ const colorForApp = (slug, index) => {
           </label>
           <label class="cursor-control">
             <span data-cursor-slider2-label>Size</span>
-            <input type="range" min="20" max="110" value="48" step="1" data-cursor-slider2 />
+            <input type="range" min="20" max="110" value="40" step="1" data-cursor-slider2 />
             <output data-cursor-slider2-value>48</output>
           </label>
         </div>
@@ -434,7 +434,7 @@ const colorForApp = (slug, index) => {
     let currentDesignStyle = 'swiss';
     let currentColumns = '11';
     let currentTileLayout = 'square';
-    let uiCursorState = { style:'stripe', motion:54, size:48, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
+    let uiCursorState = { style:'invert', motion:54, size:40, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
 
     const getCursorState = () => ({ ...uiCursorState });
     const sliderToZoom = (raw) => {
