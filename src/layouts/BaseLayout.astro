@@ -44,7 +44,7 @@ const base = import.meta.env.BASE_URL;
       const root = document.documentElement;
       const body = document.body;
       const clampValue = (n, min, max) => Math.max(min, Math.min(max, n));
-      const cursorDefaults = { style: 'stripe', motion: 54, size: 48, zoom: 1.5, lineHue: 210, invertHue: 0, trail: 42 };
+      const cursorDefaults = { style: 'invert', motion: 54, size: 40, zoom: 1.5, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = { ...cursorDefaults };
       let pathPoints = [];
       let pointerX = innerWidth / 2;
