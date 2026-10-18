@@ -247,4 +247,52 @@ import externalProjects from '../data/external-projects.generated.json';
 })();
 </script>
 
+
+<script is:inline>
+(() => {
+  const headings = [...document.querySelectorAll('.section-heading h2, .text-section > .section-kicker span:first-child')];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const groups = headings.map(el => {
+    const label = el.textContent;
+    if (!label || el.querySelector('.scd-hover-glyph')) return null;
+    el.setAttribute('aria-label',label);
+    el.textContent = '';
+    const chars = [];
+    for(const char of label) {
+      const span=document.createElement('span');
+      span.className='scd-hover-glyph';
+      span.textContent=char;
+      span.setAttribute('aria-hidden','true');
+      el.appendChild(span);
+      chars.push(span);
+    }
+    return {el,chars};
+  }).filter(Boolean);
+  let x=-10000,y=-10000,active=false,frame=0;
+  const tick=()=>{
+    frame=0;
+    const neo=document.documentElement.dataset.designStyle==='neo';
+    const base=neo?600:300;
+    for(const {chars} of groups) for(const glyph of chars){
+      const rect=glyph.getBoundingClientRect();
+      const dx=x-(rect.left+rect.width/2),dy=y-(rect.top+rect.height/2);
+      const distance=Math.hypot(dx,dy);
+      const target=(!active||reduced.matches||distance>145)?base:base+(750-base)*Math.exp(-distance*distance/(2*58*58));
+      const prev=Number(glyph.dataset.weight||base);
+      const next=prev+(target-prev)*.23;
+      glyph.dataset.weight=String(next);
+      glyph.style.setProperty('--scd-glyph-weight',Math.round(next));
+      if(Math.abs(next-target)>1) schedule();
+    }
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(tick);};
+  addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;active=true;schedule();},{passive:true});
+  document.addEventListener('pointerleave',()=>{active=false;schedule();});
+  addEventListener('blur',()=>{active=false;schedule();});
+  const observer=new MutationObserver(schedule);
+  observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-design-style']});
+  schedule();
+})();
+</script>
+
 </BaseLayout>
