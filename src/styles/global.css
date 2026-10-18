@@ -4774,3 +4774,32 @@ html[data-design-style="neo"] .about-section > .about-block--site {
     text-wrap:nowrap;
   }
 }
+
+/* v70 — restrained type scale, both visual modes. */
+.hero h1, .hero h1[data-reactive-weight] {
+  font-size:clamp(29px,4.65vw,70px) !important;
+}
+.section-heading h2,
+.text-section > .section-kicker,
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section .section-kicker {
+  font-size:clamp(24px,2.35vw,37px) !important;
+  line-height:1.15 !important;
+}
+/* Smooth per-glyph proximity weight for Library / About / People / Contact. */
+.section-heading h2 .scd-hover-glyph,
+.text-section > .section-kicker .scd-hover-glyph {
+  display:inline;
+  font-family:inherit;
+  font-weight:var(--scd-glyph-weight,300);
+  font-synthesis:weight;
+  transition:font-weight .12s ease-out;
+}
+@media(max-width:580px){
+  .hero h1, .hero h1[data-reactive-weight] { font-size:clamp(27px,7vw,36px) !important; }
+  .section-heading h2, .text-section > .section-kicker,
+  html[data-design-style="neo"] .section-heading h2,
+  html[data-design-style="neo"] .text-section .section-kicker {
+    font-size:clamp(23px,6.2vw,30px) !important;
+  }
+}
