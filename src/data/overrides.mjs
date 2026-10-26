@@ -114,6 +114,13 @@ export default {
     year: 2026,
     description: 'G-codeを直接編集し、3Dプリンタのノズル移動や樹脂の吐出を制御して造形できるアプリです。'
   },
+  hanotsukikata: {
+    title: '植物の葉のつき方',
+    year: 2026,
+    description: '茎に葉を組み立て、葉序と葉形から身近な植物を比較する3D形態観察教材。オフラインでも利用できます。',
+    tags: ['3D', 'Botany', 'Science', 'Education'],
+    size: 'wide'
+  },
   kagawajinkou: {
     title: '香川県人口動態3D地図',
     year: 2026,
