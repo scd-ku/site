@@ -4803,3 +4803,7 @@ html[data-design-style="neo"] .text-section .section-kicker {
     font-size:clamp(23px,6.2vw,30px) !important;
   }
 }
+
+/* v71 — calmer hero typography while preserving reactive weight animation. */
+.hero h1, .hero h1[data-reactive-weight] { font-size:clamp(27px,4.05vw,61px) !important; }
+@media (max-width:580px) { .hero h1, .hero h1[data-reactive-weight] { font-size:clamp(25px,6.35vw,33px) !important; } }
