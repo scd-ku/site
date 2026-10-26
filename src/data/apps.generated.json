@@ -1,5 +1,22 @@
 [
   {
+    "slug": "hanotsukikata",
+    "repo": "scd-ku/hanotsukikata",
+    "title": "植物の葉のつき方",
+    "description": "茎に葉を組み立て、葉序と葉形から身近な植物を比較する3D形態観察教材。オフラインでも利用できます。",
+    "url": "https://scd-ku.github.io/hanotsukikata/",
+    "repoUrl": "https://github.com/scd-ku/hanotsukikata",
+    "tags": [
+      "3D",
+      "Botany",
+      "Science",
+      "Education"
+    ],
+    "size": "wide",
+    "updatedAt": "2026-10-26T00:00:00Z",
+    "year": 2026
+  },
+  {
     "slug": "shidouyouryou",
     "repo": "scd-ku/shidouyouryou",
     "title": "学指導要領の内容構成",
