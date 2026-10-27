@@ -114,6 +114,13 @@ export default {
     year: 2026,
     description: 'G-codeを直接編集し、3Dプリンタのノズル移動や樹脂の吐出を制御して造形できるアプリです。'
   },
+  furiko: {
+    title: '振り子実験室',
+    year: 2026,
+    description: '理科室の振り子装置を3Dで再現し、糸の長さやおもりの条件を変えて振り子の運動を観察できる実験アプリです。',
+    tags: ['3D', 'Physics', 'Science', 'Education'],
+    size: 'wide'
+  },
   hanotsukikata: {
     title: '植物の葉のつき方',
     year: 2026,
