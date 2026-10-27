@@ -1,5 +1,22 @@
 [
   {
+    "slug": "furiko",
+    "repo": "scd-ku/furiko",
+    "title": "振り子実験室",
+    "description": "理科室の振り子装置を3Dで再現し、糸の長さやおもりの条件を変えて振り子の運動を観察できる実験アプリです。",
+    "url": "https://scd-ku.github.io/furiko/",
+    "repoUrl": "https://github.com/scd-ku/furiko",
+    "tags": [
+      "3D",
+      "Physics",
+      "Science",
+      "Education"
+    ],
+    "size": "wide",
+    "updatedAt": null,
+    "year": 2026
+  },
+  {
     "slug": "hanotsukikata",
     "repo": "scd-ku/hanotsukikata",
     "title": "植物の葉のつき方",
