@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Ball Truss Studio | 3D ボール・ユニバーサルジョイント シミュレーター</title>
+<style>
+:root{--ink:#172b32;--muted:#72818b;--line:#dce5e7;--bg:#f2f6f5;--olive:#61825a;--strong:#3c685d;--navy:#16252c;--red:#d86f59;--amber:#b37930;--blue:#4884ac}
+*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}body{overflow:hidden}
+.app{height:100dvh;display:grid;grid-template-rows:59px minmax(0,1fr) 35px;background:#fff}.top{background:var(--navy);color:#fff;display:flex;align-items:center;gap:12px;padding:0 17px;min-width:0;z-index:2}.logo{display:flex;align-items:center;gap:10px;min-width:265px}.logoMark{width:31px;height:31px;border:2px solid #b9d8bd;border-radius:9px;display:grid;place-items:center;color:#cfe5d2;font-weight:900;font-size:16px}.titleGroup{display:flex;flex-direction:column;line-height:1.15}.titleGroup strong{font-size:14px;letter-spacing:.09em}.titleGroup small{font-size:10px;color:#98b2ba;letter-spacing:.09em;margin-top:4px}.topnav{display:flex;align-items:center;gap:6px;flex:1;overflow-x:auto;scrollbar-width:none}.topnav::-webkit-scrollbar{display:none}.top button,.overlayButton{white-space:nowrap;border:1px solid #455963;background:#263940;border-radius:8px;color:#f2f6f5;padding:7px 10px;font-size:11px;font-weight:650}.top button:hover{background:#37515b}.top button.active{background:#d5e6d6;color:#234536;border-color:#d5e6d6}.top .iconbtn{font-size:14px;padding:6px 10px}.top button.accent{background:#597b56;border-color:#789c75}.main{display:grid;grid-template-columns:247px minmax(0,1fr) 285px;min-height:0}.left,.right{min-width:0;overflow:auto;background:#fff;scrollbar-width:thin;z-index:1}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}.sideHead{font-weight:800;font-size:11px;letter-spacing:.13em;color:#75868e;padding:20px 17px 9px;text-transform:uppercase}.sideIntro{font-size:11px;line-height:1.65;color:#7b8990;padding:0 17px 12px}.palette{display:grid;gap:10px;padding:0 14px}.part{border:1px solid var(--line);border-radius:13px;padding:12px;background:#f9fbfa;display:flex;flex-direction:column;gap:9px;text-align:left;user-select:none;transition:background .12s,border-color .12s}.part:hover{background:#eef5f0;border-color:#a6bfad}.part.draging{opacity:.5}.partTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.partTop b{font-size:12px}.pill{background:#e5f0e6;color:#4e785a;font-size:10px;font-weight:800;border-radius:5px;padding:3px 6px}.partDesc{font-size:10px;color:var(--muted)}.pieceSvg{width:100%;height:53px}.swatch{height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:6px}.section{border-top:1px solid #edf1f2;margin-top:16px}.simpleBtn{width:100%;border:1px solid var(--line);border-radius:9px;background:#fff;text-align:left;padding:10px 11px;color:var(--ink);font-size:11px;font-weight:680}.simpleBtn:hover{background:#f0f5f1}.presetBtns{display:grid;gap:7px;padding:2px 14px}.tiny{font-size:10px;line-height:1.65;color:var(--muted)}.pad{padding:0 16px}.legend{display:grid;gap:9px;padding:3px 17px 17px}.legendItem{display:flex;gap:8px;align-items:center;font-size:10px;color:#52616a}.legendDot{height:12px;width:12px;border-radius:100%}.legendDot.ball{background:#72818d;box-shadow:inset 0 0 0 3px #c9d0d6}.legendDot.anchor{background:#e5a687;box-shadow:inset 0 0 0 3px #f7e0cf}.center{position:relative;min-width:0;min-height:0;background:#f3f7f7;overflow:hidden}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.viewTop{position:absolute;top:15px;left:17px;pointer-events:none;display:flex;gap:8px;flex-wrap:wrap}.floatTag{padding:6px 9px;background:#fffdfaed;border:1px solid #dde6e8;border-radius:6px;box-shadow:0 2px 12px #1b38330c;color:#4f656c;font-weight:750;font-size:10px}.floatTag strong{color:#2c5c4a}.viewRight{position:absolute;right:13px;top:15px;display:flex;flex-direction:column;gap:6px}.viewRight button{background:#fff;border:1px solid #dce5e7;border-radius:9px;width:32px;height:32px;font-size:17px;color:#536970}.viewRight button:hover{background:#eaf2ed}.viewBottom{position:absolute;bottom:14px;left:15px;right:15px;display:flex;align-items:end;justify-content:space-between;gap:9px;pointer-events:none}.helpTip{font-size:10px;color:#526970;background:#fffffff0;border-radius:7px;padding:8px 11px;max-width:455px;line-height:1.55;border:1px solid #e2e9e9}.axisbox{background:#fffdf9ec;border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:10px;font-weight:800;white-space:nowrap}.axisX{color:#bd6c62}.axisY{color:#53946b}.axisZ{color:#4c85b3}.statusbar{display:flex;align-items:center;gap:17px;padding:0 14px;background:#f7f9f9;border-top:1px solid var(--line);color:#697d86;font-size:10px;overflow:hidden;white-space:nowrap}.statusbar #statusMsg{flex:1;overflow:hidden;text-overflow:ellipsis}.badge{font-weight:800;color:#508165}.badge.warn{color:#b87735}.inspector{padding:0 17px 18px}.inspectTitle{font-size:16px;font-weight:850;line-height:1.4;word-break:break-word}.inspectSub{margin:4px 0 14px;font-size:10px;color:#849199;line-height:1.65}.control{margin:12px 0 0}.control label{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#566970;font-weight:750;font-size:11px;margin-bottom:7px}.control small{color:#8a9ba2;font-weight:550}.control input[type=number],.control select{width:100%;padding:9px;border:1px solid #d7e2e3;border-radius:8px;background:#f8fbfa;color:#203c43;font-size:12px}.control input[type=range]{width:100%;accent-color:#618d6c}.control input[type=checkbox]{width:16px;height:16px;accent-color:#5f8867}.seg{display:grid;grid-template-columns:1fr 1fr;gap:5px}.seg button{background:#f5f8f8;border:1px solid #dce4e5;border-radius:8px;padding:9px 4px;font-size:11px;font-weight:700;color:#63777d}.seg button.on{background:#dceadd;border-color:#8ba990;color:#336748}.hint{border-left:3px solid #b6cab9;padding:8px 11px;font-size:10px;background:#f4f8f5;line-height:1.7;color:#617079;margin:12px 0}.inputrow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.inputrow label{font-size:10px;color:#7a8a90;display:block;margin-bottom:5px}.inputrow input{width:100%;min-width:0;border:1px solid #dce4e5;border-radius:7px;padding:7px 5px;font-size:11px}.inspectButton{width:100%;text-align:center;margin:8px 0 0;border:1px solid #cbdcce;background:#eaf2ea;color:#40644a;font-weight:800;font-size:11px;padding:10px;border-radius:8px}.inspectButton.secondary{background:white;color:#556870;border-color:#dbe3e4}.inspectButton.danger{color:#9b5b4a;border-color:#e5c3b9;background:#fcf0ec}.divider{height:1px;background:#e8edee;margin:17px 0}.note{color:#829198;font-size:10px;line-height:1.7}.mutedChip{display:inline-block;border-radius:5px;background:#ecf0ef;color:#6c7e85;padding:3px 6px;font-size:9px;font-weight:800}.overlay{position:absolute;inset:0;background:#0c1a20a1;z-index:10;display:none;place-items:center;padding:18px}.overlay.visible{display:grid}.modal{max-width:610px;width:100%;max-height:88vh;overflow-y:auto;background:#fff;border-radius:16px;padding:25px 27px;box-shadow:0 30px 100px #07131760}.modal h2{font-size:19px;margin:0 0 15px}.modal h3{font-size:12px;margin:17px 0 4px}.modal p,.modal li{font-size:12px;line-height:1.85;color:#516269}.modal ul{padding-left:20px}.modal a{color:#3d796f}.modal .close{float:right;border:0;border-radius:7px;padding:8px 12px;background:#eaf0ed}.keyboard{display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e2e2;background:#fafbfa;border-radius:4px;font-size:10px;padding:2px 5px;min-width:18px}
+@media(max-width:1040px){.main{grid-template-columns:209px minmax(0,1fr) 241px}.logo{min-width:192px}.partTop b{font-size:11px}.palette{padding:0 10px}.inspector{padding:0 12px 18px}.top{gap:7px;padding:0 10px}.top button{padding:7px;font-size:10px}}@media(max-width:750px){.app{grid-template-rows:53px minmax(0,1fr) 30px}.main{grid-template-columns:170px minmax(0,1fr)}.right{display:none}.logo{min-width:150px}.titleGroup strong{font-size:12px}.titleGroup small{font-size:9px}.sideHead{padding:15px 11px 8px}.sideIntro{padding:0 11px 10px}.palette{padding:0 7px}.presetBtns{padding:2px 8px}.viewTop{top:8px;left:8px}.floatTag{font-size:9px}.helpTip{max-width:240px}}
+/* v2: joint-to-rod mechanical coupling */
+.legendDot.socket{background:#d5e5e4;box-shadow:inset 0 0 0 2px #628e8e}
+.partResource{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#3f7d70;text-decoration:underline;text-underline-offset:2px;line-height:1.5}
+.partResource:hover{color:#235d4b}
+.part.product{border-left:3px solid #829da9}
+.part .productTag{color:#718594;font-size:9px;font-weight:700}
+.partGroupTitle{font-size:10px;font-weight:850;letter-spacing:.05em;color:#6e8388;margin:7px 1px 0}
+.part.hub{background:#f8f8fb}
+.pill.productPill{background:#e9eef3;color:#526d89}
+
+/* iPhone / Android layout: full-screen canvas with accessible part and properties drawers */
+.mobilebar,.drawerBackdrop{display:none}
+@media(max-width:750px){
+ html,body{height:100%;width:100%;overflow:hidden;-webkit-text-size-adjust:100%}
+ .app{height:100dvh;grid-template-rows:calc(49px + env(safe-area-inset-top)) 48px minmax(0,1fr) calc(29px + env(safe-area-inset-bottom))}
+ .top{padding-top:env(safe-area-inset-top);padding-inline:10px;gap:6px}
+ .logo{min-width:146px;flex-shrink:0}.logoMark{width:27px;height:27px;font-size:14px}.titleGroup strong{font-size:10px;letter-spacing:.045em}.titleGroup small{font-size:8px;letter-spacing:0}
+ .topnav{gap:5px;overflow-x:auto;min-width:0}.top button{font-size:10px;padding:7px 9px;min-height:33px}.top .iconbtn{padding:6px 9px}
+ .mobilebar{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:stretch;gap:7px;padding:7px 10px;background:#f8faf9;border-bottom:1px solid #dae6e4;z-index:8}
+ .mobilebar button{background:#fff;border:1px solid #d9e4e4;color:#425d65;border-radius:9px;font-weight:800;font-size:12px;touch-action:manipulation}
+ .mobilebar button.current{background:#dfeee2;color:#335e43;border-color:#a2c4a6}
+ .main{display:grid;position:relative;grid-template-columns:minmax(0,1fr);overflow:hidden}
+ .center{grid-column:1;grid-row:1;min-width:0}
+ .left,.right{display:block;position:absolute;top:0;bottom:0;width:min(86vw,350px);max-width:none;overflow-y:auto;overscroll-behavior:contain;z-index:7;box-shadow:0 12px 34px #16353c28;transition:transform .19s ease;visibility:hidden;background:#fff}
+ .left{left:0;transform:translateX(-105%);border-right:1px solid #cadcda}.right{right:0;transform:translateX(105%);border-left:1px solid #cadcda}
+ .app.mobilePaletteOpen .left,.app.mobileInspectorOpen .right{transform:translateX(0);visibility:visible}
+ .drawerBackdrop{position:absolute;inset:0;background:#13283154;z-index:6}
+ .app.mobilePaletteOpen .drawerBackdrop,.app.mobileInspectorOpen .drawerBackdrop{display:block}
+ .sideHead{padding-top:15px}.palette{padding:0 13px}.part{padding:12px}.partTop b{font-size:12px}.partDesc,.partResource{font-size:11px}
+ .right .inspector{padding:0 16px 30px}.control input[type=number],.control select{font-size:16px;min-height:41px}
+ .viewTop{top:10px;left:10px;right:65px;gap:4px}.floatTag{font-size:9px;padding:5px 6px}
+ .viewRight{right:10px;top:10px;gap:6px}.viewRight button{width:38px;height:38px;font-size:20px}
+ .viewBottom{bottom:8px;left:8px;right:8px;align-items:end}.helpTip{max-width:230px;font-size:10px;padding:6px 8px}.axisbox{font-size:9px;padding:6px 7px}
+ .statusbar{font-size:9px;gap:7px;padding-inline:9px;padding-bottom:env(safe-area-inset-bottom)}#hintKey{display:none}#solverBadge{font-size:9px}
+ .modal{max-height:82dvh;padding:18px 17px;border-radius:12px}.overlay{padding:9px}
+ #scene{touch-action:none;overscroll-behavior:none}
+}
+@media(max-width:375px){.titleGroup small{display:none}.logo{min-width:129px}.top button{font-size:9px;padding:7px}.floatTag:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+ <div class="logo"><div class="logoMark">⌁</div><div class="titleGroup"><strong>BALL TRUSS STUDIO</strong><small>3D KINEMATIC DESIGN LAB</small></div></div>
+ <nav class="topnav">
+  <button id="btnSnap" class="active" title="ジョイントをロッドの端に近づけて接続">◎ ジョイント接続 ON</button>
+  <button id="btnZ" title="ロッドを高さ方向に移動">↕ 高さ移動</button>
+  <button id="btnUndo" class="iconbtn" title="元に戻す (Ctrl+Z)">↶</button>
+  <button id="btnRedo" class="iconbtn" title="やり直す (Ctrl+Shift+Z)">↷</button>
+  <button id="btnExport" title="JSON形式で保存">↓ 保存</button>
+  <button id="btnImport" title="JSON形式を読み込む">↑ 読込</button>
+  <button id="btnPNG" title="3D画像をPNGとして保存">▧ 画像</button>
+  <button id="btnHelp" class="accent">? ヘルプ</button>
+ </nav>
+</header>
+<nav class="mobilebar" aria-label="iPhone操作メニュー">
+ <button id="mobileParts" type="button">＋ パーツ</button>
+ <button id="mobileView" type="button" class="current">◇ 3D画面</button>
+ <button id="mobileProps" type="button">⚙ 設定</button>
+</nav>
+<div class="main">
+ <div class="drawerBackdrop" id="drawerBackdrop"></div>
+ <aside class="left">
+  <div class="sideHead">01 / パーツパレット</div>
+  <div class="sideIntro">クリック・ドラッグで配置。<b>ジョイント中心がロッド端に近づくと機械的に接続</b>します。商品リンクは外部サイトを開きます。</div>
+  <div class="palette">
+   <button class="part" draggable="true" data-add="single"><span class="partTop"><b>片側ロッド ＋ 球体</b><span class="pill">1 ARM</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><defs><linearGradient id="r1" x2="0" y2="1"><stop stop-color="#9ab7b3"/><stop offset="1" stop-color="#577878"/></linearGradient></defs><circle cx="41" cy="26.5" r="15" fill="#d4dbdf" stroke="#6d8290" stroke-width="2"/><circle cx="38" cy="23" r="7" fill="#82989f"/><line x1="55" y1="26" x2="175" y2="26" stroke="#6e9793" stroke-width="12" stroke-linecap="round"/><rect x="172" y="17" width="15" height="18" rx="4" fill="#80bfcb" stroke="#367987" stroke-width="2"/><circle cx="41" cy="26" r="3" fill="white"/></svg>
+    <span class="partDesc">球面関節1個 / ロッド1本 / 接続可能な端点</span></button>
+   <button class="part" draggable="true" data-add="double"><span class="partTop"><b>両側ロッド ＋ 球体</b><span class="pill">2 ARMS</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><line x1="35" y1="26" x2="107" y2="26" stroke="#6e9793" stroke-width="12" stroke-linecap="round"/><line x1="108" y1="26" x2="181" y2="26" stroke="#6e9793" stroke-width="12" stroke-linecap="round"/><circle cx="108" cy="26" r="15" fill="#d4dbdf" stroke="#6d8290" stroke-width="2"/><circle cx="105" cy="23" r="7" fill="#82989f"/><rect x="27" y="17" width="14" height="18" rx="4" fill="#80bfcb" stroke="#367987" stroke-width="2"/><rect x="178" y="17" width="14" height="18" rx="4" fill="#80bfcb" stroke="#367987" stroke-width="2"/></svg>
+    <span class="partDesc">球面関節1個 / ロッド2本 / 接続可能な端点×2</span></button>
+   <button class="part hub" draggable="true" data-add="hub"><span class="partTop"><b>球体ジョイント単体（接続ハブ）</b><span class="pill">HUB</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><circle cx="109" cy="26" r="19" fill="#bccbd0" stroke="#617a84" stroke-width="2"/><circle cx="103" cy="19" r="8" fill="#ecf5f5" opacity=".7"/><circle cx="109" cy="26" r="4" fill="#607f83"/></svg>
+    <span class="partDesc">ロッド端に取り付け、複数の端点を結ぶための節点（理想化した接続ハブ）</span></button>
+   <div class="partGroupTitle">市販のユニバーサルジョイント（自在継手）</div>
+   <div class="part product" draggable="true" data-add="misumi_single"><span class="partTop"><b>ミスミ UNCA シングル</b><span class="pill productPill">30°</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><g stroke="#698da7" stroke-width="11" stroke-linecap="round"><path d="M26 27 L93 27 M126 27 L192 27"/></g><rect x="90" y="12" width="39" height="30" rx="6" fill="#b8c6d1" stroke="#607b8c" stroke-width="2"/><path d="M96 17 L123 37 M123 17 L96 37" stroke="#5c7c94" stroke-width="4"/></svg>
+    <span class="partDesc">シングル自在継手：許容偏角 30°（片側最大）</span><a class="partResource" href="https://jp.misumi-ec.com/vona2/detail/110300127430/" target="_blank" rel="noopener noreferrer">ミスミ 製品ページ ↗</a></div>
+   <div class="part product" draggable="true" data-add="misumi_double"><span class="partTop"><b>ミスミ UNCW ダブル</b><span class="pill productPill">60°</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><path d="M19 27 H199" stroke="#698da7" stroke-width="10" stroke-linecap="round"/><g fill="#b8c6d1" stroke="#607b8c" stroke-width="2"><rect x="72" y="12" width="26" height="30" rx="6"/><rect x="121" y="12" width="26" height="30" rx="6"/></g><path d="M84 18 V36 M133 18 V36" stroke="#567c91" stroke-width="4"/></svg>
+    <span class="partDesc">ダブル自在継手：30°＋30°＝最大60°</span><a class="partResource" href="https://jp.misumi-ec.com/vona2/detail/110300127430/" target="_blank" rel="noopener noreferrer">ミスミ 製品ページ ↗</a></div>
+   <div class="part product" draggable="true" data-add="mighty_single"><span class="partTop"><b>マイティ MCM シングル</b><span class="pill productPill">45°</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><path d="M19 29 L92 29 M126 23 L199 23" stroke="#648e83" stroke-width="11" stroke-linecap="round"/><rect x="92" y="11" width="36" height="32" rx="7" fill="#b3d4c5" stroke="#5b9182" stroke-width="2"/><path d="M96 17 L124 37 M124 17 L96 37" stroke="#477a67" stroke-width="4"/></svg>
+    <span class="partDesc">MC/MCM シングル：最大45°</span><a class="partResource" href="https://mighty-corp.co.jp/precision/joint/mc-single" target="_blank" rel="noopener noreferrer">マイティ メーカー仕様 ↗</a></div>
+   <div class="part product" draggable="true" data-add="mighty_double"><span class="partTop"><b>マイティ MCM ダブル</b><span class="pill productPill">90°</span></span>
+    <svg class="pieceSvg" viewBox="0 0 218 53" aria-hidden="true"><path d="M19 27 H199" stroke="#648e83" stroke-width="10" stroke-linecap="round"/><g fill="#b3d4c5" stroke="#5b9182" stroke-width="2"><rect x="74" y="11" width="27" height="32" rx="7"/><rect x="117" y="11" width="27" height="32" rx="7"/></g><path d="M78 17 L98 37 M121 17 L141 37" stroke="#477a67" stroke-width="3"/></svg>
+    <span class="partDesc">MC/MCM ダブル：最大90°</span><a class="partResource" href="https://mighty-corp.co.jp/precision/joint/resin-metal/universal-joint" target="_blank" rel="noopener noreferrer">マイティ メーカー仕様 ↗</a></div>
+  </div>
+  <div class="section"><div class="sideHead">02 / サンプル構造</div><div class="presetBtns">
+   <button class="simpleBtn" data-preset="tetra">◇ 四面体トラス（6ユニット）</button>
+   <button class="simpleBtn" data-preset="chain">⌁ 連動する可動リンク（4ユニット）</button>
+   <button class="simpleBtn" data-preset="empty">＋ 空のシーン</button>
+  </div></div>
+  <div class="section"><div class="sideHead">03 / 表示記号</div><div class="legend">
+   <div class="legendItem"><span class="legendDot ball"></span>球面・ユニバーサルジョイント（クリックで設定）</div>
+   <div class="legendItem"><span class="legendDot socket"></span>ロッド端：ジョイントに接近すると接続</div>
+   <div class="legendItem"><span class="legendDot anchor"></span>座標固定された端点</div>
+  </div></div>
+  <div class="section pad"><div class="sideHead" style="padding-left:0">運動モデル</div><p class="tiny">固定長ロッド、ジョイントの許容偏角、機械的な節点接続、空間固定点を満たすよう、反復拘束ソルバーで連動変形させます。荷重・変形・摩擦は計算しません。</p></div>
+ </aside>
+ <main class="center" id="sceneHost"><canvas id="scene" aria-label="マウスで回転・選択・変形できる3次元構造シミュレーター"></canvas>
+  <div class="viewTop"><div class="floatTag">座標 <strong>mm</strong></div><div class="floatTag" id="countTag">0 ロッド / 0 関節</div><div class="floatTag" id="modeTag">3D 透視図</div></div>
+  <div class="viewRight"><button id="viewIso" title="斜視点">◇</button><button id="viewTopBtn" title="真上から">⊤</button><button id="viewFront" title="正面から">▯</button><button id="zoomIn" title="拡大">＋</button><button id="zoomOut" title="縮小">－</button><button id="viewFit" title="全体を画面に収める">⌗</button></div>
+  <div class="viewBottom"><div class="helpTip" id="guide">ロッドをドラッグすると、連結した構造が拘束に従って動きます。背景ドラッグ：視点回転 / 右ドラッグ：視点移動 / Shift＋ドラッグ：Z方向。</div><div class="axisbox"><span class="axisX">● X</span>　<span class="axisY">● Y</span>　<span class="axisZ">● Z ↑</span></div></div>
+ </main>
+ <aside class="right"><div class="sideHead">04 / プロパティ</div><div class="inspector" id="inspector"></div></aside>
+</div>
+<footer class="statusbar"><span class="badge" id="solverBadge">● 準備完了</span><span id="statusMsg">ジョイント接続式 / 球面±25°・市販自在継手を選択可能</span><span id="hintKey">Ctrl+Z 元に戻す</span></footer>
+</div>
+<div class="overlay" id="helpOverlay"><section class="modal"><button class="close" id="closeHelp">閉じる ×</button><h2>Ball Truss Studio の使い方</h2>
+ <h3>配置と端点の接続</h3><p>パレットから1本ロッド型・2本ロッド型・球体ハブ・各種の市販ユニバーサルジョイントを追加できます。<b>ロッドの先端には磁石を設けません。</b> 新しいジョイントの中心をロッド先端付近へ配置すると、自動的にジョイントと端点を接続します。端点を選択してパレットのジョイントをクリックすると、その位置に確実に配置できます。画面上でジョイントを端点へ移動しても接続できます。複数のロッド端を同じ球体ハブに接続可能です。</p>
+ <h3>iPhone・スマートフォンでの操作</h3><ul><li>画面上部の「パーツ」「3D画面」「設定」で操作パネルを切り替えます。</li><li>背景を1本指でなぞる：視点回転。2本指でピンチ：ズーム、2本指で平行移動：視点の平行移動。</li><li>ロッド・関節を1本指でタップ：選択して設定を表示。押したまま動かす：拘束に従って変形。</li><li>「高さ移動」をONにすると選択部品を上下方向へ移動できます。</li></ul><h3>マウスと拘束</h3><ul><li>ロッド・端点・ジョイントを左ドラッグ：拘束条件に応じて他のリンクも移動します。</li><li>背景を左ドラッグ：視点回転（Z軸回りはドラッグ方向と一致）。右ドラッグ：視点移動。</li><li>Shift＋ドラッグ、または「高さ移動」ON：Z方向へ移動。ホイール：拡大縮小。</li><li>選択したロッドの長さ、ジョイントの自由・角度固定、端点または節点の3D座標固定を設定パネルで変更します。</li><li>接続を解除する場合は先端または球体ジョイントを選択し、解除ボタンを押します。</li></ul>
+ <h3>市販のジョイントと角度の取り扱い</h3><p><b>NBK SBJ</b> は球面ジョイントで全方向±25°。<b>ミスミ UNCA</b> はシングル30°、<b>UNCW</b> はダブル最大60°（30°＋30°）。<b>マイティ MC/MCM</b> はシングル45°、ダブル90°です。数値は各メーカーの代表仕様です。パレット内のリンクから対応商品を確認できます。</p>
+ <p>ここでの自在継手は、2本のロッド間の<strong>最大折れ角だけを拘束する簡略キネマティクスモデル</strong>です。クロスピンの向き、軸ねじり、回転伝達の不等速性、二連継手の中間軸長や心ずれは再現していません。また球面型2本ロッドは±25°の独立した2方向として最大折れ角50°を仮定しています。製品の実形状そのものではありません。</p>
+ <h3>物理的な限界</h3><p>固定されたロッド長・連結点・関節角を同時に満たすための反復拘束計算です。拘束矛盾では残差が出ます。重力、応力、たわみ、ガタ、部材の衝突、軸力や強度は解析していません。製作前にメーカー仕様や接続方法を確認してください。</p>
+ <h3>製品仕様（外部リンク）</h3><p><a href="https://www.nbk1560.com/products/machine_element/ball_joint/SBJ-M-F/" target="_blank" rel="noopener noreferrer">NBK SBJ-M-F</a> ／ <a href="https://jp.misumi-ec.com/vona2/detail/110300127430/" target="_blank" rel="noopener noreferrer">ミスミ UNCA/UNCW</a> ／ <a href="https://mighty-corp.co.jp/precision/joint/resin-metal/universal-joint" target="_blank" rel="noopener noreferrer">マイティ MC/MCM</a></p>
+ <p style="margin-top:17px;color:#92a1a7">JSON形式の保存・読み込みとPNG画像保存に対応。描画・演算はブラウザ内で実行され、外部ライブラリ不要です。</p>
+</section></div>
+<input type="file" accept="application/json,.json" id="fileInput" hidden/>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), canvas=$('scene'),host=$('sceneHost'),ctx=canvas.getContext('2d');
+const app=document.querySelector('.app'),touchPointers=new Map();let touchPinch=null;
+const isMobile=()=>window.matchMedia('(max-width:750px)').matches;
+function showMobilePanel(which){
+ app.classList.toggle('mobilePaletteOpen',which==='parts');app.classList.toggle('mobileInspectorOpen',which==='props');
+ $('mobileParts').classList.toggle('current',which==='parts');$('mobileProps').classList.toggle('current',which==='props');$('mobileView').classList.toggle('current',which==='view');
+}
+$('mobileParts').addEventListener('click',()=>showMobilePanel(app.classList.contains('mobilePaletteOpen')?'view':'parts'));
+$('mobileView').addEventListener('click',()=>showMobilePanel('view'));
+$('mobileProps').addEventListener('click',()=>showMobilePanel(app.classList.contains('mobileInspectorOpen')?'view':'props'));
+$('drawerBackdrop').addEventListener('click',()=>showMobilePanel('view'));
+
+const PI=Math.PI, RAD=PI/180, clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z), copy=p=>({x:p.x,y:p.y,z:p.z}), dif=(a,b)=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z}), vec=(a,b)=>({x:b.x-a.x,y:b.y-a.y,z:b.z-a.z}), unit=v=>{let q=Math.hypot(v.x,v.y,v.z)||1;return{x:v.x/q,y:v.y/q,z:v.z/q}},dot=(u,v)=>u.x*v.x+u.y*v.y+u.z*v.z,cross=(a,b)=>({x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x}),add=(p,q)=>({x:p.x+q.x,y:p.y+q.y,z:p.z+q.z}),mul=(a,t)=>({x:a.x*t,y:a.y*t,z:a.z*t});
+const angle=(u,v)=>Math.acos(clamp(dot(unit(u),unit(v)),-1,1))*180/PI;
+const rotate=(v,axis,theta)=>{const c=Math.cos(theta),s=Math.sin(theta),cr=cross(axis,v),dd=dot(axis,v);return{x:v.x*c+cr.x*s+axis.x*dd*(1-c),y:v.y*c+cr.y*s+axis.y*dd*(1-c),z:v.z*c+cr.z*s+axis.z*dd*(1-c)}};
+let graph, selected=null, hover=null, cam={yaw:-.68,pitch:.53,dist:1040,target:{x:0,y:0,z:104}},W=0,H=0,dpr=1, autoSnap=true,zMode=false,drag=null,snapshots=[],historyIndex=-1,needsRender=true,statusTimer=0,lastDiagnostics={max:0,dist:0,ang:0,link:0};
+const colors=['#57877e','#6d90a8','#b09168','#82916c','#8e799b','#bb7f78','#638ba5'];
+const PROFILES={hubCustom:{label:'接続ハブ（理想化）',type:'hub',angle:180,url:''},nbk25:{label:'NBK SBJ（球面・±25°）',type:'ball',angle:25,url:'https://www.nbk1560.com/products/machine_element/ball_joint/SBJ-M-F/'},misumi_single:{label:'ミスミ UNCA（単式・30°）',type:'universal',angle:30,url:'https://jp.misumi-ec.com/vona2/detail/110300127430/'},misumi_double:{label:'ミスミ UNCW（複式・60°）',type:'universal',angle:60,url:'https://jp.misumi-ec.com/vona2/detail/110300127430/'},mighty_single:{label:'マイティ MCM（単式・45°）',type:'universal',angle:45,url:'https://mighty-corp.co.jp/precision/joint/mc-single'},mighty_double:{label:'マイティ MCM（複式・90°）',type:'universal',angle:90,url:'https://mighty-corp.co.jp/precision/joint/resin-metal/universal-joint'},custom:{label:'カスタム（仮想）',type:'ball',angle:25,url:''}};
+function fresh(){return{nodes:[],rods:[],joints:[],parts:[],connections:[],serial:1};}
+const ident=(prefix)=>`${prefix}${graph.serial++}`;
+const node=(kind,p)=>{const n={id:ident('N'),kind,x:p.x,y:p.y,z:p.z,fixed:false};graph.nodes.push(n);return n;};
+const byNode=id=>graph.nodes.find(n=>n.id===id),byRod=id=>graph.rods.find(r=>r.id===id),byJoint=id=>graph.joints.find(j=>j.id===id),byPart=id=>graph.parts.find(p=>p.id===id);
+function partAdd(kind,center,length=155,option={}){
+ const isUni=kind.startsWith('misumi_')||kind.startsWith('mighty_'),isHub=kind==='hub',single=kind==='single';
+ const p={id:ident('P'),kind,rods:[],tips:[],joint:null,name:`${isHub?'球体ハブ':isUni?PROFILES[kind].label:single?'片側ロッド':'両側ロッド'} ${graph.parts.length+1}`,color:colors[graph.parts.length%colors.length]};
+ const c=node('ball',center);p.joint=c.id;
+ const profile=isHub?'hubCustom':isUni?kind:'nbk25';
+ const j={id:ident('J'),node:c.id,part:p.id,rods:[],maxAngle:PROFILES[profile].angle,profile,coupling:isHub?'hub':isUni?'universal':'ball',mode:'free',lockAngle:180,lockDir:null,refDir:{x:1,y:0,z:0}};
+ const d=unit(option.dir||{x:1,y:0,z:0}),sides=isHub?[]:single?[1]:[-1,1];
+ sides.forEach((sign,i)=>{const tip=node('tip',add(center,mul(d,length*sign)));p.tips.push(tip.id);const r={id:ident('R'),a:c.id,b:tip.id,length,part:p.id,arm:i+1};graph.rods.push(r);p.rods.push(r.id);j.rods.push(r.id)});
+ j.refDir=d;graph.joints.push(j);graph.parts.push(p);return p;
+}
+function addDoubleSpan(a,b){const v=vec(a,b);return partAdd('double',mul(add(a,b),.5),Math.hypot(v.x,v.y,v.z)/2,{dir:v});}
+function translatePart(p,shift){for(const id of [p.joint,...p.tips]){const n=byNode(id);if(n){n.x+=shift.x;n.y+=shift.y;n.z+=shift.z}}}
+function connected(a,b){return graph.connections.some(m=>m.a===a&&m.b===b)}
+function join(a,b,snap=false){let na=byNode(a),nb=byNode(b);if(!na||!nb||a===b)return false;
+ if(na.kind==='ball'&&nb.kind==='tip'){[a,b]=[b,a];[na,nb]=[nb,na]}
+ if(na.kind!=='tip'||nb.kind!=='ball')return false;
+ const ra=graph.rods.find(r=>r.b===a),joint=jointForNode(nb);if(!ra||!joint||ra.part===joint.part)return false;
+ if(connected(a,b))return false;
+ if(graph.connections.some(m=>m.a===a&&m.b!==b))return false; // one mechanical joint per rod end
+ if(na.fixed&&nb.fixed&&dist(na,nb)>.15){say('異なる固定座標同士は接続できません',true);return false}
+ if(snap){const shift=vec(nb,na);if(!nb.fixed){translatePart(byPart(joint.part),shift)}else if(!na.fixed){na.x=nb.x;na.y=nb.y;na.z=nb.z}}
+ graph.connections.push({id:ident('C'),a,b});return true;
+}
+function connectionGroups(){const parent=new Map();const find=id=>{let p=parent.get(id);if(p===id)return p;let root=find(p);parent.set(id,root);return root};for(const m of graph.connections){for(const id of [m.a,m.b])if(!parent.has(id))parent.set(id,id);let a=find(m.a),b=find(m.b);if(a!==b)parent.set(b,a)}const groups=new Map();for(const id of parent.keys()){const key=find(id);if(!groups.has(key))groups.set(key,[]);const n=byNode(id);if(n)groups.get(key).push(n)}return[...groups.values()];}
+function connectionForTip(id){return graph.connections.find(m=>m.a===id)}
+function freeTip(n){return n?.kind==='tip'&&!connectionForTip(n.id)}
+function jointLinkCount(id){return graph.connections.filter(c=>c.b===id).length}
+function snapNewJoint(part,preferredTip=null){let tip=preferredTip&&freeTip(byNode(preferredTip))?byNode(preferredTip):null;
+ if(!tip){const center=byNode(part.joint),candidates=graph.nodes.filter(n=>freeTip(n)&&!part.tips.includes(n.id));candidates.sort((a,b)=>dist(a,center)-dist(b,center));if(candidates[0]&&dist(candidates[0],center)<65)tip=candidates[0]}
+ if(tip){const joint=byNode(part.joint);if(dist(tip,joint)>.01)translatePart(part,vec(joint,tip));return join(tip.id,part.joint)}return false;}
+function autoConnect(){if(!autoSnap)return 0;let cnt=0;const tips=graph.nodes.filter(n=>freeTip(n));const joints=graph.nodes.filter(n=>n.kind==='ball');for(const t of tips){if(!freeTip(t))continue;const cand=joints.filter(n=>jointForNode(n)?.part!==graph.rods.find(r=>r.b===t.id)?.part).sort((a,b)=>dist(a,t)-dist(b,t))[0];if(cand&&dist(cand,t)<=27){if(join(t.id,cand.id,false))cnt++}}if(cnt)solve(null,75);return cnt}
+function projectDistance(a,b,L){let v=vec(a,b),d=Math.hypot(v.x,v.y,v.z);if(d<.000001){v={x:1,y:0,z:0};d=1}const err=d-L,wa=a.fixed?0:1,wb=b.fixed?0:1,ws=wa+wb;if(!ws)return;let t=err/(d*ws);a.x+=v.x*t*wa;a.y+=v.y*t*wa;a.z+=v.z*t*wa;b.x-=v.x*t*wb;b.y-=v.y*t*wb;b.z-=v.z*t*wb;}
+function applyAngleArm(center,t,desired,strength=.72){const wC=center.fixed?0:1,wT=t.fixed?0:1,s=wC+wT;if(!s)return;const dx=(t.x-desired.x)*strength/s,dy=(t.y-desired.y)*strength/s,dz=(t.z-desired.z)*strength/s;t.x-=dx*wT;t.y-=dy*wT;t.z-=dz*wT;center.x+=dx*wC;center.y+=dy*wC;center.z+=dz*wC;}
+// A single-arm socket becomes a two-link joint when the preceding rod is plugged into it.
+// Joint-only hubs have unconstrained radial branches; they do not impose a unique bending axis.
+function jointPair(j){
+ const c=byNode(j.node),arms=j.rods.map(id=>byRod(id)),out=arms.map(r=>({tip:byNode(r.b),length:r.length}));
+ if(out.length===2)return {c,ends:out};
+ if(out.length===1){const inputs=graph.connections.filter(link=>link.b===j.node);
+  if(inputs.length===1){const prev=graph.rods.find(r=>r.b===inputs[0].a);
+   if(prev)return {c,ends:[{tip:byNode(prev.a),length:prev.length,linked:true},out[0]]};}
+ }
+ return null;
+}
+function incidentHubArms(j){return graph.connections.filter(link=>link.b===j.node).map(link=>{
+ const rod=graph.rods.find(r=>r.b===link.a);return rod?{id:rod.a,tip:byNode(rod.a),length:rod.length}:null
+ }).filter(Boolean);}
+function correctInnerAngle(center,a,b,lenA,lenB,wanted,locked){
+ const u=unit(vec(center,a)),v=unit(vec(center,b)),t=angle(u,v);
+ if(locked?Math.abs(t-wanted)<.045:t>=wanted-.045)return;
+ let axis=cross(u,v),norm=Math.hypot(axis.x,axis.y,axis.z);
+ if(norm<1e-5){const aux=Math.abs(u.z)<.85?{x:0,y:0,z:1}:{x:0,y:1,z:0};axis=unit(cross(u,aux))}else axis=mul(axis,1/norm);
+ let delta=clamp((wanted-t)*RAD,-.48,.48);
+ applyAngleArm(center,a,add(center,mul(rotate(u,axis,-delta*.5),lenA)),.67);
+ applyAngleArm(center,b,add(center,mul(rotate(v,axis,delta*.5),lenB)),.67);
+}
+function solve(targets=null,iterations=45){const groups=connectionGroups();if(!graph.rods.length){lastDiagnostics=diagnose();scheduleDraw();return}
+ for(let k=0;k<iterations;k++){
+  if(targets){for(const [id,p] of Object.entries(targets)){const n=byNode(id);if(n&&!n.fixed){const w=.37;n.x+=(p.x-n.x)*w;n.y+=(p.y-n.y)*w;n.z+=(p.z-n.z)*w}}}
+  for(const r of graph.rods)projectDistance(byNode(r.a),byNode(r.b),r.length);
+  for(const g of groups){let anchor=g.find(n=>n.fixed);let center;if(anchor)center=anchor;else{center={x:0,y:0,z:0};let sum=0;for(const n of g){let w=targets&&targets[n.id]?3:1;center.x+=n.x*w;center.y+=n.y*w;center.z+=n.z*w;sum+=w}center.x/=sum;center.y/=sum;center.z/=sum}for(const n of g)if(!n.fixed){n.x+=.93*(center.x-n.x);n.y+=.93*(center.y-n.y);n.z+=.93*(center.z-n.z)}}
+  for(const j of graph.joints){const c=byNode(j.node),pair=jointPair(j),outs=j.rods.map(id=>byRod(id));if(!c)continue;
+   if(j.coupling==='hub'&&j.mode==='locked'&&j.hubLocks?.length){
+    for(const h of j.hubLocks){const a=byNode(h.a),b=byNode(h.b);if(a&&b)correctInnerAngle(c,a,b,h.lenA,h.lenB,h.angle,true)}
+   }else if(pair){const [one,two]=pair.ends;
+    const wanted=j.mode==='locked'?j.lockAngle:Math.max(0,180-(j.coupling==='universal'||one.linked?j.maxAngle:2*j.maxAngle));
+    correctInnerAngle(c,one.tip,two.tip,one.length,two.length,wanted,j.mode==='locked');
+   }else if(outs.length===1){const tip=byNode(outs[0].b);
+    if(j.mode==='locked'&&j.lockDir){const desired=add(c,mul(j.lockDir,outs[0].length));applyAngleArm(c,tip,desired,.8)}
+    else if(c.fixed){const d=unit(vec(c,tip)),ref=unit(j.refDir),theta=angle(d,ref);if(theta>j.maxAngle+.001){let axis=cross(ref,d),q=Math.hypot(axis.x,axis.y,axis.z);if(q<.0001)axis={x:0,y:0,z:1};else axis=mul(axis,1/q);const des=add(c,mul(rotate(ref,axis,j.maxAngle*RAD),outs[0].length));applyAngleArm(c,tip,des,.73)}}
+   }
+  }
+ }
+ lastDiagnostics=diagnose();scheduleDraw();}
+function diagnose(){let de=0,ma=0,an=0;
+ for(const r of graph.rods)de=Math.max(de,Math.abs(dist(byNode(r.a),byNode(r.b))-r.length));
+ for(const m of graph.connections)ma=Math.max(ma,dist(byNode(m.a),byNode(m.b)));
+ for(const j of graph.joints){const pair=jointPair(j),c=byNode(j.node);
+  if(j.coupling==='hub'&&j.mode==='locked'&&j.hubLocks){for(const h of j.hubLocks){const a=byNode(h.a),b=byNode(h.b);if(a&&b)an=Math.max(an,Math.abs(angle(vec(c,a),vec(c,b))-h.angle))}}
+  if(pair){const [a,b]=pair.ends,inner=angle(vec(c,a.tip),vec(c,b.tip));const min=180-(j.coupling==='universal'||a.linked?j.maxAngle:2*j.maxAngle);an=Math.max(an,j.mode==='locked'?Math.abs(inner-j.lockAngle):Math.max(0,min-inner))}
+  else if(j.rods.length===1&&j.mode==='locked'&&j.lockDir){const t=byNode(byRod(j.rods[0]).b);an=Math.max(an,angle(vec(c,t),j.lockDir))}
+ }
+ return{dist:de,link:ma,ang:an,max:Math.max(de,ma,an*1.4)};
+}
+function buildPreset(which){graph=fresh();selected=null;if(which==='tetra'){
+  const pts=[{x:-185,y:-145,z:0},{x:185,y:-145,z:0},{x:0,y:210,z:0},{x:0,y:5,z:286}];const links=[[0,1],[1,2],[2,0],[0,3],[1,3],[2,3]],vertexTips=[[],[],[],[]];
+  for(const [a,b] of links){const p=addDoubleSpan(pts[a],pts[b]);for(const id of p.tips){const n=byNode(id);vertexTips[dist(n,pts[a])<dist(n,pts[b])?a:b].push(id)}}
+  for(let i=0;i<4;i++){const hub=partAdd('hub',pts[i]);for(const tip of vertexTips[i])join(tip,hub.joint);if(i<3)byNode(hub.joint).fixed=true}
+  cam={yaw:-.67,pitch:.56,dist:1060,target:{x:0,y:0,z:115}};say('四面体を配置しました。各頂点は球面ジョイントハブでロッドと接続されています。');
+ }else if(which==='chain'){
+  let prev=null;for(let i=0;i<4;i++){const a={x:-365+i*205,y:0,z:135},p=partAdd('single',a,205);if(prev)join(prev,p.joint);else byNode(p.joint).fixed=true;prev=p.tips[0]}
+  cam={yaw:-.54,pitch:.42,dist:1250,target:{x:55,y:0,z:125}};say('4連リンクを配置。ロッド端と次の球面ジョイントが接続されています。');
+ }else{cam={yaw:-.67,pitch:.53,dist:850,target:{x:0,y:0,z:110}};say('空のシーンです。パレットからロッドとジョイントを配置してください。')}
+ solve(null,65);commit(true);updateInspector();scheduleDraw();}
+const storageKey='ballTrussStudio_v3_mobile';let startingUp=true;
+function saveOffline(){if(startingUp)return;try{localStorage.setItem(storageKey,JSON.stringify({graph,camera:cam,savedAt:Date.now()}))}catch(_){}}
+function snapshot(){return JSON.stringify(graph)}
+function commit(reset=false){const s=snapshot();if(reset){snapshots=[s];historyIndex=0;saveOffline();return}if(s===snapshots[historyIndex])return;snapshots=snapshots.slice(0,historyIndex+1);snapshots.push(s);if(snapshots.length>35)snapshots.shift();historyIndex=snapshots.length-1;saveOffline();}
+function undo(dir){const index=historyIndex+dir;if(index<0||index>=snapshots.length)return;historyIndex=index;graph=JSON.parse(snapshots[index]);selected=null;solve(null,60);updateInspector();say(dir<0?'元に戻しました':'やり直しました')}
+function safeUnit(v){return unit(v)}
+function setLength(r,newLength){newLength=clamp(Number(newLength)||10,20,1200);const a=byNode(r.a),b=byNode(r.b),v=safeUnit(vec(a,b));r.length=newLength;if(b.fixed&&!a.fixed){a.x=b.x-v.x*newLength;a.y=b.y-v.y*newLength;a.z=b.z-v.z*newLength}else if(!b.fixed){b.x=a.x+v.x*newLength;b.y=a.y+v.y*newLength;b.z=a.z+v.z*newLength}solve(null,70);commit();updateInspector()}
+function lockJoint(j,mode){const c=byNode(j.node),tip=j.rods.map(id=>byNode(byRod(id).b)),pair=jointPair(j);j.mode=mode;
+ if(mode==='locked'){if(j.coupling==='hub'){
+   const arms=incidentHubArms(j);j.hubLocks=[];for(let a=0;a<arms.length;a++)for(let b=a+1;b<arms.length;b++)j.hubLocks.push({a:arms[a].id,b:arms[b].id,lenA:arms[a].length,lenB:arms[b].length,angle:angle(vec(c,arms[a].tip),vec(c,arms[b].tip))});
+  }else if(pair){j.lockAngle=angle(vec(c,pair.ends[0].tip),vec(c,pair.ends[1].tip));j.lockDir=null}else if(tip.length===1)j.lockDir=unit(vec(c,tip[0]));
+ }else if(j.coupling==='hub')j.hubLocks=[];
+ solve(null,60);commit();updateInspector();}
+function say(s,warn=false){$('statusMsg').textContent=s;$('statusMsg').style.color=warn?'#bc7541':'';clearTimeout(statusTimer);statusTimer=setTimeout(()=>{$('statusMsg').style.color=''},4500)}
+function pointPos(n){return{x:n.x,y:n.y,z:n.z}};
+function basis(){const cy=Math.cos(cam.yaw),sy=Math.sin(cam.yaw),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);const outward={x:cy*cp,y:sy*cp,z:sp};return{camera:add(cam.target,mul(outward,cam.dist)),forward:mul(outward,-1),right:{x:-sy,y:cy,z:0},up:{x:-cy*sp,y:-sy*sp,z:cp}};}
+function perspective(p){const b=basis(),v=dif(p,b.camera),z=dot(v,b.forward),f=Math.min(W,H)*1.38;if(z<5)return{x:0,y:0,depth:0,visible:false,scale:0};return{x:W/2+dot(v,b.right)*f/z,y:H/2-dot(v,b.up)*f/z,depth:z,visible:true,scale:f/z};}
+function screenRay(x,y){const b=basis(),f=Math.min(W,H)*1.38;const d=unit(add(b.forward,add(mul(b.right,(x-W/2)/f),mul(b.up,(H/2-y)/f))));return{p:b.camera,d};}
+function intersectPlane(x,y,z){const ray=screenRay(x,y);if(Math.abs(ray.d.z)<.00001)return null;const t=(z-ray.p.z)/ray.d.z;if(t<0)return null;return add(ray.p,mul(ray.d,t));}
+function gridLine(a,b,color,width=.7){let u=perspective(a),v=perspective(b);if(!u.visible||!v.visible)return;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(u.x,u.y);ctx.lineTo(v.x,v.y);ctx.stroke()}
+function drawGrid(){ctx.save();for(let k=-7;k<=7;k++){let val=k*100,origin=k===0?'#b7c8c8':'#dfe8e8';gridLine({x:-700,y:val,z:0},{x:700,y:val,z:0},origin,k===0?1.1:.8);gridLine({x:val,y:-700,z:0},{x:val,y:700,z:0},origin,k===0?1.1:.8)}
+ const axes=[{to:{x:330,y:0,z:0},name:'X',color:'#bf7b6e'},{to:{x:0,y:330,z:0},name:'Y',color:'#5c9e7a'},{to:{x:0,y:0,z:355},name:'Z',color:'#4a89b8'}];for(const a of axes){gridLine({x:0,y:0,z:0},a.to,a.color,1.6);const p=perspective(a.to);if(p.visible){ctx.font='bold 11px system-ui';ctx.fillStyle=a.color;ctx.fillText(a.name,p.x+5,p.y-3)}}ctx.restore();}
+function roundedRect(ctx,x,y,w,h,r){const k=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);ctx.beginPath();ctx.moveTo(x+k,y);ctx.arcTo(x+w,y,x+w,y+h,k);ctx.arcTo(x+w,y+h,x,y+h,k);ctx.arcTo(x,y+h,x,y,k);ctx.arcTo(x,y,x+w,y,k);ctx.closePath()}
+function drawRod(r){const a=byNode(r.a),b=byNode(r.b),p=perspective(a),q=perspective(b);if(!p.visible||!q.visible)return;const chosen=selected?.kind==='rod'&&selected.id===r.id,over=hover?.kind==='rod'&&hover.id===r.id;const color=byPart(r.part)?.color||'#6f9890';const width=clamp((p.scale+q.scale)*4.3,4,12);
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#26383d23';ctx.lineWidth=width+3.3;ctx.beginPath();ctx.moveTo(p.x+1,p.y+2);ctx.lineTo(q.x+1,q.y+2);ctx.stroke();
+ if(chosen||over){ctx.strokeStyle=chosen?'#d5a94d':'#83b9a3';ctx.lineWidth=width+8;ctx.globalAlpha=chosen?.6:.26;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.globalAlpha=1}
+ ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.strokeStyle='#f6ffff99';ctx.lineWidth=Math.max(1,width*.25);ctx.beginPath();ctx.moveTo(p.x-1,p.y-1.1);ctx.lineTo(q.x-1,q.y-1.1);ctx.stroke();ctx.restore();}
+function drawBall(n){let p=perspective(n);if(!p.visible)return;const chosen=selected?.kind==='joint'&&byJoint(selected.id)?.node===n.id||selected?.kind==='node'&&selected.id===n.id,over=hover?.kind==='joint'&&byJoint(hover.id)?.node===n.id;const r=clamp(11*p.scale,7.5,17);const j=jointForNode(n);ctx.save();if(chosen||over){ctx.beginPath();ctx.arc(p.x,p.y,r+6,0,PI*2);ctx.fillStyle=chosen?'#f3c46d55':'#87bba553';ctx.fill();ctx.strokeStyle=chosen?'#dba646':'#579c8c';ctx.lineWidth=1.8;ctx.stroke()}
+ if(j?.coupling==='universal'){
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.PI/4);ctx.fillStyle='#a9c4d0';ctx.strokeStyle='#567b8e';ctx.lineWidth=2;ctx.fillRect(-r*.82,-r*.82,r*1.64,r*1.64);ctx.strokeRect(-r*.82,-r*.82,r*1.64,r*1.64);ctx.restore();ctx.lineWidth=2;ctx.strokeStyle='#446a81';ctx.beginPath();ctx.moveTo(p.x-r*.55,p.y-r*.55);ctx.lineTo(p.x+r*.55,p.y+r*.55);ctx.moveTo(p.x+r*.55,p.y-r*.55);ctx.lineTo(p.x-r*.55,p.y+r*.55);ctx.stroke();if(n.fixed)drawAnchor(p,r+2);ctx.restore();return;}
+ const g=ctx.createRadialGradient(p.x-r*.34,p.y-r*.43,r*.05,p.x,p.y,r);g.addColorStop(0,'#fafdff');g.addColorStop(.38,'#bacad0');g.addColorStop(.68,'#849ca4');g.addColorStop(1,'#536b78');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,PI*2);ctx.fill();ctx.strokeStyle='#49616e';ctx.lineWidth=1;ctx.stroke();ctx.beginPath();ctx.arc(p.x,p.y,r*.44,0,PI*2);ctx.strokeStyle='#f9fbfa77';ctx.stroke();if(n.fixed)drawAnchor(p,r+2);ctx.restore()}
+function drawAnchor(p,r){ctx.save();ctx.strokeStyle='#bf7458';ctx.fillStyle='#f6c9ac';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,r+3,0,PI*2);ctx.stroke();ctx.fillRect(p.x+r-2,p.y-r-9,7,7);ctx.restore()}
+function drawTip(n,groupSize=0){let p=perspective(n);if(!p.visible)return;const sel=selected?.kind==='node'&&selected.id===n.id,over=hover?.kind==='node'&&hover.id===n.id;let r=clamp(p.scale*8,6,11);ctx.save();if(sel||over){ctx.beginPath();ctx.arc(p.x,p.y,r+6,0,PI*2);ctx.fillStyle=sel?'#f3bc5877':'#a5dee077';ctx.fill()}
+ ctx.translate(p.x,p.y);const bound=!!connectionForTip(n.id);ctx.fillStyle=bound?'#618f79':'#dbe9e8';roundedRect(ctx,-r,-r*.62,2*r,r*1.25,r*.4);ctx.fill();ctx.strokeStyle=bound?'#527d64':'#63878a';ctx.lineWidth=1.5;roundedRect(ctx,-r,-r*.62,2*r,r*1.25,r*.4);ctx.stroke();ctx.beginPath();ctx.arc(0,0,2.5,0,PI*2);ctx.fillStyle=bound?'#fbfefb':'#63878a';ctx.fill();ctx.restore();if(n.fixed)drawAnchor(p,r+1);}
+function drawScreenLabel(){if(!selected)return;let item=null;if(selected.kind==='joint'){item=byNode(byJoint(selected.id)?.node)}else if(selected.kind==='node')item=byNode(selected.id);else if(selected.kind==='rod'){let r=byRod(selected.id);if(r){let a=byNode(r.a),b=byNode(r.b);item=mul(add(a,b),.5)}}if(!item)return;const p=perspective(item);if(!p.visible)return;let label='';if(selected.kind==='rod'){const r=byRod(selected.id);label=`L = ${r.length.toFixed(1)} mm`}else if(selected.kind==='joint'){const j=byJoint(selected.id);label=`${j.coupling==='universal'?'自在継手':'球面ジョイント'} · ${j.coupling==='universal'?'最大偏角 ':'±'}${j.maxAngle}°`}else label=`(${item.x.toFixed(0)}, ${item.y.toFixed(0)}, ${item.z.toFixed(0)}) mm`;
+ ctx.save();ctx.font='bold 11px system-ui';const tx=p.x+16,ty=p.y-29,ww=ctx.measureText(label).width+18;ctx.fillStyle='#192d33ee';roundedRect(ctx,tx,ty,ww,25,6);ctx.fill();ctx.fillStyle='#f4fbf7';ctx.fillText(label,tx+9,ty+16);ctx.restore();}
+function render(){needsRender=false;W=host.clientWidth;H=host.clientHeight;if(W<5||H<5)return;ctx.clearRect(0,0,W,H);const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#eef5f5');grad.addColorStop(1,'#f9fbfa');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);drawGrid();const items=[];for(const r of graph.rods){const a=byNode(r.a),b=byNode(r.b),p=mul(add(a,b),.5);items.push({z:perspective(p).depth,kind:'rod',value:r})}const groups=connectionGroups(),count=new Map();for(const n of graph.nodes)items.push({z:perspective(n).depth,kind:n.kind,value:n});items.sort((a,b)=>b.z-a.z);for(const item of items){if(item.kind==='rod')drawRod(item.value);else if(item.kind==='ball')drawBall(item.value);else drawTip(item.value,count.get(item.value.id)||0)}drawScreenLabel();$('countTag').textContent=`${graph.rods.length} ロッド / ${graph.joints.length} 関節 / ${graph.connections.length} 接続`;
+ const dg=lastDiagnostics,warning=dg.dist>2.5||dg.link>2.5||dg.ang>1.3;$('solverBadge').className='badge'+(warning?' warn':'');$('solverBadge').textContent=warning?`⚠ 拘束競合 (${dg.dist.toFixed(1)} mm)`:'● 拘束ソルバー 正常';}
+function scheduleDraw(){if(needsRender)return;needsRender=true;requestAnimationFrame(()=>{if(needsRender)render()})}
+function resize(){const r=host.getBoundingClientRect();dpr=clamp(window.devicePixelRatio||1,1,2.3);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);W=r.width;H=r.height;needsRender=true;render()}
+function segDist(px,py,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((px-a.x)*dx+(py-a.y)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-(a.x+dx*t),py-(a.y+dy*t))}
+function hitTest(x,y){
+ // Prefer joint centers to coincident rod endpoints: otherwise a hub is impossible to select.
+ for(const kind of ['ball','tip']){let candidate=null,best=kind==='ball'?19:17;
+  for(const n of graph.nodes){if(n.kind!==kind)continue;const p=perspective(n);if(!p.visible)continue;const d=Math.hypot(x-p.x,y-p.y);
+   if(d<best){best=d;candidate=kind==='ball'?{kind:'joint',id:jointForNode(n)?.id}:{kind:'node',id:n.id}}
+  }if(candidate)return candidate;
+ }
+ let candidate=null,best=15;for(const r of graph.rods){const a=perspective(byNode(r.a)),b=perspective(byNode(r.b));if(!a.visible||!b.visible)continue;const d=segDist(x,y,a,b);if(d<best){best=d;candidate={kind:'rod',id:r.id}}}
+ return candidate;
+}
+function pointerCoords(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function sameItem(a,b){return(!a&&!b)||a&&b&&a.id===b.id&&a.kind===b.kind}
+function pointerDown(e){if(e.button!==0&&e.button!==2)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);const pt=pointerCoords(e),h=hitTest(pt.x,pt.y);
+ if(e.button===2){drag={kind:'pan',sx:pt.x,sy:pt.y,startCam:{...cam.target}};return}
+ if(h){selected=h;updateInspector();let ids=[];if(h.kind==='rod'){const r=byRod(h.id);ids=[r.a,r.b]}else if(h.kind==='joint'){const j=byJoint(h.id);ids=[j.node]}else ids=[h.id];const startPositions={};for(const id of ids)startPositions[id]=copy(byNode(id));const center=ids.reduce((a,id)=>add(a,byNode(id)),{x:0,y:0,z:0});center.x/=ids.length;center.y/=ids.length;center.z/=ids.length;drag={kind:'object',sx:pt.x,sy:pt.y,ids,startPositions,center,startWorld:intersectPlane(pt.x,pt.y,center.z),moved:false,prevSnapshot:snapshot()};
+ }else{selected=null;updateInspector();drag={kind:'orbit',sx:pt.x,sy:pt.y,yaw:cam.yaw,pitch:cam.pitch}}
+ scheduleDraw();}
+function pointerMove(e){const pt=pointerCoords(e);if(!drag){const h=hitTest(pt.x,pt.y);if(!sameItem(hover,h)){hover=h;canvas.style.cursor=h?'pointer':'grab';scheduleDraw()}return}if(drag.kind==='orbit'){cam.yaw=drag.yaw-(pt.x-drag.sx)*.008;cam.pitch=clamp(drag.pitch-(pt.y-drag.sy)*.007,-1.42,1.42);scheduleDraw();return}
+ if(drag.kind==='pan'){const b=basis(),scale=cam.dist/(Math.min(W,H)*1.38);cam.target=add(drag.startCam,add(mul(b.right,-(pt.x-drag.sx)*scale),mul(b.up,(pt.y-drag.sy)*scale)));scheduleDraw();return}
+ if(drag.kind==='object'){
+  if(Math.hypot(pt.x-drag.sx,pt.y-drag.sy)<3&&!drag.moved)return;drag.moved=true;let delta={x:0,y:0,z:0};if(e.shiftKey||zMode){delta.z=-(pt.y-drag.sy)*cam.dist/(Math.min(W,H)*1.38)}else{const newPos=intersectPlane(pt.x,pt.y,drag.center.z);if(newPos&&drag.startWorld){delta.x=newPos.x-drag.startWorld.x;delta.y=newPos.y-drag.startWorld.y}}
+   const targets={};for(const id of drag.ids){const base=drag.startPositions[id];targets[id]=add(base,delta)}solve(targets,54);scheduleDraw();}
+}
+function pointerUp(){if(!drag)return;let d=drag;drag=null;if(d.kind==='object'&&d.moved){const n=autoConnect();solve(null,70);commit();updateInspector();say(n?`${n}か所でロッド先端とジョイントを接続しました`:'移動しました。拘束条件によってリンクが連動します。')}else if(d.kind==='object'&&isMobile()){showMobilePanel('props')}scheduleDraw()}
+function onWheel(e){e.preventDefault();cam.dist=clamp(cam.dist*Math.exp(e.deltaY*.001),150,3500);scheduleDraw()}
+function jointForNode(n){return graph.joints.find(j=>j.node===n.id)}
+function nodeCoords(n){return `<div class="control"><label>3D 座標 <small>mm / 世界座標</small></label><div class="inputrow">${['x','y','z'].map(d=>`<div><label>${d.toUpperCase()}</label><input type="number" step="1" data-nodecoord="${d}" data-nodeid="${n.id}" value="${n[d].toFixed(1)}"></div>`).join('')}</div></div><div class="control"><label>端点の位置固定 <small>XYZ 空間に固定</small><input type="checkbox" data-anchor="${n.id}" ${n.fixed?'checked':''}></label></div>`}
+function rodFields(ids){return ids.map((id,i)=>{const r=byRod(id);return `<div class="control"><label>${ids.length===1?'ロッドの長さ':'ロッド '+(i+1)+' の長さ'} <small>20–1200 mm</small></label><input type="number" min="20" max="1200" step="1" data-length="${r.id}" value="${r.length.toFixed(1)}"></div>`}).join('')}
+function selectedDescription(){const n=graph.nodes.length,r=graph.rods.length;return `<div class="inspectTitle">構造を選択</div><p class="inspectSub">球面・ユニバーサルジョイント、ロッド、端点をクリックすると個別に設定できます。</p><div class="hint"><b>使い方</b><p style="margin:3px 0 0">ロッドをつかんで動かすと、固定位置・ロッド長・関節可動範囲・機械的な端点接続の条件を計算して、接続構造が変形します。</p></div><div class="divider"></div><div class="control"><label>シーンの構成</label><p class="note">${graph.parts.length} 個のパーツ · ${n} 端点 · ${r} 本のロッド · ${graph.connections.length} 接続</p></div><button class="inspectButton" data-local="help">操作方法を見る</button>`}
+function selectedHTML(){if(!selected)return selectedDescription();const s=selected;
+ if(s.kind==='joint'){
+  const j=byJoint(s.id);if(!j)return selectedDescription();const p=byPart(j.part),n=byNode(j.node),tt=j.rods.map(id=>byNode(byRod(id).b));const pair=jointPair(j),actual=pair?angle(vec(n,pair.ends[0].tip),vec(n,pair.ends[1].tip)).toFixed(1)+'°':'—';
+  const maximum=j.coupling==='universal'||pair?.ends[0]?.linked?j.maxAngle:2*j.maxAngle;
+  const profileOpts=Object.entries(PROFILES).map(([k,v])=>`<option value="${k}" ${j.profile===k?'selected':''}>${v.label}</option>`).join('');
+  const link=PROFILES[j.profile]?.url;
+  const linked=graph.connections.filter(c=>c.b===n.id);
+  return `<span class="mutedChip">${j.coupling==='universal'?'UNIVERSAL JOINT':'BALL JOINT'} · ${j.id}</span><div class="inspectTitle" style="margin-top:8px">${p.name}</div><p class="inspectSub">${p.kind==='hub'?'球体ハブ（ロッドを接続する節点）':j.coupling==='universal'?'市販の自在継手の許容偏角を適用':'球面ジョイント'} / 中心を選択中</p>
+   <div class="control"><label>ジョイント条件</label><div class="seg"><button class="${j.mode==='free'?'on':''}" data-jointmode="free" data-jid="${j.id}">角度 自由</button><button class="${j.mode==='locked'?'on':''}" data-jointmode="locked" data-jid="${j.id}">角度 固定</button></div></div>
+   ${j.coupling==='hub'?`<div class="hint">理想化した多方向接続ハブです。角度固定を選ぶと接続ロッド相互の現在の角度を保持します（${j.hubLocks?.length||0}組）。実在する特定の球面ジョイント製品を再現したものではありません。</div>`:`<div class="control"><label>参照する実製品・関節形式</label><select data-profile="${j.id}">${profileOpts}</select>${link?`<a class="partResource" style="margin-top:7px" href="${link}" target="_blank" rel="noopener noreferrer">製品仕様を確認 ↗</a>`:''}</div>
+   <div class="control"><label>${j.coupling==='universal'?'許容偏角（真直ぐな状態から）':'球面関節の片側傾斜角'} <small>${j.maxAngle}°</small></label><input type="range" min="5" max="90" step="1" data-jangle="${j.id}" value="${j.maxAngle}"><div class="tiny">${j.coupling==='universal'?`ロッド間の折れ角を最大${maximum}°に制限。トルク伝達・クロスピン向きは未解析。`:`2本ロッドでは独立2ソケットとして最大${maximum}°曲がる近似。`} 数値を直接変えるとカスタム設計となります。</div></div>`}
+   ${pair?`<div class="control"><label>現在のロッド間の内角 <small>${actual}</small></label></div>${j.mode==='locked'?`<div class="control"><label>固定する内角 <small>deg</small></label><input type="number" min="${Math.max(0,180-maximum)}" max="180" step="1" data-lockedangle="${j.id}" value="${j.lockAngle.toFixed(1)}"></div>`:''}`:tt.length===1?`<div class="hint">未接続の片側型では角度固定により世界座標に対する方向を拘束します。</div>`:`<div class="hint">このハブにはロッドが付いていません。接続された端点同士の角度を固定できます。</div>`}
+   ${j.rods.length?`<div class="divider"></div><div class="sideHead" style="padding:0 0 3px">ロッド長を個別指定</div>${rodFields(j.rods)}`:''}<div class="divider"></div>${nodeCoords(n)}<div class="control"><label>このジョイントへの接続 <small>${linked.length}端点</small></label><div class="hint">${linked.length?`接続済み：${linked.map(c=>c.a).join(', ')}`:'ロッド先端を近づけると接続します。'}</div></div><button class="inspectButton secondary" data-local="disconnect" ${linked.length?'':'disabled'}>このジョイントの接続をすべて解除</button><button class="inspectButton danger" data-remove="${p.id}">このパーツを削除</button>`;
+ }
+ if(s.kind==='rod'){
+ const r=byRod(s.id);if(!r)return selectedDescription();const p=byPart(r.part),j=graph.joints.find(j=>j.part===r.part);return `<span class="mutedChip">ROD · ${r.id}</span><div class="inspectTitle" style="margin-top:8px">${p.name} / ロッド${r.arm}</div><p class="inspectSub">ロッドは長さ固定として計算します。数値変更で可変長ロッドも検討できます。</p>${rodFields([r.id])}<div class="divider"></div><button class="inspectButton" data-focusjoint="${j.id}">○ ジョイントを編集</button><button class="inspectButton secondary" data-focusnode="${r.b}">◆ 先端の座標・固定を編集</button><button class="inspectButton danger" data-remove="${p.id}">このパーツを削除</button>`;
+ }
+ if(s.kind==='node'){
+ const n=byNode(s.id);if(!n)return selectedDescription();const attachments=graph.rods.filter(r=>r.a===n.id||r.b===n.id),linked=graph.connections.filter(c=>c.a===n.id);
+ return `<span class="mutedChip">ROD END · ${n.id}</span><div class="inspectTitle" style="margin-top:8px">ロッド先端</div><p class="inspectSub">接続待ちのロッド端面です。ここに新しいジョイントの中心を配置すると接続されます。</p>${nodeCoords(n)}<div class="divider"></div><div class="hint">${linked.length?`接続先のジョイント：${linked[0].b}`:'未接続：端点を選択したまま左パレットからジョイントをクリックすると、端点に追加できます。'}</div><button class="inspectButton secondary" data-local="disconnect" ${linked.length?'':'disabled'}>ジョイントとの接続を解除</button>${attachments.length?`<button class="inspectButton secondary" data-focusrod="${attachments[0].id}">対応するロッドを編集</button>`:''}`;
+ }return selectedDescription();}
+function updateInspector(){if(window.innerWidth<750){$('inspector').innerHTML=selectedHTML();return}$('inspector').innerHTML=selectedHTML()}
+function removePart(id){const p=byPart(id);if(!p)return;const nodes=new Set([p.joint,...p.tips]);graph.connections=graph.connections.filter(m=>!nodes.has(m.a)&&!nodes.has(m.b));graph.nodes=graph.nodes.filter(n=>!nodes.has(n.id));graph.rods=graph.rods.filter(r=>r.part!==id);graph.joints=graph.joints.filter(j=>j.part!==id);graph.parts=graph.parts.filter(p=>p.id!==id);selected=null;solve();commit();updateInspector();say('パーツを削除しました')}
+$('inspector').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.jointmode){lockJoint(byJoint(t.dataset.jid),t.dataset.jointmode);return}if(t.dataset.remove){removePart(t.dataset.remove);return}
+ if(t.dataset.focusjoint){selected={kind:'joint',id:t.dataset.focusjoint};updateInspector();scheduleDraw();return}if(t.dataset.focusnode){selected={kind:'node',id:t.dataset.focusnode};updateInspector();scheduleDraw();return}if(t.dataset.focusrod){selected={kind:'rod',id:t.dataset.focusrod};updateInspector();scheduleDraw();return}
+ if(t.dataset.local==='help')openHelp();
+ if(t.dataset.local==='disconnect'){const id=selected?.id;if(!id)return;const jt=selected.kind==='joint'?byJoint(id):null;graph.connections=graph.connections.filter(c=>c.a!==id&&c.b!==(jt?jt.node:id));commit();solve(null,55);updateInspector();say('機械的な接続を解除しました')}
+});
+$('inspector').addEventListener('change',e=>{const t=e.target;if(t.dataset.length){const r=byRod(t.dataset.length);if(r)setLength(r,t.value);return}
+ if(t.dataset.profile){const j=byJoint(t.dataset.profile);j.profile=t.value;const pr=PROFILES[t.value];if(pr){j.coupling=pr.type;j.maxAngle=pr.angle}if(t.value==='custom')j.coupling='ball';if(j.mode==='locked'&&jointPair(j))j.lockAngle=Math.max(j.lockAngle,180-(j.coupling==='universal'||jointPair(j).ends[0].linked?j.maxAngle:2*j.maxAngle));solve(null,75);commit();updateInspector();say('ジョイントの製品プロファイルを変更しました');return}
+ if(t.dataset.jangle){const j=byJoint(t.dataset.jangle);j.maxAngle=clamp(+t.value,5,90);j.profile='custom';solve(null,80);commit();updateInspector();return}
+ if(t.dataset.lockedangle){const j=byJoint(t.dataset.lockedangle),pair=jointPair(j),bend=j.coupling==='universal'||pair?.ends[0]?.linked?j.maxAngle:2*j.maxAngle;const lower=Math.max(0,180-bend);j.lockAngle=clamp(+t.value,lower,180);solve(null,90);commit();updateInspector();say(`製品の許容偏角内で、固定内角を ${j.lockAngle.toFixed(1)}° に設定しました`);return}
+ if(t.dataset.anchor){const n=byNode(t.dataset.anchor);n.fixed=t.checked;solve(null,80);commit();updateInspector();say(n.fixed?'端点を3次元座標系に固定しました':'端点の固定を解除しました');return}
+ if(t.dataset.nodecoord){const n=byNode(t.dataset.nodeid),axis=t.dataset.nodecoord;if(n&&Number.isFinite(+t.value)){n[axis]=clamp(+t.value,-3000,3000);solve(null,80);commit();updateInspector()}return}
+});
+$('inspector').addEventListener('input',e=>{const t=e.target;if(t.dataset.jangle){const j=byJoint(t.dataset.jangle);j.maxAngle=clamp(+t.value,5,90);j.profile='custom';solve(null,32);const label=t.closest('.control').querySelector('label small');if(label)label.textContent=`${j.maxAngle}°`;scheduleDraw()}});
+function addPalette(kind,place,preferredTip=null){
+ const selectedTip=selected?.kind==='node'&&freeTip(byNode(selected.id))?selected.id:null;
+ if(!place){if(preferredTip||selectedTip){const n=byNode(preferredTip||selectedTip);place=copy(n)}else{const count=graph.parts.length,offset=(count%5)-2;place={x:cam.target.x+offset*65,y:cam.target.y+((count%3)-1)*60,z:cam.target.z+75}}}
+ const p=partAdd(kind,place,kind==='single'?170:kind==='hub'?0:145);
+ const okay=autoSnap?snapNewJoint(p,preferredTip||selectedTip):false;
+ selected={kind:'joint',id:graph.joints.find(j=>j.part===p.id).id};solve(null,55);commit();updateInspector();scheduleDraw();if(isMobile())showMobilePanel('props');say(okay?'ジョイントをロッド先端へ接続しました。':`${p.name}を追加しました。ロッド先端付近へジョイントを移動すると接続します。`)
+}
+document.querySelectorAll('[data-add]').forEach(b=>{b.addEventListener('click',e=>{if(e.target.closest('a'))return;addPalette(b.dataset.add)});b.addEventListener('dragstart',e=>{if(e.target.closest('a')){e.preventDefault();return}e.dataTransfer.setData('text/plain',b.dataset.add);e.dataTransfer.effectAllowed='copy'});});
+canvas.addEventListener('dragover',e=>e.preventDefault());canvas.addEventListener('drop',e=>{e.preventDefault();const kind=e.dataTransfer.getData('text/plain');if(!['single','double','hub','misumi_single','misumi_double','mighty_single','mighty_double'].includes(kind))return;const pt=pointerCoords(e);const pick=hitTest(pt.x,pt.y);let preferredTip=pick?.kind==='node'&&freeTip(byNode(pick.id))?pick.id:null;const z=preferredTip?byNode(preferredTip).z:cam.target.z;const place=preferredTip?copy(byNode(preferredTip)):intersectPlane(pt.x,pt.y,z);addPalette(kind,place||undefined,preferredTip)});
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{if(graph.parts.length&& !confirm('現在の構造を置き換えます。続けますか？'))return;buildPreset(b.dataset.preset);if(isMobile())showMobilePanel('view')}));
+$('btnSnap').onclick=()=>{autoSnap=!autoSnap;$('btnSnap').classList.toggle('active',autoSnap);$('btnSnap').textContent=`◎ ジョイント接続 ${autoSnap?'ON':'OFF'}`;say(autoSnap?'ジョイントを先端に近づけると自動接続します':'自動接続を無効にしました')};
+$('btnZ').onclick=()=>{zMode=!zMode;$('btnZ').classList.toggle('active',zMode);$('modeTag').textContent=zMode?'Z 鉛直移動':'3D 透視図'};
+$('btnUndo').onclick=()=>undo(-1);$('btnRedo').onclick=()=>undo(1);
+function download(filename,blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('btnExport').onclick=()=>{const pack={app:'Ball Truss Studio',version:2,units:'mm',timestamp:new Date().toISOString(),graph,camera:cam};download('ball-truss-model.json',new Blob([JSON.stringify(pack,null,2)],{type:'application/json'}));say('JSONモデルを保存しました')};
+$('btnImport').onclick=()=>$('fileInput').click();$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const payload=JSON.parse(await f.text()),g=payload.graph||payload;if(!g.nodes||!g.rods||!g.joints||!g.parts||!Number.isInteger(g.serial))throw Error('不正な形式です');
+ if(!Array.isArray(g.connections)){ // saved V1: replace each group of tip-tip magnets with a real joint hub
+  const old=g.magnets||[];g.connections=[];graph=g;const parent=new Map();const find=x=>{if(!parent.has(x))parent.set(x,x);if(parent.get(x)!==x)parent.set(x,find(parent.get(x)));return parent.get(x)};
+  for(const m of old){parent.set(m.a,find(m.a));parent.set(m.b,find(m.b));parent.set(find(m.a),find(m.b))}
+  const groups=new Map();for(const id of parent.keys()){let key=find(id);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(id)}
+  for(const ids of groups.values()){const ns=ids.map(byNode).filter(Boolean);if(!ns.length)continue;const pos={x:0,y:0,z:0};for(const n of ns){pos.x+=n.x;pos.y+=n.y;pos.z+=n.z}pos.x/=ns.length;pos.y/=ns.length;pos.z/=ns.length;const p=partAdd('hub',pos);if(ns.some(n=>n.fixed)){const h=byNode(p.joint);h.fixed=true;let first=ns.find(n=>n.fixed);h.x=first.x;h.y=first.y;h.z=first.z;for(const n of ns)n.fixed=false}for(const n of ns)join(n.id,p.joint)}
+  delete g.magnets;
+ }
+ graph=g;for(const j of graph.joints){if(!j.coupling)j.coupling='ball';if(j.profile==='igus30')j.profile='custom';}
+selected=null;cam=payload.camera&&Number.isFinite(payload.camera.yaw)?payload.camera:cam;solve(null,75);commit(true);updateInspector();say('モデルを読み込みました')}catch(err){say('読み込み失敗: '+err.message,true)}e.target.value='';});
+$('btnPNG').onclick=()=>{render();canvas.toBlob(b=>{if(b)download('ball-truss-view.png',b)},'image/png')};
+$('btnHelp').onclick=()=>openHelp();$('closeHelp').onclick=()=>closeHelp();$('helpOverlay').addEventListener('click',e=>{if(e.target===$('helpOverlay'))closeHelp()});function openHelp(){$('helpOverlay').classList.add('visible')}function closeHelp(){$('helpOverlay').classList.remove('visible')}
+$('viewIso').onclick=()=>{cam.yaw=-.67;cam.pitch=.53;scheduleDraw()};$('viewTopBtn').onclick=()=>{cam.pitch=1.555;scheduleDraw()};$('viewFront').onclick=()=>{cam.yaw=-PI/2;cam.pitch=.05;scheduleDraw()};$('zoomIn').onclick=()=>{cam.dist=clamp(cam.dist*.81,150,3500);scheduleDraw()};$('zoomOut').onclick=()=>{cam.dist=clamp(cam.dist*1.24,150,3500);scheduleDraw()};$('viewFit').onclick=()=>{if(graph.nodes.length){const min={x:Infinity,y:Infinity,z:Infinity},max={x:-Infinity,y:-Infinity,z:-Infinity};for(const n of graph.nodes)for(const k of ['x','y','z']){min[k]=Math.min(min[k],n[k]);max[k]=Math.max(max[k],n[k])}cam.target={x:(min.x+max.x)/2,y:(min.y+max.y)/2,z:(min.z+max.z)/2};const diameter=Math.hypot(max.x-min.x,max.y-min.y,max.z-min.z);cam.dist=clamp(diameter*1.75+350,420,3500)}scheduleDraw()};
+// Native Pointer Events: one finger for model/orbit, two for pinch zoom and two-finger panning.
+function touchMetric(){const [a,b]=[...touchPointers.values()];return {span:Math.hypot(a.x-b.x,a.y-b.y),middle:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}}
+canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){
+ touchPointers.set(e.pointerId,pointerCoords(e));
+ if(touchPointers.size>=2){e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){};
+  const m=touchMetric();touchPinch={span:Math.max(m.span,1),middle:m.middle,dist:cam.dist,target:copy(cam.target)};drag=null;return;
+ }}pointerDown(e)});
+canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&touchPointers.has(e.pointerId)){
+ touchPointers.set(e.pointerId,pointerCoords(e));if(touchPointers.size>=2){if(!touchPinch){const m=touchMetric();touchPinch={span:Math.max(m.span,1),middle:m.middle,dist:cam.dist,target:copy(cam.target)}}
+  const m=touchMetric(),b=basis(),scale=cam.dist/(Math.min(W,H)*1.38);
+  cam.dist=clamp(touchPinch.dist*touchPinch.span/Math.max(m.span,10),150,3500);
+  cam.target=add(touchPinch.target,add(mul(b.right,-(m.middle.x-touchPinch.middle.x)*scale),mul(b.up,(m.middle.y-touchPinch.middle.y)*scale)));
+  scheduleDraw();return;
+ }}pointerMove(e)});
+function touchUp(e){if(e.pointerType==='touch'){
+  const wasPinch=touchPinch!==null;
+  touchPointers.delete(e.pointerId);
+  if(wasPinch){touchPinch=null;drag=null;scheduleDraw();return}
+ }pointerUp(e)}
+canvas.addEventListener('pointerup',touchUp);canvas.addEventListener('pointercancel',touchUp);
+canvas.addEventListener('wheel',onWheel,{passive:false});canvas.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeHelp();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo(e.shiftKey?1:-1)}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();undo(1)}if((e.key==='Delete'||e.key==='Backspace')&&selected&&e.target.tagName!=='INPUT'){const p=selected.kind==='joint'?byJoint(selected.id)?.part:selected.kind==='rod'?byRod(selected.id)?.part:graph.rods.find(r=>r.b===selected.id)?.part;if(p)removePart(p)}});
+new ResizeObserver(resize).observe(host);
+let oldState=null;try{oldState=JSON.parse(localStorage.getItem(storageKey)||'null')}catch(_){ }
+buildPreset('tetra');
+if(oldState?.graph?.nodes&&oldState?.graph?.connections&&oldState?.camera){
+ try{graph=oldState.graph;cam=oldState.camera;selected=null;solve(null,65);commit(true);updateInspector();say('前回の構造を自動復元しました')}catch(_){buildPreset('tetra')}
+}
+startingUp=false;
+if(isMobile()){$('guide').textContent='背景をなぞる：視点回転 ｜ 2本指：拡大・移動 ｜ ロッドをタップ：設定、ドラッグ：変形';}
+resize();
+window.ballTrussDebug={get graph(){return graph},get diagnostics(){return lastDiagnostics},get selection(){return selected},get camera(){return cam},get drag(){return drag},setPreset:buildPreset,solve,addPalette,join,connectionGroups,autoConnect};
+})();
+</script>
+</body></html>
