@@ -154,6 +154,7 @@ const colorForApp = (slug, index) => {
         </a>
 
         <div class="card-detail">
+          <a class="card-detail-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}></a>
           <div class="detail-topline">
             <span>{app.repo || app.platform || "Project"}</span>
             <a
@@ -248,6 +249,7 @@ const colorForApp = (slug, index) => {
         </a>
 
         <div class="card-detail">
+          <a class="card-detail-open" href={app.url} target="_blank" rel="noreferrer" aria-label={`${app.title} を開く`} data-project-open={app.slug} data-project-title={app.title} data-project-url={app.url} data-project-repo={app.repo || ''} data-project-kind={app.kind || 'web_app'}></a>
           <div class="detail-topline">
             <span>{app.repo || app.platform || "Project"}</span>
             <a
