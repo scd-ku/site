@@ -4844,3 +4844,74 @@ html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
   outline:2px solid currentColor;
   outline-offset:-4px;
 }
+
+/* v73 — restore clearly visible, independent GitHub link above app-wide detail link. */
+.app-card .card-detail { isolation:isolate; }
+.app-card .card-detail > .card-detail-open {
+  z-index:1 !important;
+}
+.app-card .card-detail > .detail-topline,
+.app-card .card-detail > p,
+.app-card .card-detail > .card-meta {
+  z-index:2 !important;
+  pointer-events:none !important;
+}
+.app-card .card-detail .card-meta-right,
+.app-card .card-detail .repo-link {
+  overflow:visible !important;
+}
+.app-card .card-detail .card-meta .repo-link {
+  position:relative !important;
+  z-index:5 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 24px !important;
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  min-height:24px !important;
+  padding:3px !important;
+  color:#fff !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  background:rgba(0,0,0,.27) !important;
+  border:1px solid rgba(255,255,255,.55) !important;
+  border-radius:50% !important;
+  transform:none !important;
+}
+.app-card .card-detail .card-meta .repo-link svg {
+  display:block !important;
+  width:16px !important;
+  height:16px !important;
+  fill:currentColor !important;
+  opacity:1 !important;
+}
+.app-card .card-detail .card-meta .repo-link:hover,
+.app-card .card-detail .card-meta .repo-link:focus-visible {
+  opacity:1 !important;
+  color:#111 !important;
+  background:#fff !important;
+  outline:2px solid #fff !important;
+  outline-offset:2px !important;
+}
+.app-card .card-detail .detail-app-link {
+  position:relative !important;
+  z-index:5 !important;
+  pointer-events:auto !important;
+}
+/* Lighter headings, with dynamic weight remaining effective on each glyph. */
+.hero [data-reactive-weight] .hero-weight-char,
+html[data-design-style="neo"] .hero [data-reactive-weight] .hero-weight-char {
+  font-weight:var(--hero-char-weight,290) !important;
+  font-variation-settings:"wght" var(--hero-char-weight,290) !important;
+}
+.section-heading h2 .scd-hover-glyph,
+.text-section > .section-kicker .scd-hover-glyph,
+html[data-design-style="neo"] .section-heading h2 .scd-hover-glyph,
+html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
+  font-weight:var(--scd-glyph-weight,230) !important;
+  font-variation-settings:"wght" var(--scd-glyph-weight,230) !important;
+}
