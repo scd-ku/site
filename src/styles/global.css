@@ -4807,3 +4807,40 @@ html[data-design-style="neo"] .text-section .section-kicker {
 /* v71 — calmer hero typography while preserving reactive weight animation. */
 .hero h1, .hero h1[data-reactive-weight] { font-size:clamp(27px,4.05vw,61px) !important; }
 @media (max-width:580px) { .hero h1, .hero h1[data-reactive-weight] { font-size:clamp(25px,6.35vw,33px) !important; } }
+
+/* v72 — lighter site title strokes, preserving proximity response. */
+html[data-design-style="neo"] .hero h1,
+html[data-design-style="neo"] .hero h1[data-reactive-weight],
+html[data-design-style="neo"] .hero-weight-char {
+  font-weight:520 !important;
+}
+html[data-design-style="neo"] .section-heading h2,
+html[data-design-style="neo"] .text-section > .section-kicker,
+html[data-design-style="neo"] .section-heading h2 .scd-hover-glyph,
+html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
+  font-weight:var(--scd-glyph-weight,520) !important;
+}
+.hero h1:not([data-reactive-weight]) { font-weight:280; }
+/* The description is a full-size app link. Only the explicit Open app and
+   repository links remain separate interactive targets above that link. */
+.app-card .card-detail { position:absolute; }
+.app-card .card-detail > .card-detail-open {
+  position:absolute;
+  inset:0;
+  display:block;
+  z-index:1;
+  cursor:pointer;
+}
+.app-card .card-detail > :not(.card-detail-open) {
+  position:relative;
+  z-index:2;
+  pointer-events:none;
+}
+.app-card .card-detail a:not(.card-detail-open) {
+  pointer-events:auto;
+  cursor:pointer;
+}
+.app-card .card-detail-open:focus-visible {
+  outline:2px solid currentColor;
+  outline-offset:-4px;
+}
