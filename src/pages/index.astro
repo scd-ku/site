@@ -113,9 +113,9 @@ import externalProjects from '../data/external-projects.generated.json';
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lines = [...title.querySelectorAll('.hero-weight-line')];
   const chars = [];
-  const BASE_HIGH = 360;
-  const BASE_LOW = 260;
-  const HOVER_BOOST = 100;
+  const BASE_HIGH = 310;
+  const BASE_LOW = 230;
+  const HOVER_BOOST = 95;
   const RADIUS = 150;
   const SIGMA = 66;
 
@@ -272,12 +272,12 @@ import externalProjects from '../data/external-projects.generated.json';
   const tick=()=>{
     frame=0;
     const neo=document.documentElement.dataset.designStyle==='neo';
-    const base=neo?520:280;
+    const base=neo?380:230;
     for(const {chars} of groups) for(const glyph of chars){
       const rect=glyph.getBoundingClientRect();
       const dx=x-(rect.left+rect.width/2),dy=y-(rect.top+rect.height/2);
       const distance=Math.hypot(dx,dy);
-      const target=(!active||reduced.matches||distance>145)?base:base+(680-base)*Math.exp(-distance*distance/(2*58*58));
+      const target=(!active||reduced.matches||distance>145)?base:base+(570-base)*Math.exp(-distance*distance/(2*58*58));
       const prev=Number(glyph.dataset.weight||base);
       const next=prev+(target-prev)*.23;
       glyph.dataset.weight=String(next);
