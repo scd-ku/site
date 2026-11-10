@@ -113,13 +113,12 @@ import externalProjects from '../data/external-projects.generated.json';
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lines = [...title.querySelectorAll('.hero-weight-line')];
   const chars = [];
-  const BASE_HIGH = 310;
-  const BASE_LOW = 230;
-  const HOVER_BOOST = 95;
+  const BASE_WEIGHT = 230;
+  const HOVER_BOOST = 320;
   const RADIUS = 150;
   const SIGMA = 66;
 
-  const makeChar = (character, baseWeight) => {
+  const makeChar = (character) => {
     if (character === ' ') {
       const space = document.createTextNode(' ');
       return space;
@@ -127,9 +126,9 @@ import externalProjects from '../data/external-projects.generated.json';
     const span = document.createElement('span');
     span.className = 'hero-weight-char';
     span.textContent = character;
-    span.dataset.baseWeight = String(baseWeight);
-    span._currentWeight = baseWeight;
-    span.style.setProperty('--hero-char-weight', baseWeight.toFixed(1));
+    span.dataset.baseWeight = String(BASE_WEIGHT);
+    span._currentWeight = BASE_WEIGHT;
+    span.style.setProperty('--hero-char-weight', String(BASE_WEIGHT));
     chars.push(span);
     return span;
   };
@@ -148,14 +147,10 @@ import externalProjects from '../data/external-projects.generated.json';
       const word = document.createElement('span');
       word.className = 'hero-weight-word';
       const visibleChars = [...token];
-      const denominator = Math.max(1, visibleChars.length - 1);
-
-      visibleChars.forEach((character, index) => {
-        const t = index / denominator;
-        // A restrained word-level weight slope: slightly stronger at the start,
-        // gradually lighter toward the end.
-        const baseWeight = BASE_HIGH + (BASE_LOW - BASE_HIGH) * t;
-        word.appendChild(makeChar(character, baseWeight));
+      visibleChars.forEach((character) => {
+        // Every character starts at the same thin weight. Pointer proximity
+        // alone changes thickness; there is no static word-level gradient.
+        word.appendChild(makeChar(character));
       });
       line.appendChild(word);
     });
@@ -165,7 +160,7 @@ import externalProjects from '../data/external-projects.generated.json';
   let raf = 0;
 
   const targetWeightFor = (char) => {
-    const base = Number(char.dataset.baseWeight || 300);
+    const base = BASE_WEIGHT;
     if (!pointer.active || reducedMotion) return base;
 
     const rect = char.getBoundingClientRect();
@@ -179,7 +174,7 @@ import externalProjects from '../data/external-projects.generated.json';
 
     // Gaussian-like pressure field: local, soft and visually stable.
     const influence = Math.exp(-(distance * distance) / (2 * SIGMA * SIGMA));
-    return Math.min(540, base + HOVER_BOOST * influence);
+    return Math.min(550, base + HOVER_BOOST * influence);
   };
 
   const animate = () => {
