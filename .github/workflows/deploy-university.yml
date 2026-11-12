@@ -1,0 +1,89 @@
+name: Deploy university website by SFTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Daily refresh, after the regular GitHub Pages build (UTC).
+    - cron: "47 18 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: university-sftp
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Remains disabled until SSH key authentication and the server's
+    # verified host key have been configured by the repository owner.
+    if: vars.UNIVERSITY_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: university-production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Refresh Library data
+        continue-on-error: true
+        run: npm run sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCD_GITHUB_OWNER: scd-ku
+          SCD_SITE_REPO: site
+
+      - name: Install browser for thumbnails
+        run: npx playwright install --with-deps chromium
+        continue-on-error: true
+
+      - name: Refresh thumbnails
+        run: npm run capture
+        continue-on-error: true
+
+      - name: Build university site
+        env:
+          SITE_URL: https://www.eng.kagawa-u.ac.jp
+          BASE_PATH: /~osaki/
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+        run: npm run build
+
+      - name: Validate artifact
+        run: |
+          test -f dist/index.html
+          test -d dist/_astro
+          if grep -q 'content="0;url=https://scd-ku.github.io/site/"' dist/index.html; then
+            echo "::error::Unexpected redirect to GitHub Pages in generated index"
+            exit 1
+          fi
+          if [ -z "${PUBLIC_GA_MEASUREMENT_ID}" ]; then
+            echo "::warning::GA4 measurement ID is missing for university build"
+          fi
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+
+      - name: Install SFTP client library
+        run: python3 -m pip install --user "paramiko>=3.4,<5"
+
+      - name: Upload only changed build assets to university server
+        env:
+          UNIVERSITY_SFTP_USER: ${{ vars.UNIVERSITY_SFTP_USER }}
+          UNIVERSITY_SFTP_PRIVATE_KEY: ${{ secrets.UNIVERSITY_SFTP_PRIVATE_KEY }}
+          UNIVERSITY_SFTP_KNOWN_HOSTS: ${{ secrets.UNIVERSITY_SFTP_KNOWN_HOSTS }}
+        run: python3 scripts/deploy-university-sftp.py
+
+      - name: Basic HTTP smoke test
+        run: |
+          curl --fail --silent --show-error --location --max-time 30             "https://www.eng.kagawa-u.ac.jp/~osaki/" -o /tmp/university-home.html
+          if grep -q 'content="0;url=https://scd-ku.github.io/site/"' /tmp/university-home.html; then
+            echo "::error::University page still redirects to GitHub Pages"
+            exit 1
+          fi
