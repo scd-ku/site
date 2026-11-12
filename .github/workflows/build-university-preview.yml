@@ -1,0 +1,71 @@
+name: Build university-site preview (no deployment)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-university-preview.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-university:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current website
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Refresh app catalog
+        run: npm run sync
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCD_GITHUB_OWNER: scd-ku
+          SCD_SITE_REPO: site
+
+      - name: Install Chromium for thumbnail generation
+        run: npx playwright install --with-deps chromium
+        continue-on-error: true
+
+      - name: Refresh thumbnails
+        run: npm run capture
+        continue-on-error: true
+
+      - name: Build for university subdirectory
+        env:
+          SITE_URL: https://www.eng.kagawa-u.ac.jp
+          BASE_PATH: /~osaki/
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+        run: npm run build
+
+      - name: Check university build output
+        shell: bash
+        run: |
+          test -f dist/index.html
+          test -d dist/_astro
+          if grep -q 'content="0;url=https://scd-ku.github.io/site/"' dist/index.html; then
+            echo "::error::Unexpected GitHub redirect in generated index.html"
+            exit 1
+          fi
+          echo "Generated files:"
+          du -sh dist
+          find dist -maxdepth 1 -mindepth 1 -print
+          echo "University base references (first matches):"
+          grep -o '/~osaki/[^" ]*' dist/index.html | head -10 || true
+
+      - name: Upload university site ZIP (contents of dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: university-site-osaki
+          path: dist/
+          include-hidden-files: true
+          retention-days: 14
