@@ -4,7 +4,7 @@ const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
 <div class="privacy-ui" data-ga-id={gaId}>
   <div class="privacy-banner" id="privacy-banner" hidden>
     <p>
-      このサイトでは、利用状況の改善のため Google Analytics を利用します。許可した場合のみ、参照元、閲覧ページ、おおよその地域、ブラウザ・端末情報等が Google に送信されます。
+      このサイトでは、利用状況の改善のため Google Analytics を利用します。許可した場合のみ、参照元、閲覧ページ、サイトの公開先区分、おおよその地域、ブラウザ・端末情報等が Google に送信されます。
     </p>
     <div class="privacy-actions">
       <button type="button" data-consent="accept">許可する</button>
@@ -21,10 +21,22 @@ const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
     if (!root || !banner) return;
     const gaId = root.dataset.gaId || '';
     const key = 'scd_analytics_consent';
+    // Classify using the current browser URL, never the build environment.
+    // This also keeps the same site identifier for all interaction events.
+    const hostname = window.location.hostname.toLowerCase();
+    const siteHost = hostname;
+    const siteRole = hostname === 'www.eng.kagawa-u.ac.jp'
+      ? 'university'
+      : hostname === 'scd-ku.github.io'
+        ? 'github_pages'
+        : 'other';
+    const siteParams = { site_host: siteHost, site_role: siteRole };
     let loaded = false;
 
-    window.scdTrack = (...args) => {
-      if (typeof window.gtag === 'function') window.gtag('event', ...args);
+    window.scdTrack = (eventName, params = {}) => {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventName, { ...params, ...siteParams });
+      }
     };
 
     const loadAnalytics = () => {
@@ -33,6 +45,9 @@ const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
       window.dataLayer = window.dataLayer || [];
       window.gtag = function(){ window.dataLayer.push(arguments); };
       window.gtag('js', new Date());
+      // Global event parameters include the automatic page_view event.
+      // GA4 also records page_location (including hostname) as standard data.
+      window.gtag('set', siteParams);
       window.gtag('config', gaId, {
         send_page_view: true,
         allow_google_signals: false,
@@ -63,7 +78,9 @@ const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || '';
     const current = localStorage.getItem(key);
     window.scdAnalyticsStatus = {
       configured: Boolean(gaId),
-      consent: current || 'unset'
+      consent: current || 'unset',
+      site_host: siteHost,
+      site_role: siteRole
     };
 
     if (gaId) {
