@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - ".github/workflows/build-university-preview.yml"
+      - "src/components/PrivacyAnalytics.astro"
 
 permissions:
   contents: read
@@ -39,6 +40,17 @@ jobs:
       - name: Refresh thumbnails
         run: npm run capture
         continue-on-error: true
+
+      - name: Check Google Analytics setting
+        shell: bash
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+        run: |
+          if [ -z "${PUBLIC_GA_MEASUREMENT_ID}" ]; then
+            echo "::warning::GA4 ID is unset: university preview will NOT record analytics until configured."
+          else
+            echo "GA4 measurement ID is configured for the university build."
+          fi
 
       - name: Build for university subdirectory
         env:
