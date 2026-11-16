@@ -184,8 +184,9 @@ async function land(){
  if(mode==='manual'){await landed();return}
  if(flight!=='landing'){landingSince=Date.now();flight='landing';log('着陸処理を開始しました。高度指令を段階的に下げます。');update()}
 }
-function startFlight(){
+async function startFlight(){
  if(flight!=='ground'||!isLive()||!$('safeCheck').checked)return;
+ if(connected){try{await send(crtp(9,1,new Uint8Array([1,1])));log('Supervisorにアーム要求を送信（受理確認は未実施）')}catch(e){log('アーム要求の送信失敗: '+e.message);return}}
  if(mode==='hover'){
   if(!$('hasFlow').checked)return;
   z=.15;flight='taking';log('Flow deckモード：離陸指令を開始');
@@ -274,7 +275,7 @@ document.querySelectorAll('[data-control]').forEach(b=>{
 });
 const keyMap={w:'forward',arrowup:'forward',s:'back',arrowdown:'back',a:'left',arrowleft:'left',d:'right',arrowright:'right',q:'yawLeft',e:'yawRight',r:'up',f:'down'};
 document.addEventListener('keydown',e=>{
- if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement?.tagName))return;
+ if(['TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return; if(document.activeElement?.tagName==='INPUT'&&!['checkbox','range'].includes(document.activeElement.type))return;
  if(e.code==='Space'){e.preventDefault();if(!e.repeat)land();return}
  const k=keyMap[e.key.toLowerCase()];if(k){e.preventDefault();controlsPress(k,true)}
 });
