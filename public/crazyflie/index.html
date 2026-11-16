@@ -103,6 +103,7 @@ const DOWN='00000204-1c7f-4f9e-947b-43b7c00a9a08';
 const $=id=>document.getElementById(id);
 let device=null,txChar=null,rxChar=null,connected=false,demo=false,flight='ground',mode='hover',targetZ=.4,z=.15,speed=.25,thrust=0,txCount=0,pid=0,txBusy=false,landingSince=0,lastRx=0,supervisorStatus='unknown',preflightTimer=0;
 const ctrl={forward:false,back:false,left:false,right:false,yawLeft:false,yawRight:false,up:false,down:false};
+let writeQueue=Promise.resolve();
 const log=(t)=>{let p=document.createElement('p');let s=document.createElement('span');s.textContent=new Date().toLocaleTimeString('ja-JP')+' ';p.append(s,document.createTextNode(t));$('log').prepend(p);while($('log').childElementCount>40)$('log').lastElementChild.remove()};
 const setStatus=(t,kind)=>{$('connectionStatus').textContent=t;$('dot').className='dot '+(kind||'')};
 const clearControls=()=>{Object.keys(ctrl).forEach(k=>ctrl[k]=false);document.querySelectorAll('[data-control]').forEach(b=>b.classList.remove('active'))};
@@ -148,7 +149,13 @@ async function bleWrite(packet){
 async function send(packet){
  if(demo){txCount++;return}
  if(!connected)return;
- return bleWrite(packet);
+ const safetyPacket=(packet[0]===0x70&&packet[1]===0)||(packet[0]===0x91&&packet[1]===3);
+ const attempt=writeQueue.then(()=>{
+  if(flight==='locked'&&!safetyPacket)return;
+  return bleWrite(packet);
+ });
+ writeQueue=attempt.catch(()=>{});
+ return attempt;
 }
 function floatsPayload(type,a,b,c,d){
  const bfr=new ArrayBuffer(17),v=new DataView(bfr);v.setUint8(0,type);
