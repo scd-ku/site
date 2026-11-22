@@ -97,8 +97,8 @@ const colorForApp = (slug, index) => {
           </label>
           <label class="cursor-control">
             <span data-cursor-slider2-label>Size</span>
-            <input type="range" min="20" max="110" value="40" step="1" data-cursor-slider2 />
-            <output data-cursor-slider2-value>48</output>
+            <input type="range" min="20" max="110" value="60" step="1" data-cursor-slider2 />
+            <output data-cursor-slider2-value>60</output>
           </label>
         </div>
       </div>
@@ -436,7 +436,7 @@ const colorForApp = (slug, index) => {
     let currentDesignStyle = 'swiss';
     let currentColumns = '11';
     let currentTileLayout = 'square';
-    let uiCursorState = { style:'pulse', motion:54, size:40, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
+    let uiCursorState = { style:'pulse', motion:54, size:60, zoom:1.5, lineHue:210, invertHue:0, trail:42 };
 
     const getCursorState = () => ({ ...uiCursorState });
     const sliderToZoom = (raw) => {
