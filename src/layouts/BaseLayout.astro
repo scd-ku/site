@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import PrivacyAnalytics from '../components/PrivacyAnalytics.astro';
+import ButterflyVisit from '../components/ButterflyVisit.astro';
 const {
   title = 'Science Communication Design Laboratory',
   description = 'Science Communication Design Laboratory, Kagawa University — public web applications and projects.',
@@ -31,6 +32,7 @@ const base = import.meta.env.BASE_URL;
     <div class="cursor-dot" aria-hidden="true"></div>
     <slot />
     <PrivacyAnalytics />
+    <ButterflyVisit />
 
     <script is:inline>
       (() => {
@@ -44,7 +46,7 @@ const base = import.meta.env.BASE_URL;
       const root = document.documentElement;
       const body = document.body;
       const clampValue = (n, min, max) => Math.max(min, Math.min(max, n));
-      const cursorDefaults = { style: 'pulse', motion: 54, size: 40, zoom: 1.5, lineHue: 210, invertHue: 0, trail: 42 };
+      const cursorDefaults = { style: 'pulse', motion: 54, size: 60, zoom: 1.5, lineHue: 210, invertHue: 0, trail: 42 };
       const cursorState = { ...cursorDefaults };
       let pathPoints = [];
       let pointerX = innerWidth / 2;
