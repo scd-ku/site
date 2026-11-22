@@ -49,11 +49,11 @@
     transform-box:view-box;
     transform-origin:60px 45px;
     transform:scaleX(.82);
+    transition:transform .10s ease-in-out;
     will-change:transform;
   }
-  /* Wing coupling: the forewing and hindwing of each side move together.
-     The 85ms period during bursts approximates the measured ~11.8 Hz.
-     Between bursts, wings remain partially spread as a stylized float. */
+  /* Coupled forewing/hindwing motion. At 85 ms per wingbeat the measured
+     11.8Hz rhythm is approximated; brief open-wing pauses are stylized. */
   .scd-butterfly.is-flapping .scd-butterfly-wing {
     animation:scd-wingbeat .085s ease-in-out infinite;
   }
@@ -68,137 +68,162 @@
 </style>
 
 <script>
-  (() => {
-    const el = document.querySelector('[data-scd-butterfly]');
-    const hero = document.querySelector('.hero');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!el || reduceMotion.matches) return;
+(() => {
+  const butterfly = document.querySelector('[data-scd-butterfly]');
+  const hero = document.querySelector('.hero');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!butterfly || reducedMotion.matches) return;
 
-    const rand = (a,b) => a + Math.random() * (b-a);
-    const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-    let visitTimer = 0, wingTimer = 0, raf = 0, flying = false;
+  // Pieris rapae evidence:
+  // Jantzen & Eisner (2008), PMC2575472: intact flight ~11.8 +/-2.13 Hz;
+  // Shkurikhin et al. (2024), PMC11255373: strong curvature, variable velocity;
+  // Suzuki et al. (2023), J. Fluid Sci. Technol. 18: wing and body pitch;
+  // Sun et al. (2021), PMID 33662377: coupled fore- and hindwing flapping.
+  // Motion is stylized: drift, repeated turns and small bobs are not reconstructed
+  // from measured individual 3D trajectory recordings.
 
-    const scheduleVisit = () => {
-      clearTimeout(visitTimer);
-      if (!reduceMotion.matches) {
-        visitTimer = window.setTimeout(startVisit, rand(26000,52000));
+  const random = (a,b) => a + Math.random()*(b-a);
+  const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+  const TAU = Math.PI*2;
+  let visitTimer=0, wingTimer=0, animationFrame=0, flying=false;
+
+  function scheduleNext() {
+    clearTimeout(visitTimer);
+    if (!reducedMotion.matches)
+      visitTimer = setTimeout(startVisit,random(26000,54000));
+  }
+
+  function stopVisit() {
+    flying=false;
+    cancelAnimationFrame(animationFrame);
+    clearTimeout(wingTimer);
+    butterfly.classList.remove('is-flapping');
+    butterfly.style.display='none';
+    animationFrame=0;
+    scheduleNext();
+  }
+
+  function wingCycle(flapping=true) {
+    if(!flying) return;
+    butterfly.classList.toggle('is-flapping',flapping);
+    clearTimeout(wingTimer);
+    // 11.8Hz during active wingbeats; a *brief* spread-wing phase (<250ms)
+    // breaks the strictly mechanical periodicity without a long 'gliding' pose.
+    wingTimer=setTimeout(
+      ()=>wingCycle(!flapping),
+      flapping?random(720,1700):random(75,205)
+    );
+  }
+
+  function catmull(p0,p1,p2,p3,t) {
+    const t2=t*t,t3=t2*t;
+    return {
+      x:.5*(2*p1.x+(-p0.x+p2.x)*t+
+       (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+
+       (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+      y:.5*(2*p1.y+(-p0.y+p2.y)*t+
+       (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+
+       (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+    };
+  }
+
+  function position(points,t) {
+    const count=points.length-1;
+    const u=clamp(t,0,1)*count;
+    const i=Math.min(count-1,Math.floor(u));
+    const phase=u-i;
+    // No smoothstep at each waypoint — ensures motion does not stop
+    // unnaturally each time the butterfly changes direction.
+    return catmull(
+      points[Math.max(0,i-1)],
+      points[i],points[i+1],
+      points[Math.min(count,i+2)],phase
+    );
+  }
+
+  function startVisit() {
+    if (flying || document.hidden || reducedMotion.matches) {
+      scheduleNext();return;
+    }
+    const width=innerWidth,height=innerHeight;
+    const heroBottom=hero?.getBoundingClientRect().bottom??-200;
+    const lower=clamp(heroBottom+34,36,height-98);
+    const upper=height-62;
+    if(upper-lower<110) {scheduleNext();return;}
+
+    const reverse=Math.random()<.5;
+    const xStops=[-.08,.12,.28,.43,.32,.51,.72,.60,.83,1.10];
+    const yStops=[.48,.67,.30,.52,.78,.30,.18,.59,.69,.35];
+    const points=xStops.map((pos,i)=>({
+      x:(reverse?1-pos:pos)*width + (i===0||i===xStops.length-1?0:random(-.045,.045)*width),
+      y:lower+clamp(yStops[i]+random(-.08,.08),.08,.92)*(upper-lower)
+    }));
+
+    const duration=random(18000,26500);
+    const start=performance.now();
+    const swayPhase=random(0,TAU);
+    const wingPhase=random(0,TAU);
+    let heading=reverse?-90:90;
+    flying=true;
+    butterfly.style.display='block';
+    butterfly.style.visibility='visible';
+    wingCycle(true);
+
+    function draw(now) {
+      if(reducedMotion.matches||document.hidden) {stopVisit();return;}
+      const time=(now-start)*.001;
+      const u=clamp((now-start)/duration,0,1);
+      const center=position(points,u);
+      const before=position(points,Math.max(0,u-.0025));
+      const after=position(points,Math.min(1,u+.0025));
+
+      // A visible high-frequency flutter rides on the larger winding path.
+      // Beat-related body oscillation is intentionally small; 11.8Hz wings
+      // are the primary oscillatory movement.
+      const wingBob=3.3*Math.sin(TAU*11.8*time+wingPhase);
+      const slowBob=11*Math.sin(TAU*.82*time+swayPhase)
+                   +5.5*Math.sin(TAU*1.55*time+.5*swayPhase);
+      const sideSway=7*Math.sin(TAU*.53*time+swayPhase)
+                    +3*Math.sin(TAU*1.30*time);
+      const x=center.x+sideSway;
+      const y=clamp(center.y+slowBob+wingBob,lower,upper);
+
+      const dx=after.x-before.x;
+      const dy=after.y-before.y;
+      if(Math.hypot(dx,dy)>1) {
+        const desired=Math.atan2(dy,dx)*180/Math.PI+90;
+        const difference=((desired-heading+540)%360)-180;
+        heading+=difference*.075;
       }
-    };
 
-    const stopVisit = () => {
-      flying = false;
-      cancelAnimationFrame(raf);
-      clearTimeout(wingTimer);
-      el.style.display = 'none';
-      el.classList.remove('is-flapping');
-      scheduleVisit();
-    };
+      // Gentle roll and pitch follow each irregular swoop.
+      const flutterAngle=8*Math.sin(TAU*1.05*time+swayPhase)
+                        +4*Math.sin(TAU*2.1*time)
+                        +2*Math.sin(TAU*11.8*time+wingPhase);
+      const scale=1+.035*Math.sin(TAU*1.75*time+wingPhase);
+      butterfly.style.transform=
+        `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${(heading+flutterAngle).toFixed(2)}deg) scale(${scale.toFixed(3)})`;
 
-    const planWingbeat = (burst = false) => {
-      clearTimeout(wingTimer);
-      if (!flying) return;
-      // Short flapping bursts alternate with longer, slower-looking drifts.
-      // Intended as an artistic interpretation, not a physical gliding model.
-      el.classList.toggle('is-flapping',burst);
-      wingTimer = window.setTimeout(() => planWingbeat(!burst),
-        burst ? rand(180,520) : rand(700,1750));
-    };
+      // Keep the black silhouette away from the black hero background.
+      const darkBottom=hero?.getBoundingClientRect().bottom??-100;
+      butterfly.style.visibility=y<darkBottom+22?'hidden':'visible';
 
-    // Catmull-Rom spline: passing through softly turning waypoints. Two local
-    // reversals and varied elevations avoid a straight horizontal traversal.
-    const spline = (p0,p1,p2,p3,t) => {
-      const t2=t*t,t3=t2*t;
-      return {
-        x: .5*((2*p1.x)+(-p0.x+p2.x)*t+
-          (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+
-          (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
-        y: .5*((2*p1.y)+(-p0.y+p2.y)*t+
-          (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+
-          (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
-      };
-    };
-    const samplePath = (points,u) => {
-      const n=points.length-1;
-      const v=clamp(u,0,1)*n;
-      const i=Math.min(n-1,Math.floor(v));
-      const t=v-i;
-      // Smoothstep lets the butterfly linger gently near direction changes.
-      const eased=t*t*(3-2*t);
-      return spline(
-        points[Math.max(0,i-1)],points[i],
-        points[i+1],points[Math.min(n,i+2)],eased
-      );
-    };
+      if(u<1)animationFrame=requestAnimationFrame(draw);
+      else stopVisit();
+    }
+    animationFrame=requestAnimationFrame(draw);
+  }
 
-    const startVisit = () => {
-      if (reduceMotion.matches || document.hidden || flying) { scheduleVisit(); return; }
-      const width=window.innerWidth, height=window.innerHeight;
-      const heroBottom=hero?.getBoundingClientRect().bottom ?? -1;
-      const yMin=clamp(heroBottom+38,35,height-85);
-      const yMax=height-68;
-      if (yMax-yMin<120) { scheduleVisit(); return; }
-
-      const rightToLeft=Math.random()<.5;
-      const direction=rightToLeft?-1:1;
-      const span=yMax-yMin;
-      const xStops=[-.09,.18,.39,.25,.61,.84,.66,1.10];
-      const yStops=[.50,.28,.72,.82,.24,.16,.64,.39];
-      const points=xStops.map((v,i) => ({
-        x: direction===1
-          ? v*width + (i===0||i===7?0:rand(-.06,.06)*width)
-          : width-v*width + (i===0||i===7?0:rand(-.06,.06)*width),
-        y: yMin+clamp(yStops[i]+rand(-.11,.11),.06,.94)*span
-      }));
-      const duration=rand(20500,28500);
-      const start=performance.now();
-      const phase=rand(0,Math.PI*2);
-      flying=true;
-      el.style.display='block';
-      planWingbeat(false);
-
-      let previousAngle=direction===1?90:-90;
-      const step=(now) => {
-        if(document.hidden || reduceMotion.matches){stopVisit();return;}
-        const u=clamp((now-start)/duration,0,1);
-        const pt=samplePath(points,u);
-        const before=samplePath(points,Math.max(0,u-.003));
-        const after=samplePath(points,Math.min(1,u+.003));
-        const vx=after.x-before.x, vy=after.y-before.y;
-
-        // Very slow breeze-induced swaying without violent fluttering.
-        const windX=13*Math.sin(2*Math.PI*u*2.1+phase)*Math.sin(Math.PI*u);
-        const windY=8*Math.sin(2*Math.PI*u*3.3+phase*.7);
-        const x=pt.x+windX,y=clamp(pt.y+windY,yMin,yMax);
-        if(Math.hypot(vx,vy)>1) {
-          const desired=Math.atan2(vy,vx)*180/Math.PI+90;
-          // Shortest path between angles; avoid sudden flips at turns.
-          const delta=((desired-previousAngle+540)%360)-180;
-          previousAngle+=delta*.10;
-        }
-        const roll=5*Math.sin(2*Math.PI*u*4.1+phase);
-        el.style.transform=
-          `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${(previousAngle+roll).toFixed(1)}deg)`;
-
-        // The silhouette remains black, so hide it on the dark hero surface.
-        const currentHeroBottom=hero?.getBoundingClientRect().bottom ?? -1;
-        el.style.visibility=y<currentHeroBottom+22?'hidden':'visible';
-
-        if(u<1) raf=requestAnimationFrame(step);
-        else stopVisit();
-      };
-      raf=requestAnimationFrame(step);
-    };
-
-    scheduleVisit();
-    document.addEventListener('visibilitychange',()=>{
-      if(document.hidden && flying)stopVisit();
-    });
-    reduceMotion.addEventListener('change',()=>{
-      if(reduceMotion.matches){
-        clearTimeout(visitTimer);
-        if(flying)stopVisit();
-        clearTimeout(visitTimer);
-      } else if(!flying) scheduleVisit();
-    });
-  })();
+  scheduleNext();
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden && flying)stopVisit();
+  });
+  reducedMotion.addEventListener('change',()=>{
+    if(reducedMotion.matches) {
+      clearTimeout(visitTimer);
+      if(flying)stopVisit();
+      clearTimeout(visitTimer);
+    } else if(!flying) scheduleNext();
+  });
+})();
 </script>
