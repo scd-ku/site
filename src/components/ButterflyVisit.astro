@@ -1,0 +1,140 @@
+<!--
+  Pieris rapae (モンシロチョウ) — schematic, not a photographic tracing.
+  References:
+  Jantzen & Eisner 2008: intact P. rapae ~11.8 wingbeats/sec (PMC2575472).
+  Suzuki et al. 2023: fore/hind wing motion and variable flap amplitude.
+  Shkurikhin et al. 2024: curved 3D trajectories of Pieris forms (DOI:10.1002/ece3.70012).
+  Four broad, rounded wings; forewings are somewhat larger than hindwings.
+-->
+<div class="scd-butterfly" data-scd-butterfly aria-hidden="true">
+  <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <g class="scd-butterfly-wing scd-butterfly-left">
+      <!-- Left forewing: long leading edge and rounded apex -->
+      <path d="M58 42 C49 29 37 12 19 8 C7 5 2 16 8 31 C16 47 34 52 56 49 Z" />
+      <!-- Left hindwing: smaller and distinctly rounder -->
+      <path d="M57 48 C47 49 34 45 25 52 C18 58 22 70 34 73 C46 75 54 62 59 51 Z" />
+    </g>
+    <g class="scd-butterfly-wing scd-butterfly-right">
+      <path d="M62 42 C71 29 83 12 101 8 C113 5 118 16 112 31 C104 47 86 52 64 49 Z" />
+      <path d="M63 48 C73 49 86 45 95 52 C102 58 98 70 86 73 C74 75 66 62 61 51 Z" />
+    </g>
+    <!-- Head, clubbed antennae, slender thorax and abdomen -->
+    <path class="scd-butterfly-body" d="M60 25 C54 25 54 33 56 38 C54 46 56 59 59 73 Q60 78 61 73 C64 59 66 46 64 38 C66 33 66 25 60 25 Z" />
+    <path class="scd-butterfly-antenna" d="M58 27 C52 19 49 12 47 6 M62 27 C68 19 71 12 73 6" />
+    <circle cx="47" cy="6" r="1.7" /><circle cx="73" cy="6" r="1.7" />
+  </svg>
+</div>
+
+<style>
+  .scd-butterfly {
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:60px;
+    height:43px;
+    overflow:visible;
+    z-index:80;
+    pointer-events:none;
+    color:#101010;
+    will-change:transform;
+    contain:layout style;
+  }
+  .scd-butterfly svg { width:100%; height:100%; display:block; overflow:visible; }
+  .scd-butterfly path:not(.scd-butterfly-antenna),
+  .scd-butterfly circle { fill:currentColor; }
+  .scd-butterfly-antenna { fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+  .scd-butterfly-wing {
+    transform-box:view-box;
+    transform-origin:60px 45px;
+    animation:scd-wingbeat .085s ease-in-out infinite;
+    will-change:transform;
+  }
+  /* 0.085s for a complete beat: ~11.8 Hz, experimentally reported for P. rapae.
+     Fore- and hindwings on each side move in synchrony. */
+  @keyframes scd-wingbeat {
+    0%,100% { transform:scaleX(.22); }
+    50% { transform:scaleX(1); }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .scd-butterfly { display:none !important; }
+    .scd-butterfly-wing { animation:none; }
+  }
+</style>
+
+<script>
+  (() => {
+    const butterfly = document.querySelector('[data-scd-butterfly]');
+    const hero = document.querySelector('.hero');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!butterfly || reducedMotion.matches) return;
+
+    let nextTimer = 0;
+    let flightFrame = 0;
+    let flying = false;
+    const random = (min, max) => min + Math.random() * (max - min);
+    const planVisit = () => {
+      clearTimeout(nextTimer);
+      // Rare visits rather than permanent decoration.
+      nextTimer = window.setTimeout(startVisit, random(22000, 55000));
+    };
+
+    const endVisit = () => {
+      flying = false;
+      butterfly.style.display = 'none';
+      cancelAnimationFrame(flightFrame);
+      flightFrame = 0;
+      planVisit();
+    };
+
+    const startVisit = () => {
+      if (reducedMotion.matches || document.hidden || flying) { planVisit(); return; }
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const heroBottom = hero ? hero.getBoundingClientRect().bottom : -100;
+      // Black butterfly remains legible: don't fly across the black hero area.
+      const minY = Math.max(60, heroBottom + 56);
+      const maxY = height - 85;
+      if (maxY <= minY + 30) { planVisit(); return; }
+
+      const direction = Math.random() < .5 ? 1 : -1;
+      const y0 = random(minY + 14, maxY - 14);
+      const duration = random(8500, 12000);
+      const phase = random(0, Math.PI * 2);
+      const pitch = direction === 1 ? 90 : -90;
+      const start = performance.now();
+      flying = true;
+      butterfly.style.display = 'block';
+
+      const step = (now) => {
+        if (reducedMotion.matches || document.hidden) { endVisit(); return; }
+        const u = Math.min(1, (now - start) / duration);
+        const x = direction === 1
+          ? -80 + (width + 160) * u
+          : width + 80 - (width + 160) * u;
+        // Smooth, gently curved trajectory with small changes of ascent and descent.
+        const swell = Math.sin(2 * Math.PI * (u * 1.7) + phase) * 15;
+        const drift = Math.sin(2 * Math.PI * (u * 3.2) + phase * .65) * 7;
+        const y = Math.max(minY, Math.min(maxY, y0 + swell + drift));
+        const inclination = Math.cos(2 * Math.PI * (u * 1.7) + phase) * 7;
+        butterfly.style.transform =
+          `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${(pitch+inclination).toFixed(1)}deg)`;
+        if (u < 1) flightFrame = requestAnimationFrame(step);
+        else endVisit();
+      };
+      flightFrame = requestAnimationFrame(step);
+    };
+
+    planVisit();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && flying) endVisit();
+    });
+    reducedMotion.addEventListener('change', () => {
+      if (reducedMotion.matches) {
+        clearTimeout(nextTimer);
+        if (flying) endVisit();
+        clearTimeout(nextTimer);
+      } else if (!flying) planVisit();
+    });
+  })();
+</script>
