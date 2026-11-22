@@ -1,0 +1,165 @@
+---
+import QRCode from 'qrcode';
+
+const websiteUrl = 'https://www.eng.kagawa-u.ac.jp/~osaki/';
+const qrSvg = await QRCode.toString(websiteUrl, {
+  type: 'svg',
+  errorCorrectionLevel: 'H',
+  margin: 3,
+  color: { dark: '#111111', light: '#ffffff' }
+});
+---
+
+<div class="contact-website" aria-label="研究室公式Webサイト">
+  <div class="contact-website-name">
+    <span class="contact-website-kicker">Website / QR</span>
+    <a href={websiteUrl} class="contact-website-link" target="_blank" rel="noopener noreferrer">
+      www.eng.kagawa-u.ac.jp/~osaki/ <span aria-hidden="true">↗</span>
+    </a>
+    <p>QRコードをクリックすると大きく表示します。</p>
+  </div>
+  <button type="button" class="contact-website-qr" data-qr-open aria-label="研究室WebサイトのQRコードを拡大表示する" aria-haspopup="dialog">
+    <span class="contact-qr-graphic" set:html={qrSvg} aria-hidden="true"></span>
+    <span class="contact-qr-expand" aria-hidden="true">↗</span>
+  </button>
+</div>
+
+<dialog class="contact-qr-dialog" data-qr-dialog aria-label="研究室WebサイトのQRコード">
+  <div class="contact-qr-dialog-header">
+    <div>
+      <span class="contact-website-kicker">Science Communication Design Laboratory</span>
+      <h3>Website QR code</h3>
+    </div>
+    <button type="button" class="contact-qr-close" data-qr-close aria-label="閉じる">×</button>
+  </div>
+  <div class="contact-qr-large" set:html={qrSvg} aria-hidden="true"></div>
+  <a href={websiteUrl} target="_blank" rel="noopener noreferrer" class="contact-qr-dialog-link">{websiteUrl}</a>
+</dialog>
+
+<style>
+  .contact-website {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:clamp(20px,4vw,60px);
+    border-top:1px solid rgba(0,0,0,.16);
+    padding:24px 0 0;
+    margin-top:clamp(30px,4vw,56px);
+  }
+  .contact-website-name { min-width:0; }
+  .contact-website-kicker {
+    display:block;
+    font-size:10px;
+    font-weight:500;
+    line-height:1.4;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:#666;
+    margin-bottom:12px;
+  }
+  .contact-website-link {
+    display:inline-block;
+    color:inherit;
+    font-size:clamp(14px,1.35vw,18px);
+    font-weight:350;
+    line-height:1.6;
+    text-decoration:none;
+    overflow-wrap:anywhere;
+    border-bottom:1px solid currentColor;
+  }
+  .contact-website-link:hover { opacity:.65; }
+  .contact-website-name p {
+    margin:11px 0 0;
+    color:#777;
+    font-size:12px;
+    line-height:1.6;
+  }
+  .contact-website-qr {
+    position:relative;
+    background:white;
+    border:1px solid rgba(0,0,0,.14);
+    border-radius:0;
+    padding:10px;
+    display:block;
+    flex:0 0 128px;
+    height:128px;
+    cursor:zoom-in;
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .contact-website-qr:hover { border-color:#111; transform:translateY(-2px); }
+  .contact-website-qr:focus-visible,
+  .contact-qr-close:focus-visible,
+  .contact-qr-dialog-link:focus-visible { outline:2px solid #111; outline-offset:3px; }
+  .contact-qr-graphic { display:block; width:100%; height:100%; }
+  .contact-qr-graphic :global(svg) { width:100%; height:100%; display:block; }
+  .contact-qr-expand {
+    position:absolute;
+    bottom:5px;
+    right:5px;
+    background:white;
+    font-size:14px;
+    line-height:1;
+    padding:3px;
+    color:#111;
+  }
+  .contact-qr-dialog {
+    width:min(88vw,460px);
+    max-height:min(92dvh,710px);
+    border:1px solid #999;
+    border-radius:0;
+    background:#fff;
+    color:#111;
+    padding:clamp(20px,4vw,34px);
+    box-shadow:none;
+    overflow:auto;
+  }
+  .contact-qr-dialog::backdrop { background:rgba(0,0,0,.66); backdrop-filter:blur(3px); }
+  .contact-qr-dialog-header { display:flex; align-items:start; justify-content:space-between; gap:16px; }
+  .contact-qr-dialog-header h3 { font-size:23px; font-weight:350; line-height:1.2; margin:0; }
+  .contact-qr-close {
+    border:0;
+    padding:0 6px;
+    background:transparent;
+    font-size:31px;
+    line-height:1;
+    font-weight:300;
+    color:#111;
+    cursor:pointer;
+  }
+  .contact-qr-large {
+    width:min(100%,360px);
+    aspect-ratio:1;
+    background:white;
+    margin:22px auto;
+  }
+  .contact-qr-large :global(svg) { display:block; width:100%; height:100%; }
+  .contact-qr-dialog-link {
+    display:block;
+    font-size:12px;
+    color:#111;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    overflow-wrap:anywhere;
+    text-align:center;
+  }
+  @media(max-width:580px) {
+    .contact-website { gap:14px; align-items:start; margin-top:30px; }
+    .contact-website-qr { flex-basis:104px; height:104px; padding:7px; }
+    .contact-website-link { font-size:13px; }
+  }
+</style>
+
+<script>
+  // Native dialog: keyboard accessible, Escape closes, focus returns to the trigger.
+  const openButton = document.querySelector('[data-qr-open]');
+  const dialog = document.querySelector('[data-qr-dialog]');
+  const closeButton = dialog?.querySelector('[data-qr-close]');
+  if (openButton && dialog instanceof HTMLDialogElement) {
+    openButton.addEventListener('click', () => dialog.showModal());
+    closeButton?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => openButton.focus({ preventScroll:true }));
+  }
+</script>
