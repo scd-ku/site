@@ -131,6 +131,15 @@ const base = import.meta.env.BASE_URL;
         clone.setAttribute('aria-hidden','true');
         clone.classList.add('magnifier-document-copy');
         if ('inert' in clone) clone.inert = true;
+
+        // Do not mirror the modal QR into the moving Lens. Browser dialog
+        // top-layer state and cloned SVGs can otherwise appear near the header.
+        // Preserve the original QR on the Contact page, where it stays clickable.
+        clone.querySelectorAll('.contact-qr-dialog').forEach((el) => el.remove());
+        clone.querySelectorAll('.contact-website-qr').forEach((el) => {
+          el.style.visibility = 'hidden'; // maintain layout measurements
+        });
+
         clone.querySelectorAll('iframe').forEach((frame) => {
           frame.setAttribute('tabindex','-1');
           frame.setAttribute('aria-hidden','true');
