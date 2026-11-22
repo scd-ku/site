@@ -4915,3 +4915,71 @@ html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
   font-weight:var(--scd-glyph-weight,230) !important;
   font-variation-settings:"wght" var(--scd-glyph-weight,230) !important;
 }
+
+/* v74 — Contact: same typographic system and equal-height columns.
+   The left info column determines the content height; the map stretches
+   to exactly that height at desktop sizes. */
+.contact-copy .contact-website-list {
+  margin:0 !important;
+  padding:0 !important;
+  border-top:0 !important;
+}
+.contact-copy .contact-website-list > .contact-website-entry {
+  font-size:12px !important;
+  line-height:1.45 !important;
+  grid-template-columns:56px minmax(0,1fr) 72px !important;
+  gap:14px !important;
+}
+.contact-copy .contact-website-entry dt {
+  font-family:inherit !important;
+  font-weight:inherit !important;
+  color:var(--muted) !important;
+  letter-spacing:.08em !important;
+}
+.contact-copy .contact-website-entry dd,
+.contact-copy .contact-website-entry .contact-website-link {
+  font:inherit !important;
+  font-size:12px !important;
+  line-height:1.45 !important;
+  font-weight:inherit !important;
+  color:#111 !important;
+  letter-spacing:normal !important;
+}
+.contact-copy .contact-website-entry .contact-website-link {
+  border-bottom:1px solid rgba(17,17,17,.25) !important;
+  padding-bottom:2px !important;
+}
+@media(min-width:921px) {
+  .contact-section .contact-grid {
+    display:grid !important;
+    align-items:stretch !important;
+    grid-auto-rows:auto;
+  }
+  .contact-section .contact-copy {
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:flex-start !important;
+    height:100%;
+    min-height:0;
+  }
+  .contact-section .contact-map {
+    display:flex !important;
+    flex-direction:column;
+    height:100%;
+    min-height:0 !important;
+    align-self:stretch;
+  }
+  .contact-section .contact-map iframe {
+    flex:1 1 auto;
+    display:block;
+    height:100% !important;
+    min-height:0 !important;
+    width:100% !important;
+  }
+}
+@media(max-width:580px) {
+  .contact-copy .contact-website-list > .contact-website-entry {
+    grid-template-columns:56px minmax(0,1fr) 60px !important;
+    gap:10px !important;
+  }
+}
