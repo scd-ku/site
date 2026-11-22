@@ -6,6 +6,11 @@ on:
     paths:
       - ".github/workflows/build-university-preview.yml"
       - "src/components/PrivacyAnalytics.astro"
+      - "src/components/ContactQR.astro"
+      - "src/components/ButterflyVisit.astro"
+      - "src/components/AppGrid.astro"
+      - "src/layouts/BaseLayout.astro"
+      - "src/pages/index.astro"
 
 permissions:
   contents: read
