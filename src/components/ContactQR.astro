@@ -12,11 +12,10 @@ const qrSvg = await QRCode.toString(websiteUrl, {
 
 <div class="contact-website" aria-label="研究室公式Webサイト">
   <div class="contact-website-name">
-    <span class="contact-website-kicker">Website / QR</span>
+    <span class="contact-website-kicker">Website</span>
     <a href={websiteUrl} class="contact-website-link" target="_blank" rel="noopener noreferrer">
       www.eng.kagawa-u.ac.jp/~osaki/ <span aria-hidden="true">↗</span>
     </a>
-    <p>QRコードをクリックすると大きく表示します。</p>
   </div>
   <button type="button" class="contact-website-qr" data-qr-open aria-label="研究室WebサイトのQRコードを拡大表示する" aria-haspopup="dialog">
     <span class="contact-qr-graphic" set:html={qrSvg} aria-hidden="true"></span>
@@ -147,6 +146,45 @@ const qrSvg = await QRCode.toString(websiteUrl, {
     .contact-website-qr { flex-basis:104px; height:104px; padding:7px; }
     .contact-website-link { font-size:13px; }
   }
+
+  /* Contact only: compact website entry directly below email, never a third column. */
+  .contact-website {
+    width:100%;
+    max-width:560px;
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    gap:16px;
+    margin:23px 0 0;
+    padding:0;
+    border:0;
+  }
+  .contact-website-name { flex:1 1 auto; min-width:0; }
+  .contact-website-kicker { margin:0 0 7px; letter-spacing:.1em; font-size:10px; }
+  .contact-website-link {
+    font-size:clamp(12px,1vw,14px);
+    font-weight:350;
+    letter-spacing:0;
+    line-height:1.5;
+    border-bottom:0;
+    overflow-wrap:anywhere;
+  }
+  .contact-website-qr {
+    flex:0 0 88px;
+    width:88px;
+    height:88px;
+    padding:6px;
+    border:1px solid rgba(0,0,0,.18);
+    background:white;
+  }
+  .contact-qr-expand { font-size:11px; bottom:2px; right:2px; }
+  .contact-qr-dialog { z-index:9999; }
+  @media(max-width:580px){
+    .contact-website { gap:12px; margin-top:18px; }
+    .contact-website-qr { flex:0 0 78px; width:78px; height:78px; padding:5px; }
+    .contact-website-link { font-size:12px; }
+  }
+
 </style>
 
 <script>
