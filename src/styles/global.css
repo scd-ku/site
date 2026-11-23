@@ -5060,7 +5060,8 @@ body.cursor-over-embedded-map .contact-map iframe {
    Screen remains neutral over black; its opacity controls how strongly the
    colored faces contribute where the solids and their hues overlap. */
 html[data-site-palette="color"] .science-field .science-object.object-solid {
-  opacity:var(--hero-color-blend-opacity,.9) !important;
+  /* Keep the wireframe fully visible; face opacity is applied in the face-fill pass. */
+  opacity:1 !important;
   mix-blend-mode:screen;
 }
 html[data-site-palette="color"] .science-field .science-object.object-solid canvas {
