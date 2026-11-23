@@ -136,7 +136,14 @@ const base = import.meta.env.BASE_URL;
         // Do not mirror the modal QR into the moving Lens. Browser dialog
         // top-layer state and cloned SVGs can otherwise appear near the header.
         // Preserve the original QR on the Contact page, where it stays clickable.
-        clone.querySelectorAll('.contact-qr-dialog').forEach((el) => el.remove());
+        // Preserve button order while copying; removing the dialog here
+        // shifts button indices and can make the QR clone look like a Like button.
+        // The real dialog moves to <body> on DOMContentLoaded and triggers a
+        // fresh magnifier clone via scd:contact-qr-mounted.
+        clone.querySelectorAll('.contact-qr-dialog').forEach((el) => {
+          el.setAttribute('aria-hidden','true');
+          el.style.display='none';
+        });
         clone.querySelectorAll('.contact-website-qr').forEach((el) => {
           el.style.visibility = 'hidden'; // maintain layout measurements
         });
@@ -325,6 +332,7 @@ const base = import.meta.env.BASE_URL;
       document.addEventListener('change',()=>requestAnimationFrame(requestMagnifierRefresh),true);
       document.addEventListener('click',()=>requestAnimationFrame(requestMagnifierRefresh),true);
       document.addEventListener('scd:cursor-state-applied',()=>requestAnimationFrame(requestMagnifierRefresh));
+      document.addEventListener('scd:contact-qr-mounted',()=>requestAnimationFrame(requestMagnifierRefresh));
       function resampleTrail(points, spacing=5){
         if(points.length < 2) return points.slice();
         const out=[{...points[0]}];
