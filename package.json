@@ -8,7 +8,7 @@
     "sync": "node scripts/sync-github.mjs",
     "capture": "node scripts/capture-thumbnails.mjs",
     "refresh": "npm run sync && npm run capture",
-    "prebuild": "node scripts/download-butterfly-specimens.mjs && node scripts/download-fauna-specimens.mjs",
+    "prebuild": "node scripts/download-butterfly-specimens.mjs",
     "build": "astro build",
     "preview": "astro preview"
   },
