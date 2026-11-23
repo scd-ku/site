@@ -108,7 +108,7 @@ try{
   // The Contact map is a cross-origin Google Maps iframe. Its internal
   // pointer events cannot reach the parent document; the native map cursor
   // must be visible while the custom cursor resumes immediately on exit.
-  const mapFrame=page.locator('.contact-map iframe');
+  const mapFrame=page.locator('main#top .contact-map iframe');
   assert(await mapFrame.count()===1,'Contact map iframe is missing.');
   await mapFrame.scrollIntoViewIfNeeded();
   const mapRect=await mapFrame.boundingBox();
@@ -118,10 +118,10 @@ try{
   await page.waitForTimeout(120);
   const mapState=await page.evaluate(()=>({
     active:document.body.classList.contains('cursor-over-embedded-map'),
-    iframeCursor:getComputedStyle(document.querySelector('.contact-map iframe')).cursor,
+    iframeCursor:getComputedStyle(document.querySelector('main#top .contact-map iframe')).cursor,
     cursorDot:getComputedStyle(document.querySelector('.cursor-dot')).display,
     lens:getComputedStyle(document.querySelector('.cursor-magnifier-lens')).display,
-    pointerEvents:getComputedStyle(document.querySelector('.contact-map iframe')).pointerEvents
+    pointerEvents:getComputedStyle(document.querySelector('main#top .contact-map iframe')).pointerEvents
   }));
   assert(mapState.active,'Entering the map did not trigger native cursor handoff: '+JSON.stringify(mapState));
   assert(mapState.iframeCursor==='auto'&&mapState.cursorDot==='none'&&mapState.lens==='none'&&mapState.pointerEvents!=='none',
