@@ -636,7 +636,7 @@ const colorForApp = (slug, index) => {
         if(!(species in limits))return;
         const count=clamp(Math.round(Number(slider.value)||0),0,5);
         limits[species]=count;
-        const output=document.querySelector('[data-butterfly-count-value="'+species+'"]');
+        const output=settingsPopover?.querySelector('[data-butterfly-count-value="'+species+'"]');
         if(output)output.textContent=String(count);
         slider.setAttribute('aria-valuetext',count+'羽');
       });
