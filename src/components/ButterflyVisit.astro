@@ -42,28 +42,35 @@ const forms = {
     antennaEnds:[[464,39],[570,44]]
   }
 };
-const butterflies = [{kind:'pieris',key:'p0'},{kind:'pieris',key:'p1'},{kind:'papilio',key:'a0'}];
+// Three independently flying Pieris, plus one longer-staying Papilio.
+const butterflies = [{kind:'pieris',key:'p0'},{kind:'pieris',key:'p1'},{kind:'pieris',key:'p2'},{kind:'papilio',key:'a0'}];
 function renderSvg(kind,key,photographic) {
   const f=forms[kind];
-  const id='scd-clip-'+key;
+  const id='scd-mask-'+key;
   const wings=[['left',f.leftFore,f.leftHind],['right',f.rightFore,f.rightHind]];
+  // Each photographic wing is masked independently. A black mask cutout at
+  // the thorax removes wing texture from the body region before the final,
+  // single, opaque body is drawn above both wings.
+  const masks=photographic
+    ? '<defs>'+wings.map(([side,fore,hind])=>
+        '<mask id="'+id+'-'+side+'" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="960" height="720" style="mask-type:luminance">'+
+        '<path d="'+fore+'" style="fill:#fff"/><path d="'+hind+'" style="fill:#fff"/>'+
+        '<path d="'+f.body+'" style="fill:#000"/></mask>').join('')+'</defs>'
+    : '';
   const wingMarkup=wings.map(([side,fore,hind])=>{
-    const wingShape='<path d="'+fore+'"/><path d="'+hind+'"/>';
     const interior=photographic
-      ? '<image x="0" y="0" width="960" height="720" preserveAspectRatio="none" href="'+photos[kind]+'" clip-path="url(#'+id+'-'+side+')"/>'
-      : wingShape;
+      ? '<image x="0" y="0" width="960" height="720" preserveAspectRatio="none" href="'+photos[kind]+'" mask="url(#'+id+'-'+side+')"/>'
+      : '<path d="'+fore+'"/><path d="'+hind+'"/>';
     return '<g class="scd-butterfly-wing scd-butterfly-'+side+'">'+interior+'</g>';
   }).join('');
-  const clips=photographic
-    ? '<defs>'+wings.map(([side,fore,hind])=>'<clipPath id="'+id+'-'+side+'" clipPathUnits="userSpaceOnUse"><path d="'+fore+'"/><path d="'+hind+'"/></clipPath>').join('')+
-      '<clipPath id="'+id+'-body"><path d="'+f.body+'"/></clipPath></defs>'
-    : '';
-  const body=photographic
-    ? '<image x="0" y="0" width="960" height="720" preserveAspectRatio="none" href="'+photos[kind]+'" clip-path="url(#'+id+'-body)"/>'
-    : '<path d="'+f.body+'"/>';
-  const antenna='<path class="scd-butterfly-antenna" d="'+f.antenna+'"/>'+f.antennaEnds.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="2"/>').join('');
-  return '<svg viewBox="'+f.view+'" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+clips+
-    wingMarkup+body+antenna+'</svg>';
+  // Draw the body only once in the foreground. Keeping it an opaque shape
+  // (rather than a second image clip) also prevents duplicate thoraxes
+  // during rapid wingbeats and when Lens overlays the underlying silhouette.
+  const body='<path class="scd-butterfly-body" d="'+f.body+'"/>';
+  const antenna='<path class="scd-butterfly-antenna" d="'+f.antenna+'"/>'+
+    f.antennaEnds.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="2"/>').join('');
+  return '<svg viewBox="'+f.view+'" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+
+    masks+wingMarkup+body+antenna+'</svg>';
 }
 ---
 <!-- The first layer lives in DOCUMENT coordinates; it naturally scrolls with the site. -->
@@ -125,6 +132,8 @@ function renderSvg(kind,key,photographic) {
     animation:scd-butterfly-beat var(--wing-period,.085s) ease-in-out infinite;
   }
   :global(.scd-butterfly--photo .scd-butterfly-wing) {animation:none!important}
+  :global(.scd-butterfly-body) { fill:currentColor; }
+  /* Photographic wings are cut away at the body; opaque thorax is drawn last. */
   @keyframes scd-butterfly-beat {
     0%,100% {transform:scaleX(.2)}
     50% {transform:scaleX(1)}
