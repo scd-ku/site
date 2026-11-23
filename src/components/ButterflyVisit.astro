@@ -102,22 +102,22 @@ function renderSvg(kind,key,photographic) {
   }
   .scd-butterfly--pieris { width:56px;height:37px; }
   .scd-butterfly--papilio { width:92px;height:74px; }
-  .scd-butterfly svg { display:block;width:100%;height:100%;overflow:visible; }
-  .scd-butterfly path:not(.scd-butterfly-antenna),
-  .scd-butterfly circle {fill:currentColor}
-  .scd-butterfly-antenna {
+  :global(.scd-butterfly svg) { display:block;width:100%;height:100%;overflow:visible; }
+  :global(.scd-butterfly path:not(.scd-butterfly-antenna)),
+  :global(.scd-butterfly circle) {fill:currentColor}
+  :global(.scd-butterfly-antenna) {
     fill:none;stroke:currentColor;stroke-width:3.3;stroke-linecap:round;
   }
-  .scd-butterfly-wing {
+  :global(.scd-butterfly-wing) {
     transform-box:view-box;
     transform-origin:center;
     transform:scaleX(.85);
     will-change:transform;
   }
-  .scd-butterfly.is-flapping .scd-butterfly-wing {
+  :global(.scd-butterfly.is-flapping .scd-butterfly-wing) {
     animation:scd-butterfly-beat var(--wing-period,.085s) ease-in-out infinite;
   }
-  .scd-butterfly--photo .scd-butterfly-wing {animation:none!important}
+  :global(.scd-butterfly--photo .scd-butterfly-wing) {animation:none!important}
   @keyframes scd-butterfly-beat {
     0%,100% {transform:scaleX(.2)}
     50% {transform:scaleX(1)}
