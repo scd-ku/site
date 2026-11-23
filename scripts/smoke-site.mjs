@@ -83,6 +83,27 @@ try{
   const resumed=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
   assert(resumed===5,'Five Pieris agents did not resume when max set to five; saw '+resumed);
   console.log('PASS: Butterfly maximum 0–5 dynamically changes active agents.');
+
+  // Regression: fixed butterfly paint must not grow document scrollHeight.
+  // Test after butterflies have appeared AND after scrolling to the footer.
+  const getPageExtent=()=>page.evaluate(()=>{
+    const footer=document.querySelector('main#top > footer');
+    const footerEnd=footer?.getBoundingClientRect().bottom+window.scrollY||0;
+    return {
+      footerEnd,
+      scrollHeight:document.scrollingElement?.scrollHeight||0,
+      active:document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly][style*="display: block"]').length
+    };
+  });
+  let extent=await getPageExtent();
+  assert(extent.scrollHeight-Math.max(extent.footerEnd,900)<10,
+    'Unexpected blank space below footer at top: '+JSON.stringify(extent));
+  await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
+  await page.waitForTimeout(750);
+  extent=await getPageExtent();
+  assert(extent.scrollHeight-Math.max(extent.footerEnd,900)<10,
+    'Butterfly layer extended document below copyright: '+JSON.stringify(extent));
+  console.log('PASS: Page ends at copyright even after moving butterflies and scrolling.');
   await page.close();
 }finally{
   await browser?.close();
