@@ -78,8 +78,8 @@ const colorForApp = (slug, index) => {
 
         <label class="saturation-control">
           <span data-screen-label>Color intensity</span>
-          <input type="range" min="0" max="100" value="50" step="1" data-detail-saturation />
-          <output data-detail-saturation-value>50%</output>
+          <input type="range" min="0" max="100" value="70" step="1" data-detail-saturation />
+          <output data-detail-saturation-value>70%</output>
         </label>
 
         <div class="settings-group settings-group--cursor">
@@ -444,7 +444,7 @@ const colorForApp = (slug, index) => {
     const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
     // Every page load starts from the requested defaults. Changes last only for this page view.
-    let colorIntensity = 50;
+    let colorIntensity = 70;
     let blindTone = 0;
     let monoDepth = 58;
     let currentMode = 'color';
