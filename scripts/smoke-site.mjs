@@ -11,7 +11,8 @@ const base=(process.env.BASE_PATH||'/').replace(/\/?$/,'/');
 const root='http://127.0.0.1:'+port+base;
 const server=spawn('npm',['run','preview','--','--host','127.0.0.1','--port',String(port)],{
   env:process.env,
-  stdio:['ignore','pipe','pipe']
+  stdio:['ignore','pipe','pipe'],
+  detached:true
 });
 let serverLog='';
 for(const stream of [server.stdout,server.stderr]){
@@ -85,5 +86,10 @@ try{
   await page.close();
 }finally{
   await browser?.close();
-  server.kill('SIGTERM');
+  // 'npm run preview' starts Astro as a subprocess. Kill the whole process
+  // group so the test runner exits rather than hanging after tests pass.
+  try{process.kill(-server.pid,'SIGTERM');}
+  catch{server.kill('SIGTERM');}
+  server.stdout?.destroy();
+  server.stderr?.destroy();
 }
