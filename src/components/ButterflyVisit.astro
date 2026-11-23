@@ -97,10 +97,14 @@ function renderSvg(kind,key,photographic) {
 
 <style>
   .scd-butterfly-layer {
-    position:absolute;
+    /* A fixed, zero-height painting layer cannot extend document scrollHeight.
+       Each butterfly retains DOCUMENT coordinates in its simulation state;
+       screen position subtracts scrollY on each animation frame. */
+    position:fixed;
     top:0;
     left:0;
     width:100%;
+    height:0;
     pointer-events:none;
     z-index:80;
     overflow:visible;
@@ -187,9 +191,12 @@ function renderSvg(kind,key,photographic) {
   }
   const drawStates=[];
   function documentSize() {
-    const size=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
-    layer.style.height=size+'px';
-    return size;
+    // Read the actual page geometry but NEVER set it back onto a page-level
+    // overlay. That formed a feedback loop and appended huge blank whitespace
+    // after the copyright footer.
+    const footer=document.querySelector('main#top > footer');
+    const footerBottom=footer ? footer.getBoundingClientRect().bottom+scrollY : 0;
+    return Math.max(footerBottom,document.querySelector('main#top')?.getBoundingClientRect().bottom+scrollY||0);
   }
   documentSize();
 
@@ -304,7 +311,10 @@ function renderSvg(kind,key,photographic) {
           +2*Math.sin(TAU*spec.frequency*t+wingPhase);
         const scale=1+.025*Math.sin(TAU*1.65*t+wingPhase);
         state.x=x;state.y=y;state.heading=heading+roll;state.scale=scale;
-        el.style.transform='translate3d('+x+'px,'+y+'px,0) rotate('+state.heading+'deg) scale('+scale+')';
+        // Convert immutable document coordinates to viewport coordinates.
+        // Scrolling moves butterflies with their locations on the site while
+        // the fixed painting layer itself never affects the page height.
+        el.style.transform='translate3d('+x+'px,'+(y-scrollY)+'px,0) rotate('+state.heading+'deg) scale('+scale+')';
         state.frame=u<1?requestAnimationFrame(animate):0;
         if(u>=1)stop();
       }
