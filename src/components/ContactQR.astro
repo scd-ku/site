@@ -176,19 +176,69 @@ const qrSvg = await QRCode.toString(websiteUrl, {
     }
     .contact-website-qr { width:60px; height:60px; padding:4px; }
   }
+
+  /* Dialog lives directly below <body> to avoid parent clipping. */
+  .contact-qr-dialog[open] {
+    display:block;
+    position:fixed;
+    top:50%;
+    left:50%;
+    right:auto;
+    bottom:auto;
+    transform:translate(-50%,-50%);
+    margin:0;
+    z-index:2147483640;
+  }
+  .contact-qr-dialog.contact-qr-fallback {
+    box-shadow:0 0 0 100vmax rgba(0,0,0,.68);
+  }
 </style>
 
-<script>
-  // Native dialog: keyboard accessible, Escape closes, focus returns to the trigger.
-  const openButton = document.querySelector('[data-qr-open]');
-  const dialog = document.querySelector('[data-qr-dialog]');
-  const closeButton = dialog?.querySelector('[data-qr-close]');
-  if (openButton && dialog instanceof HTMLDialogElement) {
-    openButton.addEventListener('click', () => dialog.showModal());
-    closeButton?.addEventListener('click', () => dialog.close());
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close();
-    });
-    dialog.addEventListener('close', () => openButton.focus({ preventScroll:true }));
-  }
+<script is:inline>
+  (() => {
+    // Inline initialization avoids timing differences between Astro-bundled
+    // components and the page's Lens clone. Operate on the ORIGINAL page only.
+    const bindQR = () => {
+      const trigger = document.querySelector('main#top button[data-qr-open]');
+      const modal = document.querySelector('main#top dialog[data-qr-dialog]') ||
+        document.querySelector('body > dialog[data-qr-dialog]');
+      if (!trigger || !modal || trigger.dataset.qrBound === 'true') return;
+      trigger.dataset.qrBound = 'true';
+
+      // Move the modal out of .contact-copy and its layout/stacking context.
+      // In Chrome a modal inside transformed ancestors could become
+      // clipped or appear behind other site effects.
+      document.body.appendChild(modal);
+      const close = modal.querySelector('[data-qr-close]');
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (modal.open) return;
+        if (typeof modal.showModal === 'function') {
+          modal.showModal();
+        } else {
+          modal.setAttribute('open','');
+          modal.classList.add('contact-qr-fallback');
+        }
+      });
+      const closeModal=()=>{
+        if(typeof modal.close==='function' && modal.open && !modal.classList.contains('contact-qr-fallback'))
+          modal.close();
+        else {modal.removeAttribute('open');modal.classList.remove('contact-qr-fallback');}
+        trigger.focus({preventScroll:true});
+      };
+      close?.addEventListener('click',closeModal);
+      modal.addEventListener('click',(event)=>{
+        if(event.target===modal)closeModal();
+      });
+      modal.addEventListener('cancel',(event)=>{
+        if(modal.classList.contains('contact-qr-fallback')){
+          event.preventDefault();closeModal();
+        }
+      });
+    };
+    if(document.readyState==='loading')
+      document.addEventListener('DOMContentLoaded',bindQR,{once:true});
+    else bindQR();
+  })();
 </script>
