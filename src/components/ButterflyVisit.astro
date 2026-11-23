@@ -1,269 +1,331 @@
-<!--
-  Scientific references: Pieris rapae (PMC2575472, PMC11255373);
-  Papilio xuthus (PMC4590450, PMC4657377).
-  The silhouettes and free-flight paths are simplified visual interpretations.
--->
+---
+/**
+ * Butterflies from pinned dorsal specimens (NSG group, Lund; CC0).
+ * Papilio xuthus: https://commons.wikimedia.org/wiki/File:MZLU-00129145_dorsal_(51008259851).jpg
+ * Pieris rapae: https://commons.wikimedia.org/wiki/File:MZLU-00129165_dorsal_(51008850721).jpg
+ * External Wikimedia thumbnails are used only for the photographic reveal.
+ * Four independently traced wing outlines reproduce the specimen's distinctive
+ * scalloped margins, swallowtail tips and different fore/hindwing proportions.
+ */
+const photos = {
+  papilio: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/MZLU-00129145_dorsal_%2851008259851%29.jpg/960px-MZLU-00129145_dorsal_%2851008259851%29.jpg',
+  pieris: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/MZLU-00129165_dorsal_%2851008850721%29.jpg/960px-MZLU-00129165_dorsal_%2851008850721%29.jpg'
+};
+const forms = {
+  papilio: {
+    view:'105 0 795 640',
+    ratio:640/795,
+    leftFore:'M511 283 C479 213 421 143 353 97 C289 48 219 13 176 12 Q139 4 142 32 C145 64 164 93 178 130 C191 164 192 197 215 222 Q233 279 267 285 C324 294 428 290 511 301 Z',
+    leftHind:'M505 283 C459 281 396 285 340 299 Q289 311 270 333 L255 353 Q255 365 266 373 L244 397 Q235 408 247 418 L263 441 Q247 453 260 468 L285 486 Q266 499 285 517 Q270 540 259 557 L221 596 Q219 610 236 600 L299 541 Q323 530 348 542 Q364 559 382 546 Q397 558 417 526 C436 481 448 426 459 368 C473 323 487 301 505 283 Z',
+    rightFore:'M541 283 C572 217 640 144 711 97 C780 46 840 13 864 15 Q892 13 884 45 C883 88 866 111 862 139 Q855 188 832 222 C829 254 814 282 782 291 C720 295 627 288 541 302 Z',
+    rightHind:'M541 286 C599 284 661 287 711 302 Q748 311 762 341 L776 358 Q789 369 773 381 L786 398 Q790 412 775 421 L788 437 Q785 449 773 458 L788 480 Q782 492 767 499 Q779 519 765 527 L788 556 L809 579 Q817 595 805 590 L772 565 Q748 548 731 548 Q708 550 691 559 Q675 560 667 544 Q653 558 637 537 C616 474 612 421 595 359 C578 321 558 297 541 286 Z',
+    body:'M516 226 C510 216 500 224 497 237 C491 256 491 289 495 305 C499 338 505 387 510 424 Q514 443 520 423 C531 362 528 311 528 286 C537 269 533 236 527 228 Z',
+    antenna:'M508 233 Q477 185 443 129 M520 233 Q556 184 592 137',
+    antennaEnds:[[443,129],[592,137]]
+  },
+  pieris: {
+    view:'165 15 710 470',
+    ratio:470/710,
+    leftFore:'M503 232 C456 170 389 114 323 73 Q229 21 201 31 Q179 33 186 70 L187 110 Q187 147 205 183 C220 222 246 236 292 240 C376 244 462 248 503 253 Z',
+    leftHind:'M501 250 C437 249 378 246 329 252 Q267 265 240 298 Q211 326 221 350 C237 406 298 455 365 470 Q411 480 445 434 C473 393 493 330 501 268 Z',
+    rightFore:'M530 232 C579 167 649 105 713 67 Q792 19 832 32 Q853 37 848 72 L848 117 Q845 167 819 203 Q797 238 737 240 C651 245 571 246 530 253 Z',
+    rightHind:'M531 250 C594 245 652 246 710 254 Q770 268 807 306 Q832 333 825 354 C808 421 744 458 674 457 Q615 456 574 404 C545 370 537 317 531 268 Z',
+    body:'M510 200 Q496 202 494 225 C483 249 489 267 495 287 Q499 330 509 403 Q517 421 524 404 Q534 336 533 285 C540 260 540 229 529 215 Q523 203 510 200 Z',
+    antenna:'M505 210 Q489 170 464 39 M519 210 Q555 130 570 44',
+    antennaEnds:[[464,39],[570,44]]
+  }
+};
+const butterflies = [{kind:'pieris',key:'p0'},{kind:'pieris',key:'p1'},{kind:'papilio',key:'a0'}];
+function renderSvg(kind,key,photographic) {
+  const f=forms[kind];
+  const id='scd-clip-'+key;
+  const wings=[['left',f.leftFore,f.leftHind],['right',f.rightFore,f.rightHind]];
+  const wingMarkup=wings.map(([side,fore,hind])=>{
+    const wingShape='<path d="'+fore+'"/><path d="'+hind+'"/>';
+    const interior=photographic
+      ? '<image x="0" y="0" width="960" height="720" preserveAspectRatio="none" href="'+photos[kind]+'" clip-path="url(#'+id+'-'+side+')"/>'
+      : wingShape;
+    return '<g class="scd-butterfly-wing scd-butterfly-'+side+'">'+interior+'</g>';
+  }).join('');
+  const clips=photographic
+    ? '<defs>'+wings.map(([side,fore,hind])=>'<clipPath id="'+id+'-'+side+'" clipPathUnits="userSpaceOnUse"><path d="'+fore+'"/><path d="'+hind+'"/></clipPath>').join('')+
+      '<clipPath id="'+id+'-body"><path d="'+f.body+'"/></clipPath></defs>'
+    : '';
+  const body=photographic
+    ? '<image x="0" y="0" width="960" height="720" preserveAspectRatio="none" href="'+photos[kind]+'" clip-path="url(#'+id+'-body)"/>'
+    : '<path d="'+f.body+'"/>';
+  const antenna='<path class="scd-butterfly-antenna" d="'+f.antenna+'"/>'+f.antennaEnds.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="2"/>').join('');
+  return '<svg viewBox="'+f.view+'" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+clips+
+    wingMarkup+body+antenna+'</svg>';
+}
+---
+<!-- The first layer lives in DOCUMENT coordinates; it naturally scrolls with the site. -->
 <div class="scd-butterfly-layer" data-scd-butterfly-layer aria-hidden="true">
-<div class="scd-butterfly scd-butterfly--pieris" data-scd-butterfly="pieris" aria-hidden="true">
-  <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg" focusable="false">
-    <g class="scd-butterfly-wing scd-butterfly-left">
-      <!-- Left forewing: long leading edge and rounded apex -->
-      <path d="M58 42 C49 29 37 12 19 8 C7 5 2 16 8 31 C16 47 34 52 56 49 Z" />
-      <!-- Left hindwing: smaller and distinctly rounder -->
-      <path d="M57 48 C47 49 34 45 25 52 C18 58 22 70 34 73 C46 75 54 62 59 51 Z" />
-    </g>
-    <g class="scd-butterfly-wing scd-butterfly-right">
-      <path d="M62 42 C71 29 83 12 101 8 C113 5 118 16 112 31 C104 47 86 52 64 49 Z" />
-      <path d="M63 48 C73 49 86 45 95 52 C102 58 98 70 86 73 C74 75 66 62 61 51 Z" />
-    </g>
-    <!-- Head, clubbed antennae, slender thorax and abdomen -->
-    <path class="scd-butterfly-body" d="M60 25 C54 25 54 33 56 38 C54 46 56 59 59 73 Q60 78 61 73 C64 59 66 46 64 38 C66 33 66 25 60 25 Z" />
-    <path class="scd-butterfly-antenna" d="M58 27 C52 19 49 12 47 6 M62 27 C68 19 71 12 73 6" />
-    <circle cx="47" cy="6" r="1.7" /><circle cx="73" cy="6" r="1.7" />
-  </svg>
+  {butterflies.map((b)=>(
+    <div class={'scd-butterfly scd-butterfly--'+b.kind} data-scd-butterfly={b.kind} data-butterfly-key={b.key} set:html={renderSvg(b.kind,b.key,false)}></div>
+  ))}
 </div>
-<div class="scd-butterfly scd-butterfly--pieris" data-scd-butterfly="pieris" aria-hidden="true">
-  <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg" focusable="false">
-    <g class="scd-butterfly-wing scd-butterfly-left">
-      <!-- Left forewing: long leading edge and rounded apex -->
-      <path d="M58 42 C49 29 37 12 19 8 C7 5 2 16 8 31 C16 47 34 52 56 49 Z" />
-      <!-- Left hindwing: smaller and distinctly rounder -->
-      <path d="M57 48 C47 49 34 45 25 52 C18 58 22 70 34 73 C46 75 54 62 59 51 Z" />
-    </g>
-    <g class="scd-butterfly-wing scd-butterfly-right">
-      <path d="M62 42 C71 29 83 12 101 8 C113 5 118 16 112 31 C104 47 86 52 64 49 Z" />
-      <path d="M63 48 C73 49 86 45 95 52 C102 58 98 70 86 73 C74 75 66 62 61 51 Z" />
-    </g>
-    <!-- Head, clubbed antennae, slender thorax and abdomen -->
-    <path class="scd-butterfly-body" d="M60 25 C54 25 54 33 56 38 C54 46 56 59 59 73 Q60 78 61 73 C64 59 66 46 64 38 C66 33 66 25 60 25 Z" />
-    <path class="scd-butterfly-antenna" d="M58 27 C52 19 49 12 47 6 M62 27 C68 19 71 12 73 6" />
-    <circle cx="47" cy="6" r="1.7" /><circle cx="73" cy="6" r="1.7" />
-  </svg>
-</div>
-<div class="scd-butterfly scd-butterfly--papilio" data-scd-butterfly="papilio" aria-hidden="true">
-  <svg viewBox="0 0 150 116" xmlns="http://www.w3.org/2000/svg" focusable="false">
-    <g class="scd-butterfly-wing scd-butterfly-left">
-      <!-- Papilio xuthus (Asian swallowtail): pointed forewing, scalloped hindwing, one slender tail per hindwing. Shape compared with dorsal museum specimen photography. -->
-      <!-- Dorsal specimen proportions: long triangular forewing, rounded tip, swept outer margin. -->
-      <path d="M74 52 C56 32 38 15 20 7 C12 4 7 7 7 16 C7 30 16 44 28 52 C42 62 57 62 75 62 Z"/>
-      <!-- Wavy hindwing margin and one long, narrow, OUTWARD tail on the rear outer lobe. -->
-      <path d="M75 62 C61 62 49 61 39 65 L32 70 Q28 72 30 77 L23 81 Q19 84 23 88 L17 92 Q13 96 19 99 L11 109 L4 116 Q3 120 7 119 L15 112 L27 102 Q32 105 38 100 L44 96 Q49 98 54 93 L62 87 Q70 82 75 70 Z"/>
-    </g>
-    <g class="scd-butterfly-wing scd-butterfly-right">
-      <path d="M76 52 C94 32 112 15 130 7 C138 4 143 7 143 16 C143 30 134 44 122 52 C108 62 93 62 75 62 Z"/>
-      <path d="M75 62 C89 62 101 61 111 65 L118 70 Q122 72 120 77 L127 81 Q131 84 127 88 L133 92 Q137 96 131 99 L139 109 L146 116 Q147 120 143 119 L135 112 L123 102 Q118 105 112 100 L106 96 Q101 98 96 93 L88 87 Q80 82 75 70 Z"/>
-    </g>
-    <path d="M75 29 C69 29 68 36 70 42 C69 53 69 75 74 92 Q75 99 76 92 C81 75 81 53 80 42 C82 36 81 29 75 29 Z"/>
-    <path class="scd-butterfly-antenna" d="M72 30 C65 20 62 12 60 5 M78 30 C85 20 88 12 90 5"/>
-    <circle cx="60" cy="5" r="1.8"/><circle cx="90" cy="5" r="1.8"/>
-  </svg>
-</div>
+<!-- The photo layer is clipped to the cursor aperture and floats above Lens/Invert.
+     The photos retain the same contour, wing animation and orientation as silhouettes. -->
+<div class="scd-butterfly-photo-layer" data-scd-butterfly-photo-layer aria-hidden="true">
+  {butterflies.map((b)=>(
+    <div class={'scd-butterfly scd-butterfly--'+b.kind+' scd-butterfly--photo'} data-butterfly-photo={b.key} set:html={renderSvg(b.kind,b.key,true)}></div>
+  ))}
 </div>
 
 <style>
   .scd-butterfly-layer {
-    position:fixed;
-    inset:0;
-    z-index:80;
-    pointer-events:none;
-    overflow:visible;
-  }
-  .scd-butterfly {
-    display:none;
     position:absolute;
     top:0;
     left:0;
-    color:#111;
+    width:100%;
+    pointer-events:none;
+    z-index:80;
+    overflow:visible;
+  }
+  .scd-butterfly-photo-layer {
+    position:fixed;
+    inset:0;
+    z-index:1002;
+    pointer-events:none;
+    overflow:hidden;
+    visibility:hidden;
+  }
+  .scd-butterfly {
+    position:absolute;
+    top:0;left:0;
+    display:none;
+    color:#101010;
     pointer-events:none;
     transform-origin:50% 50%;
     will-change:transform;
   }
-  .scd-butterfly--pieris {width:55px;height:39px}
-  .scd-butterfly--papilio {width:86px;height:67px}
-  .scd-butterfly svg {display:block;width:100%;height:100%;overflow:visible}
+  .scd-butterfly--pieris { width:56px;height:37px; }
+  .scd-butterfly--papilio { width:92px;height:74px; }
+  .scd-butterfly svg { display:block;width:100%;height:100%;overflow:visible; }
   .scd-butterfly path:not(.scd-butterfly-antenna),
   .scd-butterfly circle {fill:currentColor}
   .scd-butterfly-antenna {
-    fill:none;
-    stroke:currentColor;
-    stroke-width:1.6;
-    stroke-linecap:round;
+    fill:none;stroke:currentColor;stroke-width:3.3;stroke-linecap:round;
   }
   .scd-butterfly-wing {
     transform-box:view-box;
     transform-origin:center;
-    transform:scaleX(.87);
+    transform:scaleX(.85);
     will-change:transform;
   }
   .scd-butterfly.is-flapping .scd-butterfly-wing {
-    animation:scd-wingbeat var(--wing-period,.085s) ease-in-out infinite;
+    animation:scd-butterfly-beat var(--wing-period,.085s) ease-in-out infinite;
   }
-  @keyframes scd-wingbeat {
-    0%,100% {transform:scaleX(.23)}
+  .scd-butterfly--photo .scd-butterfly-wing {animation:none!important}
+  @keyframes scd-butterfly-beat {
+    0%,100% {transform:scaleX(.2)}
     50% {transform:scaleX(1)}
   }
   @media(prefers-reduced-motion:reduce) {
-    .scd-butterfly-layer {display:none!important}
-    .scd-butterfly-wing {animation:none!important}
+    .scd-butterfly-layer,.scd-butterfly-photo-layer {display:none!important}
   }
 </style>
 
 <script>
 (() => {
   const layer=document.querySelector('[data-scd-butterfly-layer]');
+  const photos=document.querySelector('[data-scd-butterfly-photo-layer]');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
   const hero=document.querySelector('.hero');
-  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-  if(!layer)return;
-
-  // Pieris rapae wingbeat: Jantzen & Eisner 2008, PMC2575472, 11.8 Hz.
-  // Papilio xuthus wingbeat: Kitamura & Imafuku 2015,
-  // PMC4590450, ~10.4–10.8 Hz (depending on sex).
-  // Flight paths and silhouettes are artistic approximations, not motion capture.
-  const TAU=Math.PI*2;
+  if(!layer||!photos)return;
+  const TAU=2*Math.PI;
   const random=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const specs={
-    pieris: {
-      size:[48,60],frequency:11.8,interval:[21000,48000],
+  const props={
+    pieris:{
+      size:[48,61],ratio:470/710,frequency:11.8,interval:[21000,48000],
       flight:[17500,25500],bob:3.3,swoop:11,
       x:[-.12,.11,.31,.22,.48,.70,.58,.83,1.11],
       y:[.49,.68,.26,.57,.80,.24,.65,.76,.37],
       flap:[720,1500],pause:[65,190]
     },
-    papilio: {
-      size:[78,99],frequency:10.6,interval:[100000,190000],
+    papilio:{
+      size:[80,108],ratio:640/795,frequency:10.6,interval:[100000,190000],
       flight:[19000,28500],bob:2.2,swoop:7,
       x:[-.13,.13,.30,.48,.40,.65,.84,1.13],
       y:[.56,.34,.63,.24,.50,.70,.35,.43],
       flap:[1050,1900],pause:[90,260]
     }
   };
-  function catmull(a,b,c,d,t) {
-    const t2=t*t,t3=t2*t;
-    return {
-      x:.5*(2*b.x+(-a.x+c.x)*t+(2*a.x-5*b.x+4*c.x-d.x)*t2+(-a.x+3*b.x-3*c.x+d.x)*t3),
-      y:.5*(2*b.y+(-a.y+c.y)*t+(2*a.y-5*b.y+4*c.y-d.y)*t2+(-a.y+3*b.y-3*c.y+d.y)*t3)
-    };
-  }
-  function sample(points,u) {
-    const last=points.length-1;
-    const step=clamp(u,0,1)*last;
-    const i=Math.min(last-1,Math.floor(step));
-    return catmull(points[Math.max(0,i-1)],points[i],points[i+1],points[Math.min(last,i+2)],step-i);
-  }
 
-  // Two Pieris slots run independently; the Papilio slot is much rarer.
-  const butterflies=[...layer.querySelectorAll('[data-scd-butterfly]')].map((el,index)=>{
-    const species=el.dataset.scdButterfly;
-    const spec=specs[species];
-    const state={index,species,spec,el,timer:0,wingTimer:0,frame:0,active:false};
+  let pointerX=innerWidth/2,pointerY=innerHeight/2,hasPointer=false;
+  const drawStates=[];
+  function documentSize() {
+    const size=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+    layer.style.height=size+'px';
+    return size;
+  }
+  documentSize();
 
-    function schedule(first=false) {
+  const catmull=(a,b,c,d,t)=>{
+    const q=t*t,r=q*t;
+    return {x:.5*(2*b.x+(-a.x+c.x)*t+(2*a.x-5*b.x+4*c.x-d.x)*q+(-a.x+3*b.x-3*c.x+d.x)*r),
+      y:.5*(2*b.y+(-a.y+c.y)*t+(2*a.y-5*b.y+4*c.y-d.y)*q+(-a.y+3*b.y-3*c.y+d.y)*r)};
+  };
+  const at=(points,u)=>{
+    const last=points.length-1,v=clamp(u,0,1)*last,i=Math.min(last-1,Math.floor(v));
+    return catmull(points[Math.max(0,i-1)],points[i],points[i+1],points[Math.min(last,i+2)],v-i);
+  };
+
+  const states=[...layer.querySelectorAll('[data-butterfly-key]')].map((el,index)=>{
+    const key=el.dataset.butterflyKey,kind=el.dataset.scdButterfly;
+    const spec=props[kind];
+    const photo=photos.querySelector('[data-butterfly-photo="'+key+'"]');
+    const state={index,key,kind,spec,el,photo,timer:0,wingTimer:0,frame:0,
+      active:false,x:0,y:0,heading:0,scale:1,w:0,h:0};
+
+    const schedule=(initial=false)=>{
       clearTimeout(state.timer);
-      if(reducedMotion.matches)return;
-      const delay=first
-        ? species==='pieris'
-          ? index===0?random(7000,21000):random(24000,45000)
-          : random(90000,165000)
+      if(reduced.matches)return;
+      const delay=initial
+        ? kind==='pieris'?(index===0?random(7000,21000):random(24000,45000)):random(90000,165000)
         : random(...spec.interval);
-      state.timer=window.setTimeout(start,delay);
-    }
-
-    function wingCycle(flapping) {
+      state.timer=setTimeout(start,delay);
+    };
+    const wings=(flap)=>{
       if(!state.active)return;
-      el.classList.toggle('is-flapping',flapping);
+      el.classList.toggle('is-flapping',flap);
       clearTimeout(state.wingTimer);
-      state.wingTimer=window.setTimeout(
-        ()=>wingCycle(!flapping),
-        flapping?random(...spec.flap):random(...spec.pause)
-      );
-    }
-
-    function stop() {
+      state.wingTimer=setTimeout(()=>wings(!flap),flap?random(...spec.flap):random(...spec.pause));
+    };
+    const stop=()=>{
       state.active=false;
       cancelAnimationFrame(state.frame);
       clearTimeout(state.wingTimer);
       state.frame=0;
       el.style.display='none';
+      photo.style.display='none';
       el.classList.remove('is-flapping');
       schedule();
-    }
-
-    function start() {
-      if(state.active||reducedMotion.matches||document.hidden){schedule();return}
-      const width=innerWidth,height=innerHeight;
-      const heroBottom=hero?.getBoundingClientRect().bottom??-100;
-      const minY=clamp(heroBottom+34,40,height-105);
-      const maxY=height-(species==='papilio'?95:65);
+    };
+    const start=()=>{
+      if(state.active||reduced.matches||document.hidden){schedule();return}
+      const pageHeight=documentSize();
+      const heroBottom=(hero?.getBoundingClientRect().bottom??-100)+scrollY;
+      const minY=Math.max(heroBottom+34,scrollY+65);
+      const maxY=Math.min(pageHeight-120,scrollY+innerHeight-(kind==='papilio'?95:65));
       if(maxY-minY<115){schedule();return}
-
+      const width=document.documentElement.clientWidth;
       const reverse=Math.random()<.5;
       const points=spec.x.map((u,i)=>({
         x:(reverse?1-u:u)*width+(i===0||i===spec.x.length-1?0:random(-.045,.045)*width),
         y:minY+clamp(spec.y[i]+random(-.095,.095),.08,.92)*(maxY-minY)
       }));
-      const duration=random(...spec.flight);
-      const started=performance.now();
-      const phase=random(0,TAU);
-      const wingPhase=random(0,TAU);
-      const size=random(...spec.size);
-      const ratio=species==='papilio'?116/150:85/120;
-      el.style.width=size.toFixed(2)+'px';
-      el.style.height=(size*ratio).toFixed(2)+'px';
-      el.style.setProperty('--wing-period',(1/spec.frequency).toFixed(4)+'s');
+      const duration=random(...spec.flight),started=performance.now();
+      const phase=random(0,TAU),wingPhase=random(0,TAU);
+      const w=random(...spec.size),h=w*spec.ratio;
+      state.w=w;state.h=h;
+      el.style.width=photo.style.width=w+'px';
+      el.style.height=photo.style.height=h+'px';
+      el.style.setProperty('--wing-period',(1/spec.frequency)+'s');
       el.style.display='block';
+      photo.style.display='block';
       state.active=true;
-      wingCycle(true);
+      wings(true);
       let heading=reverse?-90:90;
 
-      function draw(now) {
-        if(document.hidden||reducedMotion.matches){stop();return}
-        const t=(now-started)*.001;
-        const u=clamp((now-started)/duration,0,1);
-        const center=sample(points,u);
-        const ahead=sample(points,Math.min(1,u+.0025));
-        const behind=sample(points,Math.max(0,u-.0025));
-        const fastBob=spec.bob*Math.sin(TAU*spec.frequency*t+wingPhase);
-        const slowBob=spec.swoop*Math.sin(TAU*(species==='pieris'?.82:.59)*t+phase)
-          +4*Math.sin(TAU*(species==='pieris'?1.5:1.05)*t+wingPhase);
-        const x=center.x+7*Math.sin(TAU*(species==='pieris'?.52:.35)*t+phase);
-        const y=clamp(center.y+slowBob+fastBob,minY,maxY);
-        const dx=ahead.x-behind.x,dy=ahead.y-behind.y;
-        if(Math.hypot(dx,dy)>1){
-          const desired=Math.atan2(dy,dx)*180/Math.PI+90;
-          const delta=((desired-heading+540)%360)-180;
-          heading+=delta*(species==='pieris'?.085:.065);
+      function animate(now) {
+        if(document.hidden||reduced.matches){stop();return}
+        const t=(now-started)*.001,u=clamp((now-started)/duration,0,1);
+        const mid=at(points,u);
+        const p1=at(points,Math.min(1,u+.0025));
+        const p0=at(points,Math.max(0,u-.0025));
+        const oscillation=spec.bob*Math.sin(TAU*spec.frequency*t+wingPhase)
+          +spec.swoop*Math.sin(TAU*(kind==='pieris'?.82:.59)*t+phase)
+          +4*Math.sin(TAU*(kind==='pieris'?1.5:1.05)*t+wingPhase);
+        const x=mid.x+7*Math.sin(TAU*(kind==='pieris'?.52:.35)*t+phase);
+        const y=clamp(mid.y+oscillation,minY,maxY);
+        const vx=p1.x-p0.x,vy=p1.y-p0.y;
+        if(Math.hypot(vx,vy)>1){
+          const desired=Math.atan2(vy,vx)*180/Math.PI+90;
+          heading+=(((desired-heading+540)%360)-180)*(kind==='pieris'?.085:.065);
         }
-        const roll=(species==='pieris'?8:6)*Math.sin(TAU*(species==='pieris'?1.06:.83)*t+phase)
+        const roll=(kind==='pieris'?8:6)*Math.sin(TAU*(kind==='pieris'?1.06:.83)*t+phase)
           +2*Math.sin(TAU*spec.frequency*t+wingPhase);
         const scale=1+.025*Math.sin(TAU*1.65*t+wingPhase);
-        el.style.transform='translate3d('+x.toFixed(2)+'px,'+y.toFixed(2)+'px,0) rotate('+
-          (heading+roll).toFixed(2)+'deg) scale('+scale.toFixed(3)+')';
-        const blackBoundary=hero?.getBoundingClientRect().bottom??-100;
-        el.style.visibility=y<blackBoundary+24?'hidden':'visible';
-        if(u<1)state.frame=requestAnimationFrame(draw);
-        else stop();
+        state.x=x;state.y=y;state.heading=heading+roll;state.scale=scale;
+        el.style.transform='translate3d('+x+'px,'+y+'px,0) rotate('+state.heading+'deg) scale('+scale+')';
+        state.frame=u<1?requestAnimationFrame(animate):0;
+        if(u>=1)stop();
       }
-      state.frame=requestAnimationFrame(draw);
-    }
-
-    state.schedule=schedule;
-    state.stop=stop;
+      state.frame=requestAnimationFrame(animate);
+    };
+    state.stop=stop;state.schedule=schedule;
     return state;
   });
+  drawStates.push(...states);
 
-  butterflies.forEach(b=>b.schedule(true));
+  function updatePhoto() {
+    if(!hasPointer||reduced.matches){photos.style.visibility='hidden';return}
+    const mode=document.body.dataset.cursorStyle;
+    if(mode!=='pulse'&&mode!=='invert'){photos.style.visibility='hidden';return}
+    const rootStyle=getComputedStyle(document.documentElement);
+    const cursorSize=parseFloat(rootStyle.getPropertyValue('--cursor-size'))||60;
+    const zoom=mode==='pulse'?
+      (parseFloat(rootStyle.getPropertyValue('--cursor-zoom'))||1.5):1;
+    const radius=cursorSize*.5;
+    photos.style.visibility='visible';
+    photos.style.clipPath='circle('+radius+'px at '+pointerX+'px '+pointerY+'px)';
+    photos.style.webkitClipPath=photos.style.clipPath;
+    let visible=false;
+
+    for(const s of drawStates) {
+      if(!s.active){s.photo.style.display='none';continue}
+      const cx=s.x+s.w*.5,cy=s.y+s.h*.5-scrollY;
+      const screenX=pointerX+(cx-pointerX)*zoom;
+      const screenY=pointerY+(cy-pointerY)*zoom;
+      const reach=Math.max(s.w,s.h)*zoom*.7+radius;
+      if(Math.hypot(screenX-pointerX,screenY-pointerY)>reach) {
+        s.photo.style.display='none';continue;
+      }
+      visible=true;
+      s.photo.style.display='block';
+      s.photo.style.width=(s.w*zoom)+'px';
+      s.photo.style.height=(s.h*zoom)+'px';
+      const originX=pointerX+zoom*(s.x-pointerX);
+      const originY=pointerY+zoom*(s.y-scrollY-pointerY);
+      s.photo.style.transform='translate3d('+originX+'px,'+originY+'px,0) rotate('+
+        s.heading+'deg) scale('+s.scale+')';
+      const from=s.el.querySelectorAll('.scd-butterfly-wing');
+      const to=s.photo.querySelectorAll('.scd-butterfly-wing');
+      for(let i=0;i<Math.min(from.length,to.length);i++){
+        to[i].style.animation='none';
+        to[i].style.transform=getComputedStyle(from[i]).transform;
+      }
+    }
+    photos.style.visibility=visible?'visible':'hidden';
+  }
+
+  // Keep document-positioned silhouettes moving with the site on scroll.
+  // All photograph coordinates are derived from the *current* viewport.
+  window.addEventListener('pointermove',e=>{
+    pointerX=e.clientX;pointerY=e.clientY;hasPointer=true;
+  },{passive:true});
+  window.addEventListener('resize',documentSize,{passive:true});
+  const observer=new ResizeObserver(documentSize);
+  observer.observe(document.body);
+  let photoFrame=0;
+  const mirror=()=>{
+    updatePhoto();
+    photoFrame=requestAnimationFrame(mirror);
+  };
+  photoFrame=requestAnimationFrame(mirror);
+  states.forEach(s=>s.schedule(true));
+
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden)butterflies.forEach(b=>{if(b.active)b.stop()});
+    if(document.hidden)states.forEach(s=>{if(s.active)s.stop()});
   });
-  reducedMotion.addEventListener('change',()=>{
-    if(reducedMotion.matches){
-      butterflies.forEach(b=>{
-        clearTimeout(b.timer);
-        if(b.active)b.stop();
-        clearTimeout(b.timer);
-      });
-    }else butterflies.forEach(b=>{if(!b.active)b.schedule(true)});
+  reduced.addEventListener('change',()=>{
+    if(reduced.matches){
+      states.forEach(s=>{clearTimeout(s.timer);if(s.active)s.stop();clearTimeout(s.timer)});
+      photos.style.visibility='hidden';
+    }else states.forEach(s=>{if(!s.active)s.schedule(true)});
   });
 })();
 </script>
