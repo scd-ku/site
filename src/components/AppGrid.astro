@@ -440,6 +440,7 @@ const colorForApp = (slug, index) => {
     const cursorSlider2Label = document.querySelector('[data-cursor-slider2-label]');
     const cursorSlider1Value = document.querySelector('[data-cursor-slider1-value]');
     const cursorSlider2Value = document.querySelector('[data-cursor-slider2-value]');
+    const butterflySliders = [...document.querySelectorAll('.display-settings-popover [data-butterfly-count]')];
     const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
     // Every page load starts from the requested defaults. Changes last only for this page view.
@@ -624,6 +625,25 @@ const colorForApp = (slug, index) => {
       else state.size=value;
       emitCursorState(state);
     });
+
+    // Per-species maximum butterfly population: update on every slider move.
+    // The ButterflyVisit component listens for this event and starts/stops
+    // individual agents without reloading the page.
+    const emitButterflyCounts=()=>{
+      const limits={pieris:3,papilio:1};
+      butterflySliders.forEach((slider)=>{
+        const species=slider.dataset.butterflyCount;
+        if(!(species in limits))return;
+        const count=clamp(Math.round(Number(slider.value)||0),0,5);
+        limits[species]=count;
+        const output=document.querySelector('[data-butterfly-count-value="'+species+'"]');
+        if(output)output.textContent=String(count);
+        slider.setAttribute('aria-valuetext',count+'羽');
+      });
+      document.dispatchEvent(new CustomEvent('scd:butterfly-counts-changed',{detail:limits}));
+    };
+    butterflySliders.forEach((slider)=>slider.addEventListener('input',emitButterflyCounts));
+    emitButterflyCounts();
 
     document.addEventListener('scd:cursor-state-applied', (event) => updateCursorControls(event.detail));
     document.addEventListener('pointerdown', (event) => {
