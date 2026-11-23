@@ -54,7 +54,17 @@ const bodies={
 function svg(kind,photo){
   const f=bodies[kind];
   const pid='fauna-pattern-'+kind+(photo?'-color':'-black');
-  const pattern=photo?'<defs><pattern id="'+pid+'" patternUnits="userSpaceOnUse" width="'+f.w+'" height="'+f.h+'"><image href="'+photos[kind]+'" x="0" y="0" width="'+f.w+'" height="'+f.h+'" preserveAspectRatio="xMidYMid slice"/></pattern></defs>':'';
+  // The photos may be rate-limited by Commons. An illustrated color/texture
+  // base is always present, while a successfully loaded photo paints on top.
+  const texture=kind==='chicken'
+    ? '<rect width="240" height="160" fill="#a26d41"/>'+
+      '<path d="M0 25 Q44 43 91 20 T240 30 M-10 65 Q70 84 120 59 T250 75 M-5 110 Q70 91 134 116 T250 106 M0 144 Q85 119 165 144 T244 144" fill="none" stroke="#d5a076" stroke-width="14" opacity=".75"/>'+
+      '<path d="M0 40 Q55 59 105 37 T250 43 M0 96 Q61 116 133 90 T250 100" fill="none" stroke="#54351d" stroke-width="5" opacity=".32"/>'
+    : '<rect width="160" height="176" fill="#83b83e"/>'+
+      '<path d="M0 20 Q48 0 83 24 T160 22 M0 75 Q42 62 83 80 T165 77 M0 142 Q48 128 89 148 T168 140" fill="none" stroke="#a8d85a" stroke-width="25" opacity=".7"/>'+
+      '<circle cx="35" cy="62" r="4" fill="#54822a"/><circle cx="120" cy="104" r="5" fill="#648631"/><circle cx="77" cy="125" r="3" fill="#d6e58b"/>';
+  const pattern=photo?'<defs><pattern id="'+pid+'" patternUnits="userSpaceOnUse" width="'+f.w+'" height="'+f.h+'">'+
+    texture+'<image href="'+photos[kind]+'" x="0" y="0" width="'+f.w+'" height="'+f.h+'" preserveAspectRatio="xMidYMid slice"/></pattern></defs>':'';
   const fill=photo?'url(#'+pid+')':'currentColor';
   const shape=(d,cls='')=>'<path'+(cls?' class="'+cls+'"':'')+' d="'+d+'" fill="'+fill+'"/>';
   if(kind==='chicken'){
