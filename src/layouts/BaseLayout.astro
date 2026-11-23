@@ -883,9 +883,10 @@ const base = import.meta.env.BASE_URL;
         const level = Math.max(0, Math.min(100, Number(getComputedStyle(document.documentElement).getPropertyValue('--color-level') || 50)));
         const sat = level <= 50 ? 18 + level * .94 : 65 + (level - 50) * .70;
         const light = level <= 50 ? 62 + level * .12 : 68 - (level - 50) * .16;
-        const alpha = level <= 50 ? .22 + level * .002 : .32 + (level - 50) * .0022;
+        // Opaque face colors prevent the black hero backdrop from diluting
+        // the pigment. Screen compositing below keeps overlapping hues additive.
         const hues = [356, 27, 48, 103, 207, 274];
-        const palette = hues.map(h => `hsla(${h},${sat}%,${light}%,${alpha})`);
+        const palette = hues.map(h => `hsl(${h}, ${sat}%, ${light}%)`);
         const adjacency = faces.map((face,i)=>faces.map((other,j)=> i!==j && facesShareEdge(face,other) ? j : -1).filter(v=>v>=0));
         const assigned = new Array(faces.length).fill(null);
         for(let i=0;i<faces.length;i++){
@@ -981,6 +982,8 @@ const base = import.meta.env.BASE_URL;
 
         if(fullColorMode || redBlueMode){
           ctx.save();
+          // Screen is neutral over black and combines overlapping face colors.
+          if(fullColorMode) ctx.globalCompositeOperation='screen';
           const colorSeed = type==='cube' ? 0 : type==='octahedron' ? 3 : type==='hexPrism' ? 2 : type==='rhombohedron' ? 4 : 1;
           const colorMap = faceColorsForSolid(faces, colorSeed);
           faceData.forEach(({face,index})=>{
