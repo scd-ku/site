@@ -82,6 +82,15 @@ const colorForApp = (slug, index) => {
           <output data-detail-saturation-value>70%</output>
         </label>
 
+        <div class="settings-group settings-group--hero-blend">
+          <div class="settings-group-label">Hero colors</div>
+          <label class="saturation-control">
+            <span>Screen blend opacity</span>
+            <input type="range" min="0" max="100" value="90" step="1" data-hero-blend-opacity aria-label="Hero screen blend opacity" />
+            <output data-hero-blend-opacity-value>90%</output>
+          </label>
+        </div>
+
         <div class="settings-group settings-group--cursor">
           <div class="settings-group-label">Cursor</div>
           <div class="layout-modes layout-modes--cursor" role="group" aria-label="Cursor mode">
@@ -433,6 +442,8 @@ const colorForApp = (slug, index) => {
     const screenSlider = document.querySelector('[data-detail-saturation]');
     const screenValue = document.querySelector('[data-detail-saturation-value]');
     const screenLabel = document.querySelector('[data-screen-label]');
+    const heroBlendSlider = document.querySelector('[data-hero-blend-opacity]');
+    const heroBlendValue = document.querySelector('[data-hero-blend-opacity-value]');
     const cursorButtons = [...document.querySelectorAll('[data-cursor-style]')];
     const cursorSlider1 = document.querySelector('[data-cursor-slider1]');
     const cursorSlider2 = document.querySelector('[data-cursor-slider2]');
@@ -445,6 +456,7 @@ const colorForApp = (slug, index) => {
 
     // Every page load starts from the requested defaults. Changes last only for this page view.
     let colorIntensity = 70;
+    let heroBlendOpacity = 90;
     let blindTone = 0;
     let monoDepth = 58;
     let currentMode = 'color';
@@ -532,6 +544,9 @@ const colorForApp = (slug, index) => {
       document.documentElement.style.setProperty('--detail-brightness', String(bright));
       document.documentElement.style.setProperty('--detail-contrast', String(contrast));
       document.documentElement.style.setProperty('--color-level', String(level));
+      document.documentElement.style.setProperty('--hero-color-blend-opacity', String(heroBlendOpacity / 100));
+      if (heroBlendSlider) heroBlendSlider.value = String(heroBlendOpacity);
+      if (heroBlendValue) heroBlendValue.textContent = `${heroBlendOpacity}%`;
       const monoLevel = monoDepth / 100;
       const monoBrightness = 1.13 - monoLevel * .50;
       const monoContrast = .88 + monoLevel * .72;
@@ -601,6 +616,12 @@ const colorForApp = (slug, index) => {
         colorIntensity = value;
       }
       applyDisplaySettings();
+    });
+
+    heroBlendSlider?.addEventListener('input', () => {
+      heroBlendOpacity = clamp(Number(heroBlendSlider.value), 0, 100);
+      document.documentElement.style.setProperty('--hero-color-blend-opacity', String(heroBlendOpacity / 100));
+      if (heroBlendValue) heroBlendValue.textContent = `${heroBlendOpacity}%`;
     });
 
     cursorButtons.forEach((button) => button.addEventListener('click', () => {
