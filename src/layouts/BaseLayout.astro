@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import PrivacyAnalytics from '../components/PrivacyAnalytics.astro';
 import ButterflyVisit from '../components/ButterflyVisit.astro';
+import FaunaVisit from '../components/FaunaVisit.astro';
 const {
   title = 'Science Communication Design Laboratory',
   description = 'Science Communication Design Laboratory, Kagawa University — public web applications and projects.',
@@ -33,6 +34,7 @@ const base = import.meta.env.BASE_URL;
     <slot />
     <PrivacyAnalytics />
     <ButterflyVisit />
+    <FaunaVisit />
 
     <script is:inline>
       (() => {
@@ -72,6 +74,7 @@ const base = import.meta.env.BASE_URL;
       let magnifierClone = null;
       let magnifierFixedPairs = [];
       let magnifierButterflyMirror = null;
+      let magnifierFaunaMirror = null;
 
       function stripCloneIds(node){
         if (!(node instanceof Element)) return;
@@ -188,6 +191,26 @@ const base = import.meta.env.BASE_URL;
           magnifierScene.appendChild(mirror);
           magnifierButterflyMirror=mirror;
         }
+        // Site-ground hen and wall-climbing frog also live OUTSIDE <main>.
+        // Mirror their silhouette positions into the zoomed document.
+        magnifierFaunaMirror=null;
+        const fauna=document.querySelector('[data-scd-fauna-layer]');
+        if(fauna){
+          const mirror=fauna.cloneNode(true);
+          mirror.removeAttribute('data-scd-fauna-layer');
+          mirror.classList.add('magnifier-fauna-mirror');
+          mirror.setAttribute('aria-hidden','true');
+          mirror.style.position='absolute';
+          mirror.style.inset='auto';
+          mirror.style.top='0';
+          mirror.style.left='0';
+          mirror.style.width=`${document.documentElement.clientWidth}px`;
+          mirror.style.height=`${document.documentElement.scrollHeight}px`;
+          mirror.style.zIndex='119';
+          mirror.style.pointerEvents='none';
+          magnifierScene.appendChild(mirror);
+          magnifierFaunaMirror=mirror;
+        }
 
         copyInteractiveState(source,clone);
       }
@@ -287,6 +310,29 @@ const base = import.meta.env.BASE_URL;
             for(let j=0;j<Math.min(srcWings.length,dstWings.length);j++){
               dstWings[j].style.animation='none';
               dstWings[j].style.transform=getComputedStyle(srcWings[j]).transform;
+            }
+          }
+        }
+
+        // The chicken and frog share the fixed document-coordinate painting
+        // mechanism. Copy geometry, walking feet and climbing limbs every frame.
+        if(magnifierFaunaMirror){
+          const layer=document.querySelector('[data-scd-fauna-layer]');
+          const originals=layer?.querySelectorAll('[data-fauna]')||[];
+          const copies=magnifierFaunaMirror.querySelectorAll('[data-fauna]');
+          magnifierFaunaMirror.style.width=`${document.documentElement.clientWidth}px`;
+          magnifierFaunaMirror.style.height=`${document.documentElement.scrollHeight}px`;
+          for(let i=0;i<Math.min(originals.length,copies.length);i++){
+            const from=originals[i],to=copies[i];
+            to.className=from.className;
+            to.style.cssText=from.style.cssText;
+            if(from.style.transform)
+              to.style.transform=`translate3d(${window.scrollX}px,${window.scrollY}px,0) ${from.style.transform}`;
+            const liveParts=from.querySelectorAll('.fauna-leg,.fauna-frog-limb');
+            const copyParts=to.querySelectorAll('.fauna-leg,.fauna-frog-limb');
+            for(let j=0;j<Math.min(liveParts.length,copyParts.length);j++){
+              copyParts[j].style.animation='none';
+              copyParts[j].style.transform=getComputedStyle(liveParts[j]).transform;
             }
           }
         }
