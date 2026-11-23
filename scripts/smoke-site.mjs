@@ -39,6 +39,44 @@ try{
   // noninteractive clone of this same button, and it is hidden by default.
   await page.waitForSelector('main#top button[data-qr-open]',{timeout:10000});
 
+  // Color Intensity starts at 70. Hero solid faces are opaque, while
+  // screen blending keeps black neutral and combines overlapping colors.
+  await page.waitForFunction(()=>{
+    const canvas=document.querySelector('main#top canvas[data-solid="cube"]');
+    if(!canvas) return false;
+    const data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    for(let i=0;i<data.length;i+=4){
+      if(data[i+3]===255&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) return true;
+    }
+    return false;
+  },{timeout:5000});
+  const colorRender=await page.evaluate(()=>{
+    const slider=document.querySelector('main#top [data-detail-saturation]');
+    const output=document.querySelector('main#top [data-detail-saturation-value]');
+    const canvas=document.querySelector('main#top canvas[data-solid="cube"]');
+    const solid=canvas?.closest('.science-object.object-solid');
+    const data=canvas?.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    let opaqueColorPixels=0;
+    if(data) for(let i=0;i<data.length;i+=4){
+      if(data[i+3]===255&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) opaqueColorPixels++;
+    }
+    return {
+      slider:slider?.value,
+      output:output?.textContent?.trim(),
+      colorLevel:getComputedStyle(document.documentElement).getPropertyValue('--color-level').trim(),
+      blend:solid?getComputedStyle(solid).mixBlendMode:'',
+      opacity:solid?getComputedStyle(solid).opacity:'',
+      filter:canvas?getComputedStyle(canvas).filter:'',
+      opaqueColorPixels
+    };
+  });
+  assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
+    'Color Intensity default is not 70: '+JSON.stringify(colorRender));
+  assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
+    'Hero solid colors are not rendered as opaque screen-blended hues: '+JSON.stringify(colorRender));
+  console.log('PASS: Color Intensity defaults to 70; hero solids use opaque, screen-blended color without black-background dilution.');
+
+
   // The QR dialog must OPEN in the browser, not merely exist in the DOM.
   await page.locator('main#top button[data-qr-open]').click();
   await page.waitForFunction(()=>document.querySelector('dialog[data-qr-dialog]')?.open,{timeout:5000});
