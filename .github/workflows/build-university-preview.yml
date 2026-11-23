@@ -11,6 +11,7 @@ on:
       - "src/components/AppGrid.astro"
       - "src/layouts/BaseLayout.astro"
       - "src/pages/index.astro"
+      - "src/styles/global.css"
 
 permissions:
   contents: read
