@@ -34,7 +34,9 @@ try{
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   page.on('pageerror',err=>{console.warn('Browser JS warning: '+err.message);});
   await page.goto(root,{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForSelector('button[data-qr-open]',{timeout:10000});
+  // Scope to the REAL document: the Lens contains a second, intentionally
+  // noninteractive clone of this same button, and it is hidden by default.
+  await page.waitForSelector('main#top button[data-qr-open]',{timeout:10000});
 
   // The QR dialog must OPEN in the browser, not merely exist in the DOM.
   await page.locator('main#top button[data-qr-open]').click();
