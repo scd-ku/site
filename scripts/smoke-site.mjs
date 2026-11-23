@@ -54,9 +54,9 @@ try{
 
   // Pre-render five slots per species; show only the user-selected maximum.
   const slots=await page.evaluate(()=>({
-    pieris:document.querySelectorAll('[data-scd-butterfly="pieris"]').length,
-    papilio:document.querySelectorAll('[data-scd-butterfly="papilio"]').length,
-    photoBodies:document.querySelectorAll('[data-butterfly-photo] .scd-butterfly-body').length
+    pieris:document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]').length,
+    papilio:document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="papilio"]').length,
+    photoBodies:document.querySelectorAll('[data-scd-butterfly-photo-layer] [data-butterfly-photo] .scd-butterfly-body').length
   }));
   assert(slots.pieris===5&&slots.papilio===5,'Expected five reusable butterfly slots per species.');
   assert(slots.photoBodies===0,'Photographic overlay must not duplicate the butterfly thorax.');
@@ -70,7 +70,7 @@ try{
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
   assert((await page.locator('[data-butterfly-count-value="pieris"]').textContent())?.trim()==='0','Zero count was not reflected in settings.');
-  const stillActive=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
+  const stillActive=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
   assert(stillActive===0,'Some Pieris remain active when the maximum is zero.');
 
   await slider.evaluate(node=>{
@@ -79,7 +79,7 @@ try{
   });
   assert((await page.locator('[data-butterfly-count-value="pieris"]').textContent())?.trim()==='5','Five count was not reflected in settings.');
   await page.waitForTimeout(2100);
-  const resumed=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
+  const resumed=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
   assert(resumed===5,'Five Pieris agents did not resume when max set to five; saw '+resumed);
   console.log('PASS: Butterfly maximum 0–5 dynamically changes active agents.');
   await page.close();
