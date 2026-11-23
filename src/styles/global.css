@@ -5060,7 +5060,8 @@ body.cursor-over-embedded-map .contact-map iframe {
    screen blending combines intersecting solids without muddying their hues.
    The isolated science field confines the effect to the hero illustration. */
 html[data-site-palette="color"] .science-field .science-object.object-solid {
-  opacity:1 !important;
+  /* Keep additive hue mixing, but soften accumulated light at intersections. */
+  opacity:.82 !important;
   mix-blend-mode:screen;
 }
 html[data-site-palette="color"] .science-field .science-object.object-solid canvas {
