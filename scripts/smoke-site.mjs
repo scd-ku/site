@@ -104,6 +104,34 @@ try{
   assert(extent.scrollHeight-Math.max(extent.footerEnd,900)<10,
     'Butterfly layer extended document below copyright: '+JSON.stringify(extent));
   console.log('PASS: Page ends at copyright even after moving butterflies and scrolling.');
+
+  // Verify both new page-coordinate fauna visitors without introducing new
+  // document height. The hen's feet stand precisely over the footer line.
+  const fauna=await page.evaluate(()=>({
+    chicken:document.querySelectorAll('[data-scd-fauna-layer] [data-fauna="chicken"]').length,
+    frog:document.querySelectorAll('[data-scd-fauna-layer] [data-fauna="frog"]').length,
+    photographs:document.querySelectorAll('[data-scd-fauna-photo-layer] [data-fauna-photo]').length,
+    layerPosition:getComputedStyle(document.querySelector('[data-scd-fauna-layer]')).position,
+    layerHeight:document.querySelector('[data-scd-fauna-layer]').getBoundingClientRect().height
+  }));
+  assert(fauna.chicken===1&&fauna.frog===1&&fauna.photographs===2,
+    'Hen/frog or photo layers missing: '+JSON.stringify(fauna));
+  assert(fauna.layerPosition==='fixed'&&fauna.layerHeight===0,
+    'Fauna layer may extend the page: '+JSON.stringify(fauna));
+  const chickenInfo=await page.evaluate(()=>{
+    const hen=document.querySelector('[data-scd-fauna-layer] [data-fauna="chicken"]');
+    const footer=document.querySelector('main#top > footer');
+    return {feet:hen.getBoundingClientRect().bottom, ground:footer.getBoundingClientRect().top};
+  });
+  assert(Math.abs(chickenInfo.feet-chickenInfo.ground)<18,
+    'Chicken does not walk along footer: '+JSON.stringify(chickenInfo));
+  await page.mouse.move(700,600);
+  await page.waitForTimeout(90);
+  const nextExtent=await getPageExtent();
+  assert(nextExtent.scrollHeight-Math.max(nextExtent.footerEnd,900)<10,
+    'Fauna extended page after copyright: '+JSON.stringify(nextExtent));
+  console.log('PASS: One hen walks at footer, one frog climbs page, photo layers exist, and no extra page height.');
+
   await page.close();
 }finally{
   await browser?.close();
