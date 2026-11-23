@@ -42,8 +42,12 @@ const forms = {
     antennaEnds:[[464,39],[570,44]]
   }
 };
-// Three independently flying Pieris, plus one longer-staying Papilio.
-const butterflies = [{kind:'pieris',key:'p0'},{kind:'pieris',key:'p1'},{kind:'pieris',key:'p2'},{kind:'papilio',key:'a0'}];
+// Five reusable slots per species; the settings panel chooses 0–5 active
+// individuals. Defaults are three whites and one swallowtail.
+const butterflies = [
+  ...Array.from({length:5},(_,i)=>({kind:'pieris',key:'p'+i})),
+  ...Array.from({length:5},(_,i)=>({kind:'papilio',key:'a'+i}))
+];
 function renderSvg(kind,key,photographic) {
   const f=forms[kind];
   const id='scd-mask-'+key;
@@ -66,9 +70,13 @@ function renderSvg(kind,key,photographic) {
   // Draw the body only once in the foreground. Keeping it an opaque shape
   // (rather than a second image clip) also prevents duplicate thoraxes
   // during rapid wingbeats and when Lens overlays the underlying silhouette.
-  const body='<path class="scd-butterfly-body" d="'+f.body+'"/>';
-  const antenna='<path class="scd-butterfly-antenna" d="'+f.antenna+'"/>'+
-    f.antennaEnds.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="2"/>').join('');
+  // Only the silhouette has the thorax and antennae. Lens has its own
+  // synced silhouette mirror; the cursor photograph reveals WINGS ONLY.
+  // Rendering two separate bodies (silhouette plus photo) caused doubled
+  // thoraxes when the floating layers differed by even a fraction of a pixel.
+  const body=photographic?'':'<path class="scd-butterfly-body" d="'+f.body+'"/>';
+  const antenna=photographic?'':('<path class="scd-butterfly-antenna" d="'+f.antenna+'"/>'+
+    f.antennaEnds.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="2"/>').join(''));
   return '<svg viewBox="'+f.view+'" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">'+
     masks+wingMarkup+body+antenna+'</svg>';
 }
@@ -171,6 +179,12 @@ function renderSvg(kind,key,photographic) {
   };
 
   let pointerX=innerWidth/2,pointerY=innerHeight/2,hasPointer=false;
+  // Runtime maximums are independent of the number of pre-rendered slots.
+  const limits={pieris:3,papilio:1};
+  for(const kind of Object.keys(limits)){
+    const slider=document.querySelector('[data-butterfly-count="'+kind+'"]');
+    if(slider)limits[kind]=clamp(Number(slider.value)||0,0,5);
+  }
   const drawStates=[];
   function documentSize() {
     const size=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
@@ -195,13 +209,15 @@ function renderSvg(kind,key,photographic) {
     const photo=photos.querySelector('[data-butterfly-photo="'+key+'"]');
     const state={index,key,kind,spec,el,photo,timer:0,wingTimer:0,frame:0,
       active:false,x:0,y:0,heading:0,scale:1,w:0,h:0};
+    const slot=Number(key.slice(1));
+    const isEnabled=()=>slot<limits[kind];
 
     const schedule=(initial=false)=>{
       clearTimeout(state.timer);
-      // Three Pieris agents circulate continuously. New flight routes begin
+      // Enabled Pieris agents circulate continuously. New flight routes begin
       // immediately at the end of each pass (including off-page entrances).
       // Papilio has just one agent and spends far longer flying than away.
-      if(reduced.matches||document.hidden)return;
+      if(reduced.matches||document.hidden||!isEnabled())return;
       const delay=kind==='pieris'
         ? (initial?random(0,1200):0)
         : (initial?random(14000,32000):random(...spec.interval));
@@ -224,7 +240,7 @@ function renderSvg(kind,key,photographic) {
       schedule();
     };
     const start=()=>{
-      if(state.active||reduced.matches||document.hidden){schedule();return}
+      if(state.active||!isEnabled()||reduced.matches||document.hidden)return;
       const pageHeight=documentSize();
       const heroBottom=(hero?.getBoundingClientRect().bottom??-100)+scrollY;
       // Movement spans the whole DOCUMENT, not just the viewport. Starting
@@ -294,10 +310,29 @@ function renderSvg(kind,key,photographic) {
       }
       state.frame=requestAnimationFrame(animate);
     };
-    state.stop=stop;state.schedule=schedule;
+    state.stop=stop;state.schedule=schedule;state.isEnabled=isEnabled;
     return state;
   });
   drawStates.push(...states);
+
+  // Display settings can change both species immediately from 0 to 5.
+  document.addEventListener('scd:butterfly-counts-changed',(event)=>{
+    const next=event.detail||{};
+    for(const kind of ['pieris','papilio']){
+      if(next[kind]!==undefined){
+        const value=Number(next[kind]);
+        if(Number.isFinite(value))limits[kind]=clamp(Math.round(value),0,5);
+      }
+    }
+    states.forEach(st=>{
+      if(!st.isEnabled()){
+        clearTimeout(st.timer);
+        if(st.active)st.stop();
+      }else if(!st.active){
+        st.schedule(true);
+      }
+    });
+  });
 
   function updatePhoto() {
     if(!hasPointer||reduced.matches){photos.style.visibility='hidden';return}
