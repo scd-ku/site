@@ -5055,13 +5055,12 @@ body.cursor-over-embedded-map .contact-map iframe {
   cursor:auto !important;
 }
 
-/* v79 — true color on the black hero field.
-   Opaque face pixels keep the black background from reducing saturation;
-   screen blending combines intersecting solids without muddying their hues.
-   The isolated science field confines the effect to the hero illustration. */
+/* v80 — adjustable screen blend for the colored hero solids.
+   The opacity is controlled by the Display settings panel (90% by default).
+   Screen remains neutral over black; its opacity controls how strongly the
+   colored faces contribute where the solids and their hues overlap. */
 html[data-site-palette="color"] .science-field .science-object.object-solid {
-  /* Keep additive hue mixing, but soften accumulated light at intersections. */
-  opacity:.82 !important;
+  opacity:var(--hero-color-blend-opacity,.9) !important;
   mix-blend-mode:screen;
 }
 html[data-site-palette="color"] .science-field .science-object.object-solid canvas {
