@@ -209,6 +209,7 @@ const qrSvg = await QRCode.toString(websiteUrl, {
       // In Chrome a modal inside transformed ancestors could become
       // clipped or appear behind other site effects.
       document.body.appendChild(modal);
+      document.dispatchEvent(new CustomEvent('scd:contact-qr-mounted'));
       const close = modal.querySelector('[data-qr-close]');
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
