@@ -4983,3 +4983,24 @@ html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
     gap:10px !important;
   }
 }
+
+/* v75 — Invert the actual composited page pixels (including fixed butterfly
+   silhouettes), rather than blending a white disk inside its own isolated
+   stacking context. The black butterfly becomes an inverted WHITE shape over
+   the inverted background, instead of disappearing under the cursor. */
+.cursor-invert-lens {
+  background:rgba(255,255,255,.001) !important;
+  mix-blend-mode:normal !important;
+  isolation:auto !important;
+  backdrop-filter:invert(1) !important;
+  -webkit-backdrop-filter:invert(1) !important;
+}
+.cursor-invert-lens::after {
+  pointer-events:none;
+}
+/* The Lens has a live copy of the butterflies drawn over the zoomed main page.
+   Match their document position using the scroll offset in BaseLayout. */
+.cursor-magnifier-scene > .magnifier-butterfly-mirror {
+  z-index:120 !important;
+  pointer-events:none !important;
+}
