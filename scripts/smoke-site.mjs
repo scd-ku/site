@@ -72,31 +72,48 @@ try{
   });
   assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
     'Color Intensity default is not 70: '+JSON.stringify(colorRender));
-  assert(colorRender.blend==='screen'&&colorRender.opacity==='0.9'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
-    'Hero solid colors are not rendered as opaque screen-blended hues: '+JSON.stringify(colorRender));
+  assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
+    'Hero solid canvases must retain fully visible wireframes with screen blending: '+JSON.stringify(colorRender));
   console.log('PASS: Color Intensity defaults to 70; hero solids use opaque, screen-blended color without black-background dilution.');
 
   // Screen blend opacity is a live Display setting with a 90% default.
   await page.locator('main#top .display-settings-button').click();
   const blendSlider=page.locator('main#top [data-hero-blend-opacity]');
   const blendOutput=page.locator('main#top [data-hero-blend-opacity-value]');
-  assert(await blendSlider.inputValue()==='90','Hero screen blend default is not 90%.');
-  assert((await blendOutput.textContent())?.trim()==='90%','Hero screen blend output does not show 90%.');
-  const blendDefault=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
-  assert(blendDefault==='0.9','Hero screen blend CSS default is not 90%: '+blendDefault);
+  assert(await blendSlider.inputValue()==='90','Hero face opacity default is not 90%.');
+  assert((await blendOutput.textContent())?.trim()==='90%','Hero face opacity output does not show 90%.');
+  const faceDefault=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--hero-face-opacity').trim());
+  const wireDefault=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
+  assert(faceDefault==='0.9'&&wireDefault==='1','Hero face/wireframe opacity defaults are not independent: '+faceDefault+'/'+wireDefault);
   await blendSlider.evaluate(node=>{
-    node.value='63';
+    node.value='0';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
-  const blendChanged=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
-  assert(blendChanged==='0.63'&&(await blendOutput.textContent())?.trim()==='63%',
-    'Hero screen blend slider did not update live: '+blendChanged);
+  const faceZero=await page.evaluate(()=>{
+    const root=getComputedStyle(document.documentElement).getPropertyValue('--hero-face-opacity').trim();
+    const canvases=[...document.querySelectorAll('main#top canvas[data-solid]')];
+    let whiteLinePixels=0, coloredFacePixels=0;
+    for(const canvas of canvases){
+      const data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+      for(let i=0;i<data.length;i+=4){
+        if(data[i+3]>0){
+          const max=Math.max(data[i],data[i+1],data[i+2]), min=Math.min(data[i],data[i+1],data[i+2]);
+          if(max-min<24&&max>180) whiteLinePixels++;
+          if(max-min>24) coloredFacePixels++;
+        }
+      }
+    }
+    return {root,whiteLinePixels,coloredFacePixels};
+  });
+  assert(faceZero.root==='0'&&faceZero.whiteLinePixels>0&&faceZero.coloredFacePixels===0,
+    'At zero face opacity, colored fills should disappear while white wireframes remain: '+JSON.stringify(faceZero));
+  assert((await blendOutput.textContent())?.trim()==='0%','Hero face opacity output did not update to zero.');
   await blendSlider.evaluate(node=>{
     node.value='90';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.locator('main#top .display-settings-button').click();
-  console.log('PASS: Hero screen blend defaults to 90% and can be adjusted live from Display settings.');
+  console.log('PASS: Hero face opacity defaults to 90%; at 0%, only white wireframes remain.');
 
 
 
