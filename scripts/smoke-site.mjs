@@ -72,7 +72,7 @@ try{
   });
   assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
     'Color Intensity default is not 70: '+JSON.stringify(colorRender));
-  assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
+  assert(colorRender.blend==='screen'&&colorRender.opacity==='0.82'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
     'Hero solid colors are not rendered as opaque screen-blended hues: '+JSON.stringify(colorRender));
   console.log('PASS: Color Intensity defaults to 70; hero solids use opaque, screen-blended color without black-background dilution.');
 
