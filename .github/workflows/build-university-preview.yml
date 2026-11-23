@@ -18,6 +18,32 @@ permissions:
   contents: read
 
 jobs:
+  # Fast, independent browser checks so QR/count regressions are reported
+  # without waiting for all library thumbnail screenshots.
+  smoke-interactions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Build site for university base path
+        env:
+          SITE_URL: https://www.eng.kagawa-u.ac.jp
+          BASE_PATH: /~osaki/
+          PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+        run: npm run build
+      - name: Browser smoke tests
+        env:
+          SITE_URL: https://www.eng.kagawa-u.ac.jp
+          BASE_PATH: /~osaki/
+        run: node scripts/smoke-site.mjs
+
   build-university:
     runs-on: ubuntu-latest
     steps:
