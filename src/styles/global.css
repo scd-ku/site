@@ -5004,3 +5004,28 @@ html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
   z-index:120 !important;
   pointer-events:none !important;
 }
+
+/* v76 — retired hero catalogue mark (SC / D / 2026).
+   Some formerly generated pages still contain this block. */
+.hero-index,
+.hero .hero-index {
+  display:none !important;
+  visibility:hidden !important;
+}
+
+/* Keep settings flexible as butterfly counts are independently adjustable. */
+.display-settings-popover .settings-group--butterflies .cursor-control {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px 10px;
+  align-items:center;
+}
+.display-settings-popover .settings-group--butterflies input[type="range"] {
+  grid-column:1 / -1;
+  width:100%;
+}
+.display-settings-popover .settings-group--butterflies output {
+  font-variant-numeric:tabular-nums;
+  min-width:2ch;
+  text-align:right;
+}
