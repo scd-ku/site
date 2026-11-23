@@ -276,6 +276,12 @@ const base = import.meta.env.BASE_URL;
             const from=originals[i],to=mirrors[i];
             to.className=from.className;
             to.style.cssText=from.style.cssText;
+            // The REAL butterfly layer is fixed so it cannot enlarge the
+            // document. Convert its viewport transform back to DOCUMENT
+            // coordinates inside the Lens mirror (which is document based).
+            if(from.style.transform){
+              to.style.transform=`translate3d(${window.scrollX}px,${window.scrollY}px,0) ${from.style.transform}`;
+            }
             const srcWings=from.querySelectorAll('.scd-butterfly-wing');
             const dstWings=to.querySelectorAll('.scd-butterfly-wing');
             for(let j=0;j<Math.min(srcWings.length,dstWings.length);j++){
