@@ -12,6 +12,7 @@ on:
       - "src/layouts/BaseLayout.astro"
       - "src/pages/index.astro"
       - "src/styles/global.css"
+      - "scripts/smoke-site.mjs"
 
 permissions:
   contents: read
@@ -79,6 +80,12 @@ jobs:
           find dist -maxdepth 1 -mindepth 1 -print
           echo "University base references (first matches):"
           grep -o '/~osaki/[^" ]*' dist/index.html | head -10 || true
+
+      - name: Test QR modal, cursor-independent butterfly counts and hero mark
+        env:
+          SITE_URL: https://www.eng.kagawa-u.ac.jp
+          BASE_PATH: /~osaki/
+        run: node scripts/smoke-site.mjs
 
       - name: Upload university site ZIP (contents of dist)
         uses: actions/upload-artifact@v4
