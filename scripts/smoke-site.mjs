@@ -132,6 +132,22 @@ try{
     'Fauna extended page after copyright: '+JSON.stringify(nextExtent));
   console.log('PASS: One hen walks at footer, one frog climbs page, photo layers exist, and no extra page height.');
 
+  // Cursor-only color/photo reveal must actually be visible over the hen.
+  // Photos may fall back to a bundled illustrated texture if the Commons CDN
+  // rate limits the download, but the opaque black shape must change under Lens.
+  const hen=page.locator('[data-scd-fauna-layer] [data-fauna="chicken"]');
+  const henRect=await hen.boundingBox();
+  assert(!!henRect,'Cannot find hen at the end of the document.');
+  await page.mouse.move(henRect.x+henRect.width*.5,henRect.y+henRect.height*.5);
+  await page.waitForTimeout(200);
+  const painted=await page.evaluate(()=>({
+    visible:document.querySelector('[data-scd-fauna-photo-layer]')?.style.visibility,
+    photoPattern:!!document.querySelector('[data-scd-fauna-photo-layer] [data-fauna-photo="chicken"] pattern image'),
+    colorFallback:!!document.querySelector('[data-scd-fauna-photo-layer] [data-fauna-photo="chicken"] pattern rect')
+  }));
+  assert(painted.visible==='visible'&&painted.photoPattern&&painted.colorFallback,
+    'The hen texture did not appear inside the pointer: '+JSON.stringify(painted));
+  console.log('PASS: Lens pointer reveals a photo/color texture inside the hen silhouette.');
   await page.close();
 }finally{
   await browser?.close();
