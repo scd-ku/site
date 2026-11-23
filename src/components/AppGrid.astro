@@ -101,6 +101,20 @@ const colorForApp = (slug, index) => {
             <output data-cursor-slider2-value>60</output>
           </label>
         </div>
+
+        <div class="settings-group settings-group--butterflies">
+          <div class="settings-group-label">Butterflies</div>
+          <label class="cursor-control">
+            <span>モンシロチョウ</span>
+            <input type="range" min="0" max="5" step="1" value="3" data-butterfly-count="pieris" aria-label="モンシロチョウの最大数" />
+            <output data-butterfly-count-value="pieris">3</output>
+          </label>
+          <label class="cursor-control">
+            <span>アゲハチョウ</span>
+            <input type="range" min="0" max="5" step="1" value="1" data-butterfly-count="papilio" aria-label="アゲハチョウの最大数" />
+            <output data-butterfly-count-value="papilio">1</output>
+          </label>
+        </div>
       </div>
     </div>
   </div>
