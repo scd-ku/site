@@ -8,8 +8,6 @@ on:
       - "src/components/PrivacyAnalytics.astro"
       - "src/components/ContactQR.astro"
       - "src/components/ButterflyVisit.astro"
-      - "src/components/FaunaVisit.astro"
-      - "scripts/download-fauna-specimens.mjs"
       - "package.json"
       - "src/components/AppGrid.astro"
       - "src/layouts/BaseLayout.astro"
