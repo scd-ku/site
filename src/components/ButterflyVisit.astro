@@ -1,12 +1,10 @@
 <!--
-  Pieris rapae (モンシロチョウ) — schematic, not a photographic tracing.
-  References:
-  Jantzen & Eisner 2008: intact P. rapae ~11.8 wingbeats/sec (PMC2575472).
-  Suzuki et al. 2023: fore/hind wing motion and variable flap amplitude.
-  Shkurikhin et al. 2024: curved 3D trajectories of Pieris forms (DOI:10.1002/ece3.70012).
-  Four broad, rounded wings; forewings are somewhat larger than hindwings.
+  Scientific references: Pieris rapae (PMC2575472, PMC11255373);
+  Papilio xuthus (PMC4590450, PMC4657377).
+  The silhouettes and free-flight paths are simplified visual interpretations.
 -->
-<div class="scd-butterfly" data-scd-butterfly aria-hidden="true">
+<div class="scd-butterfly-layer" data-scd-butterfly-layer aria-hidden="true">
+<div class="scd-butterfly scd-butterfly--pieris" data-scd-butterfly="pieris" aria-hidden="true">
   <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg" focusable="false">
     <g class="scd-butterfly-wing scd-butterfly-left">
       <!-- Left forewing: long leading edge and rounded apex -->
@@ -24,206 +22,246 @@
     <circle cx="47" cy="6" r="1.7" /><circle cx="73" cy="6" r="1.7" />
   </svg>
 </div>
+<div class="scd-butterfly scd-butterfly--pieris" data-scd-butterfly="pieris" aria-hidden="true">
+  <svg viewBox="0 0 120 85" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <g class="scd-butterfly-wing scd-butterfly-left">
+      <!-- Left forewing: long leading edge and rounded apex -->
+      <path d="M58 42 C49 29 37 12 19 8 C7 5 2 16 8 31 C16 47 34 52 56 49 Z" />
+      <!-- Left hindwing: smaller and distinctly rounder -->
+      <path d="M57 48 C47 49 34 45 25 52 C18 58 22 70 34 73 C46 75 54 62 59 51 Z" />
+    </g>
+    <g class="scd-butterfly-wing scd-butterfly-right">
+      <path d="M62 42 C71 29 83 12 101 8 C113 5 118 16 112 31 C104 47 86 52 64 49 Z" />
+      <path d="M63 48 C73 49 86 45 95 52 C102 58 98 70 86 73 C74 75 66 62 61 51 Z" />
+    </g>
+    <!-- Head, clubbed antennae, slender thorax and abdomen -->
+    <path class="scd-butterfly-body" d="M60 25 C54 25 54 33 56 38 C54 46 56 59 59 73 Q60 78 61 73 C64 59 66 46 64 38 C66 33 66 25 60 25 Z" />
+    <path class="scd-butterfly-antenna" d="M58 27 C52 19 49 12 47 6 M62 27 C68 19 71 12 73 6" />
+    <circle cx="47" cy="6" r="1.7" /><circle cx="73" cy="6" r="1.7" />
+  </svg>
+</div>
+<div class="scd-butterfly scd-butterfly--papilio" data-scd-butterfly="papilio" aria-hidden="true">
+  <svg viewBox="0 0 150 116" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <g class="scd-butterfly-wing scd-butterfly-left">
+      <!-- Sharper forewing and extended hindwing tail of Papilio xuthus -->
+      <path d="M73 53 C62 37 52 24 37 16 C25 10 12 9 8 19 C3 29 15 47 27 54 C40 63 56 65 72 63 Z"/>
+      <path d="M73 61 C58 59 45 58 34 66 C24 73 23 84 34 90 C39 93 45 94 49 92 L40 110 C51 107 60 100 65 87 C73 81 75 72 75 64 Z"/>
+    </g>
+    <g class="scd-butterfly-wing scd-butterfly-right">
+      <path d="M77 53 C88 37 98 24 113 16 C125 10 138 9 142 19 C147 29 135 47 123 54 C110 63 94 65 78 63 Z"/>
+      <path d="M77 61 C92 59 105 58 116 66 C126 73 127 84 116 90 C111 93 105 94 101 92 L110 110 C99 107 90 100 85 87 C77 81 75 72 75 64 Z"/>
+    </g>
+    <path d="M75 29 C69 29 68 36 70 42 C69 53 69 75 74 92 Q75 99 76 92 C81 75 81 53 80 42 C82 36 81 29 75 29 Z"/>
+    <path class="scd-butterfly-antenna" d="M72 30 C65 20 62 12 60 5 M78 30 C85 20 88 12 90 5"/>
+    <circle cx="60" cy="5" r="1.8"/><circle cx="90" cy="5" r="1.8"/>
+  </svg>
+</div>
+</div>
 
 <style>
-  .scd-butterfly {
-    display:none;
+  .scd-butterfly-layer {
     position:fixed;
-    top:0;
-    left:0;
-    width:56px;
-    height:40px;
+    inset:0;
     z-index:80;
     pointer-events:none;
+    overflow:visible;
+  }
+  .scd-butterfly {
+    display:none;
+    position:absolute;
+    top:0;
+    left:0;
     color:#111;
+    pointer-events:none;
     transform-origin:50% 50%;
     will-change:transform;
   }
-  .scd-butterfly svg { display:block; width:100%; height:100%; overflow:visible; }
+  .scd-butterfly--pieris {width:55px;height:39px}
+  .scd-butterfly--papilio {width:86px;height:67px}
+  .scd-butterfly svg {display:block;width:100%;height:100%;overflow:visible}
   .scd-butterfly path:not(.scd-butterfly-antenna),
-  .scd-butterfly circle { fill:currentColor; }
+  .scd-butterfly circle {fill:currentColor}
   .scd-butterfly-antenna {
-    fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:1.6;
+    stroke-linecap:round;
   }
   .scd-butterfly-wing {
     transform-box:view-box;
-    transform-origin:60px 45px;
-    transform:scaleX(.82);
-    transition:transform .10s ease-in-out;
+    transform-origin:center;
+    transform:scaleX(.87);
     will-change:transform;
   }
-  /* Coupled forewing/hindwing motion. At 85 ms per wingbeat the measured
-     11.8Hz rhythm is approximated; brief open-wing pauses are stylized. */
   .scd-butterfly.is-flapping .scd-butterfly-wing {
-    animation:scd-wingbeat .085s ease-in-out infinite;
+    animation:scd-wingbeat var(--wing-period,.085s) ease-in-out infinite;
   }
   @keyframes scd-wingbeat {
-    0%,100% { transform:scaleX(.20); }
-    50% { transform:scaleX(1); }
+    0%,100% {transform:scaleX(.23)}
+    50% {transform:scaleX(1)}
   }
-  @media (prefers-reduced-motion:reduce) {
-    .scd-butterfly { display:none !important; }
-    .scd-butterfly-wing { animation:none !important; }
+  @media(prefers-reduced-motion:reduce) {
+    .scd-butterfly-layer {display:none!important}
+    .scd-butterfly-wing {animation:none!important}
   }
 </style>
 
 <script>
 (() => {
-  const butterfly = document.querySelector('[data-scd-butterfly]');
-  const hero = document.querySelector('.hero');
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  if (!butterfly || reducedMotion.matches) return;
+  const layer=document.querySelector('[data-scd-butterfly-layer]');
+  const hero=document.querySelector('.hero');
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(!layer)return;
 
-  // Pieris rapae evidence:
-  // Jantzen & Eisner (2008), PMC2575472: intact flight ~11.8 +/-2.13 Hz;
-  // Shkurikhin et al. (2024), PMC11255373: strong curvature, variable velocity;
-  // Suzuki et al. (2023), J. Fluid Sci. Technol. 18: wing and body pitch;
-  // Sun et al. (2021), PMID 33662377: coupled fore- and hindwing flapping.
-  // Motion is stylized: drift, repeated turns and small bobs are not reconstructed
-  // from measured individual 3D trajectory recordings.
-
-  const random = (a,b) => a + Math.random()*(b-a);
-  const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
-  const TAU = Math.PI*2;
-  let visitTimer=0, wingTimer=0, animationFrame=0, flying=false;
-
-  function scheduleNext() {
-    clearTimeout(visitTimer);
-    if (!reducedMotion.matches)
-      visitTimer = setTimeout(startVisit,random(26000,54000));
-  }
-
-  function stopVisit() {
-    flying=false;
-    cancelAnimationFrame(animationFrame);
-    clearTimeout(wingTimer);
-    butterfly.classList.remove('is-flapping');
-    butterfly.style.display='none';
-    animationFrame=0;
-    scheduleNext();
-  }
-
-  function wingCycle(flapping=true) {
-    if(!flying) return;
-    butterfly.classList.toggle('is-flapping',flapping);
-    clearTimeout(wingTimer);
-    // 11.8Hz during active wingbeats; a *brief* spread-wing phase (<250ms)
-    // breaks the strictly mechanical periodicity without a long 'gliding' pose.
-    wingTimer=setTimeout(
-      ()=>wingCycle(!flapping),
-      flapping?random(720,1700):random(75,205)
-    );
-  }
-
-  function catmull(p0,p1,p2,p3,t) {
+  // Pieris rapae wingbeat: Jantzen & Eisner 2008, PMC2575472, 11.8 Hz.
+  // Papilio xuthus wingbeat: Kitamura & Imafuku 2015,
+  // PMC4590450, ~10.4–10.8 Hz (depending on sex).
+  // Flight paths and silhouettes are artistic approximations, not motion capture.
+  const TAU=Math.PI*2;
+  const random=(a,b)=>a+Math.random()*(b-a);
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const specs={
+    pieris: {
+      size:[48,60],frequency:11.8,interval:[21000,48000],
+      flight:[17500,25500],bob:3.3,swoop:11,
+      x:[-.12,.11,.31,.22,.48,.70,.58,.83,1.11],
+      y:[.49,.68,.26,.57,.80,.24,.65,.76,.37],
+      flap:[720,1500],pause:[65,190]
+    },
+    papilio: {
+      size:[78,99],frequency:10.6,interval:[100000,190000],
+      flight:[19000,28500],bob:2.2,swoop:7,
+      x:[-.13,.13,.30,.48,.40,.65,.84,1.13],
+      y:[.56,.34,.63,.24,.50,.70,.35,.43],
+      flap:[1050,1900],pause:[90,260]
+    }
+  };
+  function catmull(a,b,c,d,t) {
     const t2=t*t,t3=t2*t;
     return {
-      x:.5*(2*p1.x+(-p0.x+p2.x)*t+
-       (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+
-       (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
-      y:.5*(2*p1.y+(-p0.y+p2.y)*t+
-       (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+
-       (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+      x:.5*(2*b.x+(-a.x+c.x)*t+(2*a.x-5*b.x+4*c.x-d.x)*t2+(-a.x+3*b.x-3*c.x+d.x)*t3),
+      y:.5*(2*b.y+(-a.y+c.y)*t+(2*a.y-5*b.y+4*c.y-d.y)*t2+(-a.y+3*b.y-3*c.y+d.y)*t3)
     };
   }
-
-  function position(points,t) {
-    const count=points.length-1;
-    const u=clamp(t,0,1)*count;
-    const i=Math.min(count-1,Math.floor(u));
-    const phase=u-i;
-    // No smoothstep at each waypoint — ensures motion does not stop
-    // unnaturally each time the butterfly changes direction.
-    return catmull(
-      points[Math.max(0,i-1)],
-      points[i],points[i+1],
-      points[Math.min(count,i+2)],phase
-    );
+  function sample(points,u) {
+    const last=points.length-1;
+    const step=clamp(u,0,1)*last;
+    const i=Math.min(last-1,Math.floor(step));
+    return catmull(points[Math.max(0,i-1)],points[i],points[i+1],points[Math.min(last,i+2)],step-i);
   }
 
-  function startVisit() {
-    if (flying || document.hidden || reducedMotion.matches) {
-      scheduleNext();return;
+  // Two Pieris slots run independently; the Papilio slot is much rarer.
+  const butterflies=[...layer.querySelectorAll('[data-scd-butterfly]')].map((el,index)=>{
+    const species=el.dataset.scdButterfly;
+    const spec=specs[species];
+    const state={index,species,spec,el,timer:0,wingTimer:0,frame:0,active:false};
+
+    function schedule(first=false) {
+      clearTimeout(state.timer);
+      if(reducedMotion.matches)return;
+      const delay=first
+        ? species==='pieris'
+          ? index===0?random(7000,21000):random(24000,45000)
+          : random(90000,165000)
+        : random(...spec.interval);
+      state.timer=window.setTimeout(start,delay);
     }
-    const width=innerWidth,height=innerHeight;
-    const heroBottom=hero?.getBoundingClientRect().bottom??-200;
-    const lower=clamp(heroBottom+34,36,height-98);
-    const upper=height-62;
-    if(upper-lower<110) {scheduleNext();return;}
 
-    const reverse=Math.random()<.5;
-    const xStops=[-.08,.12,.28,.43,.32,.51,.72,.60,.83,1.10];
-    const yStops=[.48,.67,.30,.52,.78,.30,.18,.59,.69,.35];
-    const points=xStops.map((pos,i)=>({
-      x:(reverse?1-pos:pos)*width + (i===0||i===xStops.length-1?0:random(-.045,.045)*width),
-      y:lower+clamp(yStops[i]+random(-.08,.08),.08,.92)*(upper-lower)
-    }));
+    function wingCycle(flapping) {
+      if(!state.active)return;
+      el.classList.toggle('is-flapping',flapping);
+      clearTimeout(state.wingTimer);
+      state.wingTimer=window.setTimeout(
+        ()=>wingCycle(!flapping),
+        flapping?random(...spec.flap):random(...spec.pause)
+      );
+    }
 
-    const duration=random(18000,26500);
-    const start=performance.now();
-    const swayPhase=random(0,TAU);
-    const wingPhase=random(0,TAU);
-    let heading=reverse?-90:90;
-    flying=true;
-    butterfly.style.display='block';
-    butterfly.style.visibility='visible';
-    wingCycle(true);
+    function stop() {
+      state.active=false;
+      cancelAnimationFrame(state.frame);
+      clearTimeout(state.wingTimer);
+      state.frame=0;
+      el.style.display='none';
+      el.classList.remove('is-flapping');
+      schedule();
+    }
 
-    function draw(now) {
-      if(reducedMotion.matches||document.hidden) {stopVisit();return;}
-      const time=(now-start)*.001;
-      const u=clamp((now-start)/duration,0,1);
-      const center=position(points,u);
-      const before=position(points,Math.max(0,u-.0025));
-      const after=position(points,Math.min(1,u+.0025));
+    function start() {
+      if(state.active||reducedMotion.matches||document.hidden){schedule();return}
+      const width=innerWidth,height=innerHeight;
+      const heroBottom=hero?.getBoundingClientRect().bottom??-100;
+      const minY=clamp(heroBottom+34,40,height-105);
+      const maxY=height-(species==='papilio'?95:65);
+      if(maxY-minY<115){schedule();return}
 
-      // A visible high-frequency flutter rides on the larger winding path.
-      // Beat-related body oscillation is intentionally small; 11.8Hz wings
-      // are the primary oscillatory movement.
-      const wingBob=3.3*Math.sin(TAU*11.8*time+wingPhase);
-      const slowBob=11*Math.sin(TAU*.82*time+swayPhase)
-                   +5.5*Math.sin(TAU*1.55*time+.5*swayPhase);
-      const sideSway=7*Math.sin(TAU*.53*time+swayPhase)
-                    +3*Math.sin(TAU*1.30*time);
-      const x=center.x+sideSway;
-      const y=clamp(center.y+slowBob+wingBob,lower,upper);
+      const reverse=Math.random()<.5;
+      const points=spec.x.map((u,i)=>({
+        x:(reverse?1-u:u)*width+(i===0||i===spec.x.length-1?0:random(-.045,.045)*width),
+        y:minY+clamp(spec.y[i]+random(-.095,.095),.08,.92)*(maxY-minY)
+      }));
+      const duration=random(...spec.flight);
+      const started=performance.now();
+      const phase=random(0,TAU);
+      const wingPhase=random(0,TAU);
+      const size=random(...spec.size);
+      const ratio=species==='papilio'?116/150:85/120;
+      el.style.width=size.toFixed(2)+'px';
+      el.style.height=(size*ratio).toFixed(2)+'px';
+      el.style.setProperty('--wing-period',(1/spec.frequency).toFixed(4)+'s');
+      el.style.display='block';
+      state.active=true;
+      wingCycle(true);
+      let heading=reverse?-90:90;
 
-      const dx=after.x-before.x;
-      const dy=after.y-before.y;
-      if(Math.hypot(dx,dy)>1) {
-        const desired=Math.atan2(dy,dx)*180/Math.PI+90;
-        const difference=((desired-heading+540)%360)-180;
-        heading+=difference*.075;
+      function draw(now) {
+        if(document.hidden||reducedMotion.matches){stop();return}
+        const t=(now-started)*.001;
+        const u=clamp((now-started)/duration,0,1);
+        const center=sample(points,u);
+        const ahead=sample(points,Math.min(1,u+.0025));
+        const behind=sample(points,Math.max(0,u-.0025));
+        const fastBob=spec.bob*Math.sin(TAU*spec.frequency*t+wingPhase);
+        const slowBob=spec.swoop*Math.sin(TAU*(species==='pieris'?.82:.59)*t+phase)
+          +4*Math.sin(TAU*(species==='pieris'?1.5:1.05)*t+wingPhase);
+        const x=center.x+7*Math.sin(TAU*(species==='pieris'?.52:.35)*t+phase);
+        const y=clamp(center.y+slowBob+fastBob,minY,maxY);
+        const dx=ahead.x-behind.x,dy=ahead.y-behind.y;
+        if(Math.hypot(dx,dy)>1){
+          const desired=Math.atan2(dy,dx)*180/Math.PI+90;
+          const delta=((desired-heading+540)%360)-180;
+          heading+=delta*(species==='pieris'?.085:.065);
+        }
+        const roll=(species==='pieris'?8:6)*Math.sin(TAU*(species==='pieris'?1.06:.83)*t+phase)
+          +2*Math.sin(TAU*spec.frequency*t+wingPhase);
+        const scale=1+.025*Math.sin(TAU*1.65*t+wingPhase);
+        el.style.transform='translate3d('+x.toFixed(2)+'px,'+y.toFixed(2)+'px,0) rotate('+
+          (heading+roll).toFixed(2)+'deg) scale('+scale.toFixed(3)+')';
+        const blackBoundary=hero?.getBoundingClientRect().bottom??-100;
+        el.style.visibility=y<blackBoundary+24?'hidden':'visible';
+        if(u<1)state.frame=requestAnimationFrame(draw);
+        else stop();
       }
-
-      // Gentle roll and pitch follow each irregular swoop.
-      const flutterAngle=8*Math.sin(TAU*1.05*time+swayPhase)
-                        +4*Math.sin(TAU*2.1*time)
-                        +2*Math.sin(TAU*11.8*time+wingPhase);
-      const scale=1+.035*Math.sin(TAU*1.75*time+wingPhase);
-      butterfly.style.transform=
-        `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${(heading+flutterAngle).toFixed(2)}deg) scale(${scale.toFixed(3)})`;
-
-      // Keep the black silhouette away from the black hero background.
-      const darkBottom=hero?.getBoundingClientRect().bottom??-100;
-      butterfly.style.visibility=y<darkBottom+22?'hidden':'visible';
-
-      if(u<1)animationFrame=requestAnimationFrame(draw);
-      else stopVisit();
+      state.frame=requestAnimationFrame(draw);
     }
-    animationFrame=requestAnimationFrame(draw);
-  }
 
-  scheduleNext();
+    state.schedule=schedule;
+    state.stop=stop;
+    return state;
+  });
+
+  butterflies.forEach(b=>b.schedule(true));
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden && flying)stopVisit();
+    if(document.hidden)butterflies.forEach(b=>{if(b.active)b.stop()});
   });
   reducedMotion.addEventListener('change',()=>{
-    if(reducedMotion.matches) {
-      clearTimeout(visitTimer);
-      if(flying)stopVisit();
-      clearTimeout(visitTimer);
-    } else if(!flying) scheduleNext();
+    if(reducedMotion.matches){
+      butterflies.forEach(b=>{
+        clearTimeout(b.timer);
+        if(b.active)b.stop();
+        clearTimeout(b.timer);
+      });
+    }else butterflies.forEach(b=>{if(!b.active)b.schedule(true)});
   });
 })();
 </script>
