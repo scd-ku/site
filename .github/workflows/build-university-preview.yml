@@ -14,6 +14,7 @@ on:
       - "src/pages/index.astro"
       - "src/styles/global.css"
       - "scripts/smoke-site.mjs"
+      - "scripts/capture-thumbnails.mjs"
 
 permissions:
   contents: read
@@ -73,6 +74,7 @@ jobs:
 
       - name: Refresh thumbnails
         run: npm run capture
+        timeout-minutes: 6
         continue-on-error: true
 
       - name: Check Google Analytics setting
