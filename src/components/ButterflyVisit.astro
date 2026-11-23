@@ -271,12 +271,13 @@ function renderSvg(kind,key,photographic) {
   function updatePhoto() {
     if(!hasPointer||reduced.matches){photos.style.visibility='hidden';return}
     const mode=document.body.dataset.cursorStyle;
-    if(mode!=='pulse'&&mode!=='invert'){photos.style.visibility='hidden';return}
+    if(!mode||mode==='none'){photos.style.visibility='hidden';return}
     const rootStyle=getComputedStyle(document.documentElement);
     const cursorSize=parseFloat(rootStyle.getPropertyValue('--cursor-size'))||60;
     const zoom=mode==='pulse'?
       (parseFloat(rootStyle.getPropertyValue('--cursor-zoom'))||1.5):1;
-    const radius=cursorSize*.5;
+    // Reveal photo texture under all cursor styles; Lens additionally enlarges.
+    const radius=mode==='line'?Math.max(14,Math.min(25,cursorSize*.4)):cursorSize*.5;
     photos.style.visibility='visible';
     photos.style.clipPath='circle('+radius+'px at '+pointerX+'px '+pointerY+'px)';
     photos.style.webkitClipPath=photos.style.clipPath;
