@@ -71,6 +71,7 @@ const base = import.meta.env.BASE_URL;
       let magnifierSource = null;
       let magnifierClone = null;
       let magnifierFixedPairs = [];
+      let magnifierButterflyMirror = null;
 
       function stripCloneIds(node){
         if (!(node instanceof Element)) return;
@@ -159,6 +160,29 @@ const base = import.meta.env.BASE_URL;
         const sourcePopover=source.querySelector('.display-settings-popover');
         if(sourcePopover && !sourcePopover.hasAttribute('hidden')) addFixedMirror(sourcePopover,clone);
 
+        // The butterfly flight layer is a fixed sibling OUTSIDE <main>.
+        // Without a copy inside the magnifier scene, every butterfly vanishes
+        // as soon as the Lens overlaps it. Mirror it as a document-coordinate
+        // overlay, with each wing pose and flight transform synchronized below.
+        magnifierButterflyMirror = null;
+        const butterflies = document.querySelector('[data-scd-butterfly-layer]');
+        if (butterflies) {
+          const mirror = butterflies.cloneNode(true);
+          mirror.removeAttribute('data-scd-butterfly-layer');
+          mirror.classList.add('magnifier-butterfly-mirror');
+          mirror.setAttribute('aria-hidden','true');
+          mirror.style.position='absolute';
+          mirror.style.inset='auto';
+          mirror.style.top='0';
+          mirror.style.left='0';
+          mirror.style.width=`${window.innerWidth}px`;
+          mirror.style.height=`${window.innerHeight}px`;
+          mirror.style.zIndex='120';
+          mirror.style.pointerEvents='none';
+          magnifierScene.appendChild(mirror);
+          magnifierButterflyMirror=mirror;
+        }
+
         copyInteractiveState(source,clone);
       }
 
@@ -231,6 +255,30 @@ const base = import.meta.env.BASE_URL;
           pair.clone.style.display=getComputedStyle(pair.source).display;
           copyInteractiveState(pair.source,pair.clone);
         });
+
+        // Synchronize the REAL moving butterflies inside the zoomed document.
+        // Their source layer is fixed to the viewport; its mirror must follow
+        // document scroll, then reproduce each silhouette, body transform and
+        // current flapping wing pose (rather than launching new animations).
+        if (magnifierButterflyMirror) {
+          const liveLayer=document.querySelector('[data-scd-butterfly-layer]');
+          const originals=liveLayer?.querySelectorAll('[data-scd-butterfly]')||[];
+          const mirrors=magnifierButterflyMirror.querySelectorAll('[data-scd-butterfly]');
+          magnifierButterflyMirror.style.width=`${window.innerWidth}px`;
+          magnifierButterflyMirror.style.height=`${window.innerHeight}px`;
+          magnifierButterflyMirror.style.transform=`translate3d(${window.scrollX}px,${window.scrollY}px,0)`;
+          for(let i=0;i<Math.min(originals.length,mirrors.length);i++){
+            const from=originals[i],to=mirrors[i];
+            to.className=from.className;
+            to.style.cssText=from.style.cssText;
+            const srcWings=from.querySelectorAll('.scd-butterfly-wing');
+            const dstWings=to.querySelectorAll('.scd-butterfly-wing');
+            for(let j=0;j<Math.min(srcWings.length,dstWings.length);j++){
+              dstWings[j].style.animation='none';
+              dstWings[j].style.transform=getComputedStyle(srcWings[j]).transform;
+            }
+          }
+        }
 
         // Match the moving hero geometry rather than running a second independent animation.
         const animatedSelectors=['.science-object','.science-object svg','.optics-canvas','.hero-weight-char'];
