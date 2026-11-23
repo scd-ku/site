@@ -39,14 +39,14 @@ try{
   // noninteractive clone of this same button, and it is hidden by default.
   await page.waitForSelector('main#top button[data-qr-open]',{timeout:10000});
 
-  // Color Intensity starts at 70. Hero solid faces are opaque, while
-  // screen blending keeps black neutral and combines overlapping colors.
+  // Color Intensity starts at 70. Face pixels intentionally have 90%
+  // alpha; the wireframe is drawn separately at full opacity.
   await page.waitForFunction(()=>{
     const canvas=document.querySelector('main#top canvas[data-solid="cube"]');
     if(!canvas) return false;
     const data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
     for(let i=0;i<data.length;i+=4){
-      if(data[i+3]===255&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) return true;
+      if(data[i+3]>0&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) return true;
     }
     return false;
   },{timeout:5000});
@@ -56,9 +56,9 @@ try{
     const canvas=document.querySelector('main#top canvas[data-solid="cube"]');
     const solid=canvas?.closest('.science-object.object-solid');
     const data=canvas?.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
-    let opaqueColorPixels=0;
+    let visibleColorPixels=0;
     if(data) for(let i=0;i<data.length;i+=4){
-      if(data[i+3]===255&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) opaqueColorPixels++;
+      if(data[i+3]>0&&Math.max(data[i],data[i+1],data[i+2])-Math.min(data[i],data[i+1],data[i+2])>24) visibleColorPixels++;
     }
     return {
       slider:slider?.value,
@@ -67,14 +67,14 @@ try{
       blend:solid?getComputedStyle(solid).mixBlendMode:'',
       opacity:solid?getComputedStyle(solid).opacity:'',
       filter:canvas?getComputedStyle(canvas).filter:'',
-      opaqueColorPixels
+      visibleColorPixels
     };
   });
   assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
     'Color Intensity default is not 70: '+JSON.stringify(colorRender));
-  assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
-    'Hero solid canvases must retain fully visible wireframes with screen blending: '+JSON.stringify(colorRender));
-  console.log('PASS: Color Intensity defaults to 70; hero solids use opaque, screen-blended color without black-background dilution.');
+  assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.visibleColorPixels>100,
+    'Hero face colors must remain visible at the 90% face-opacity setting, with screen blending: '+JSON.stringify(colorRender));
+  console.log('PASS: Color Intensity defaults to 70; hero solids use independently controlled face opacity and screen blending.');
 
   // Screen blend opacity is a live Display setting with a 90% default.
   await page.locator('main#top .display-settings-button').click();
