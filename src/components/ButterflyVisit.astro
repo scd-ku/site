@@ -7,9 +7,16 @@
  * Four independently traced wing outlines reproduce the specimen's distinctive
  * scalloped margins, swallowtail tips and different fore/hindwing proportions.
  */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
 const photos = {
-  papilio: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/MZLU-00129145_dorsal_%2851008259851%29.jpg/960px-MZLU-00129145_dorsal_%2851008259851%29.jpg',
-  pieris: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/MZLU-00129165_dorsal_%2851008850721%29.jpg/960px-MZLU-00129165_dorsal_%2851008850721%29.jpg'
+  papilio: existsSync(join(process.cwd(), 'public/butterflies/papilio-xuthus.jpg'))
+    ? base + 'butterflies/papilio-xuthus.jpg'
+    : 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/MZLU-00129145_dorsal_%2851008259851%29.jpg/960px-MZLU-00129145_dorsal_%2851008259851%29.jpg',
+  pieris: existsSync(join(process.cwd(), 'public/butterflies/pieris-rapae.jpg'))
+    ? base + 'butterflies/pieris-rapae.jpg'
+    : 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/MZLU-00129165_dorsal_%2851008850721%29.jpg/960px-MZLU-00129165_dorsal_%2851008850721%29.jpg'
 };
 const forms = {
   papilio: {
