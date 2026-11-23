@@ -25,7 +25,9 @@ for(const f of items){
   const filename=f.name.replace(/ /g,'_');
   const hash=createHash('md5').update(filename).digest('hex');
   const url='https://upload.wikimedia.org/wikipedia/commons/'+hash[0]+'/'+hash.slice(0,2)+'/'+encodeURIComponent(filename);
-  const thumb='https://upload.wikimedia.org/wikipedia/commons/thumb/'+hash[0]+'/'+hash.slice(0,2)+'/'+encodeURIComponent(filename)+'/640px-'+encodeURIComponent(filename);
+  // Prefer Wikimedia's pre-rendered 960px thumbnail (known available for
+  // both source photos); requests for new arbitrary sizes can yield HTTP 400.
+  const thumb='https://thumb.wikimedia.org/wikipedia/commons/thumb/'+hash[0]+'/'+hash.slice(0,2)+'/'+encodeURIComponent(filename)+'/960px-'+encodeURIComponent(filename);
   const dest=path.join(out,f.dest);
   try{
     const buf=await readFile(dest);
