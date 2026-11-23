@@ -72,9 +72,33 @@ try{
   });
   assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
     'Color Intensity default is not 70: '+JSON.stringify(colorRender));
-  assert(colorRender.blend==='screen'&&colorRender.opacity==='0.82'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
+  assert(colorRender.blend==='screen'&&colorRender.opacity==='0.9'&&colorRender.filter==='none'&&colorRender.opaqueColorPixels>100,
     'Hero solid colors are not rendered as opaque screen-blended hues: '+JSON.stringify(colorRender));
   console.log('PASS: Color Intensity defaults to 70; hero solids use opaque, screen-blended color without black-background dilution.');
+
+  // Screen blend opacity is a live Display setting with a 90% default.
+  await page.locator('main#top .display-settings-button').click();
+  const blendSlider=page.locator('main#top [data-hero-blend-opacity]');
+  const blendOutput=page.locator('main#top [data-hero-blend-opacity-value]');
+  assert(await blendSlider.inputValue()==='90','Hero screen blend default is not 90%.');
+  assert((await blendOutput.textContent())?.trim()==='90%','Hero screen blend output does not show 90%.');
+  const blendDefault=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
+  assert(blendDefault==='0.9','Hero screen blend CSS default is not 90%: '+blendDefault);
+  await blendSlider.evaluate(node=>{
+    node.value='63';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  const blendChanged=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
+  assert(blendChanged==='0.63'&&(await blendOutput.textContent())?.trim()==='63%',
+    'Hero screen blend slider did not update live: '+blendChanged);
+  await blendSlider.evaluate(node=>{
+    node.value='90';
+    node.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await page.locator('main#top .display-settings-button').click();
+  console.log('PASS: Hero screen blend defaults to 90% and can be adjusted live from Display settings.');
+
+
 
 
   // The QR dialog must OPEN in the browser, not merely exist in the DOM.
