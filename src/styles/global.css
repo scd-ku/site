@@ -5054,3 +5054,15 @@ body.cursor-over-embedded-map .contact-map,
 body.cursor-over-embedded-map .contact-map iframe {
   cursor:auto !important;
 }
+
+/* v79 — true color on the black hero field.
+   Opaque face pixels keep the black background from reducing saturation;
+   screen blending combines intersecting solids without muddying their hues.
+   The isolated science field confines the effect to the hero illustration. */
+html[data-site-palette="color"] .science-field .science-object.object-solid {
+  opacity:1 !important;
+  mix-blend-mode:screen;
+}
+html[data-site-palette="color"] .science-field .science-object.object-solid canvas {
+  filter:none !important;
+}
