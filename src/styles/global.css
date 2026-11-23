@@ -5029,3 +5029,38 @@ html[data-design-style="neo"] .text-section > .section-kicker .scd-hover-glyph {
   min-width:2ch;
   text-align:right;
 }
+
+/* v77 — low-key photographic attribution, consistent with minimalist footer. */
+footer .fauna-photo-credits {
+  display:inline-block;
+  position:relative;
+  margin-left:16px;
+  vertical-align:baseline;
+  color:inherit;
+  text-transform:none;
+  font-size:inherit;
+  letter-spacing:normal;
+}
+footer .fauna-photo-credits summary {
+  display:inline;
+  cursor:pointer;
+  text-transform:uppercase;
+  list-style:none;
+  user-select:none;
+}
+footer .fauna-photo-credits summary::-webkit-details-marker {display:none}
+footer .fauna-photo-credits summary::before {
+  content:'·';
+  padding-right:15px;
+  color:inherit;
+}
+footer .fauna-photo-credits[open] {
+  max-width:240px;
+  line-height:1.7;
+}
+footer .fauna-photo-credits a {text-decoration:underline;text-underline-offset:2px}
+footer .fauna-photo-credits summary:focus-visible {outline:2px solid currentColor;outline-offset:3px}
+@media(max-width:580px){
+  footer .fauna-photo-credits {margin-left:10px}
+  footer .fauna-photo-credits summary::before {padding-right:8px}
+}
