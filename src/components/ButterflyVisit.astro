@@ -155,15 +155,15 @@ function renderSvg(kind,key,photographic) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const props={
     pieris:{
-      size:[48,61],ratio:470/710,frequency:11.8,interval:[21000,48000],
-      flight:[17500,25500],bob:3.3,swoop:11,
+      size:[48,61],ratio:470/710,frequency:11.8,interval:[0,0],
+      flight:[47000,77000],bob:3.3,swoop:11,
       x:[-.12,.11,.31,.22,.48,.70,.58,.83,1.11],
       y:[.49,.68,.26,.57,.80,.24,.65,.76,.37],
       flap:[720,1500],pause:[65,190]
     },
     papilio:{
-      size:[80,108],ratio:640/795,frequency:10.6,interval:[100000,190000],
-      flight:[19000,28500],bob:2.2,swoop:7,
+      size:[80,108],ratio:640/795,frequency:10.6,interval:[14000,38000],
+      flight:[85000,140000],bob:2.2,swoop:7,
       x:[-.13,.13,.30,.48,.40,.65,.84,1.13],
       y:[.56,.34,.63,.24,.50,.70,.35,.43],
       flap:[1050,1900],pause:[90,260]
@@ -198,10 +198,13 @@ function renderSvg(kind,key,photographic) {
 
     const schedule=(initial=false)=>{
       clearTimeout(state.timer);
-      if(reduced.matches)return;
-      const delay=initial
-        ? kind==='pieris'?(index===0?random(7000,21000):random(24000,45000)):random(90000,165000)
-        : random(...spec.interval);
+      // Three Pieris agents circulate continuously. New flight routes begin
+      // immediately at the end of each pass (including off-page entrances).
+      // Papilio has just one agent and spends far longer flying than away.
+      if(reduced.matches||document.hidden)return;
+      const delay=kind==='pieris'
+        ? (initial?random(0,1200):0)
+        : (initial?random(14000,32000):random(...spec.interval));
       state.timer=setTimeout(start,delay);
     };
     const wings=(flap)=>{
@@ -224,15 +227,34 @@ function renderSvg(kind,key,photographic) {
       if(state.active||reduced.matches||document.hidden){schedule();return}
       const pageHeight=documentSize();
       const heroBottom=(hero?.getBoundingClientRect().bottom??-100)+scrollY;
-      const minY=Math.max(heroBottom+34,scrollY+65);
-      const maxY=Math.min(pageHeight-120,scrollY+innerHeight-(kind==='papilio'?95:65));
-      if(maxY-minY<115){schedule();return}
+      // Movement spans the whole DOCUMENT, not just the viewport. Starting
+      // altitude is drawn from any page position below the black hero.
+      const minY=Math.max(46,heroBottom+38);
+      const maxY=pageHeight-(kind==='papilio'?110:75);
+      if(maxY-minY<115){
+        clearTimeout(state.timer);
+        state.timer=setTimeout(start,12000);
+        return;
+      }
       const width=document.documentElement.clientWidth;
       const reverse=Math.random()<.5;
-      const points=spec.x.map((u,i)=>({
-        x:(reverse?1-u:u)*width+(i===0||i===spec.x.length-1?0:random(-.045,.045)*width),
-        y:minY+clamp(spec.y[i]+random(-.095,.095),.08,.92)*(maxY-minY)
-      }));
+      const altitudeRange=maxY-minY;
+      const yStart=random(minY,maxY);
+      // Long gradual climbs or descents, punctuated by smaller fluttering
+      // changes, avoid teleportation along tall documents.
+      const hop=Math.min(1900,altitudeRange*.65);
+      const yEnd=clamp(yStart+random(-hop,hop),minY,maxY);
+      const verticalSway=Math.min(kind==='pieris'?390:290,altitudeRange*.16);
+      const points=spec.x.map((u,i)=>{
+        const v=i/(spec.x.length-1);
+        const trend=yStart+(yEnd-yStart)*v;
+        const offset=(i===0||i===spec.x.length-1)?0:random(-verticalSway,verticalSway);
+        return {
+          x:(reverse?1-u:u)*width+
+            (i===0||i===spec.x.length-1?0:random(-.045,.045)*width),
+          y:clamp(trend+offset,minY,maxY)
+        };
+      });
       const duration=random(...spec.flight),started=performance.now();
       const phase=random(0,TAU),wingPhase=random(0,TAU);
       const w=random(...spec.size),h=w*spec.ratio;
@@ -336,7 +358,11 @@ function renderSvg(kind,key,photographic) {
   states.forEach(s=>s.schedule(true));
 
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden)states.forEach(s=>{if(s.active)s.stop()});
+    if(document.hidden){
+      states.forEach(s=>{clearTimeout(s.timer);if(s.active)s.stop()});
+    }else{
+      states.forEach(s=>{if(!s.active)s.schedule(true)});
+    }
   });
   reduced.addEventListener('change',()=>{
     if(reduced.matches){
