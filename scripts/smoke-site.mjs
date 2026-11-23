@@ -63,13 +63,13 @@ try{
   console.log('PASS: 5+5 slots and single thorax rendering.');
 
   // Change limits to zero and five, as a visitor would in the settings panel.
-  await page.locator('.display-settings-button').click();
-  const slider=page.locator('[data-butterfly-count="pieris"]');
+  await page.locator('main#top .display-settings-button').click();
+  const slider=page.locator('main#top [data-butterfly-count="pieris"]');
   await slider.evaluate(node=>{
     node.value='0';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
-  assert((await page.locator('[data-butterfly-count-value="pieris"]').textContent())?.trim()==='0','Zero count was not reflected in settings.');
+  assert((await page.locator('main#top [data-butterfly-count-value="pieris"]').textContent())?.trim()==='0','Zero count was not reflected in settings.');
   const stillActive=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
   assert(stillActive===0,'Some Pieris remain active when the maximum is zero.');
 
@@ -77,7 +77,7 @@ try{
     node.value='5';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
-  assert((await page.locator('[data-butterfly-count-value="pieris"]').textContent())?.trim()==='5','Five count was not reflected in settings.');
+  assert((await page.locator('main#top [data-butterfly-count-value="pieris"]').textContent())?.trim()==='5','Five count was not reflected in settings.');
   await page.waitForTimeout(2100);
   const resumed=await page.evaluate(()=>[...document.querySelectorAll('[data-scd-butterfly-layer] [data-scd-butterfly="pieris"]')].filter(e=>e.style.display==='block').length);
   assert(resumed===5,'Five Pieris agents did not resume when max set to five; saw '+resumed);
