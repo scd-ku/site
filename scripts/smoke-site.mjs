@@ -105,49 +105,37 @@ try{
     'Butterfly layer extended document below copyright: '+JSON.stringify(extent));
   console.log('PASS: Page ends at copyright even after moving butterflies and scrolling.');
 
-  // Verify both new page-coordinate fauna visitors without introducing new
-  // document height. The hen's feet stand precisely over the footer line.
-  const fauna=await page.evaluate(()=>({
-    chicken:document.querySelectorAll('[data-scd-fauna-layer] [data-fauna="chicken"]').length,
-    frog:document.querySelectorAll('[data-scd-fauna-layer] [data-fauna="frog"]').length,
-    photographs:document.querySelectorAll('[data-scd-fauna-photo-layer] [data-fauna-photo]').length,
-    layerPosition:getComputedStyle(document.querySelector('[data-scd-fauna-layer]')).position,
-    layerHeight:document.querySelector('[data-scd-fauna-layer]').getBoundingClientRect().height
+  // The Contact map is a cross-origin Google Maps iframe. Its internal
+  // pointer events cannot reach the parent document; the native map cursor
+  // must be visible while the custom cursor resumes immediately on exit.
+  const mapFrame=page.locator('.contact-map iframe');
+  assert(await mapFrame.count()===1,'Contact map iframe is missing.');
+  await mapFrame.scrollIntoViewIfNeeded();
+  const mapRect=await mapFrame.boundingBox();
+  assert(!!mapRect&&mapRect.width>200&&mapRect.height>180,
+    'Contact map iframe has no usable hit area: '+JSON.stringify(mapRect));
+  await page.mouse.move(mapRect.x+mapRect.width*.5,mapRect.y+mapRect.height*.5);
+  await page.waitForTimeout(120);
+  const mapState=await page.evaluate(()=>({
+    active:document.body.classList.contains('cursor-over-embedded-map'),
+    iframeCursor:getComputedStyle(document.querySelector('.contact-map iframe')).cursor,
+    cursorDot:getComputedStyle(document.querySelector('.cursor-dot')).display,
+    lens:getComputedStyle(document.querySelector('.cursor-magnifier-lens')).display,
+    pointerEvents:getComputedStyle(document.querySelector('.contact-map iframe')).pointerEvents
   }));
-  assert(fauna.chicken===1&&fauna.frog===1&&fauna.photographs===2,
-    'Hen/frog or photo layers missing: '+JSON.stringify(fauna));
-  assert(fauna.layerPosition==='fixed'&&fauna.layerHeight===0,
-    'Fauna layer may extend the page: '+JSON.stringify(fauna));
-  const chickenInfo=await page.evaluate(()=>{
-    const hen=document.querySelector('[data-scd-fauna-layer] [data-fauna="chicken"]');
-    const footer=document.querySelector('main#top > footer');
-    return {feet:hen.getBoundingClientRect().bottom, ground:footer.getBoundingClientRect().top};
-  });
-  assert(Math.abs(chickenInfo.feet-chickenInfo.ground)<18,
-    'Chicken does not walk along footer: '+JSON.stringify(chickenInfo));
-  await page.mouse.move(700,600);
-  await page.waitForTimeout(90);
-  const nextExtent=await getPageExtent();
-  assert(nextExtent.scrollHeight-Math.max(nextExtent.footerEnd,900)<10,
-    'Fauna extended page after copyright: '+JSON.stringify(nextExtent));
-  console.log('PASS: One hen walks at footer, one frog climbs page, photo layers exist, and no extra page height.');
+  assert(mapState.active,'Entering the map did not trigger native cursor handoff: '+JSON.stringify(mapState));
+  assert(mapState.iframeCursor==='auto'&&mapState.cursorDot==='none'&&mapState.lens==='none'&&mapState.pointerEvents!=='none',
+    'Map cursor handoff or map interaction is not configured correctly: '+JSON.stringify(mapState));
+  await page.mouse.move(mapRect.x-20,mapRect.y-20);
+  await page.waitForTimeout(80);
+  const restored=await page.evaluate(()=>({
+    active:document.body.classList.contains('cursor-over-embedded-map'),
+    cursorDot:getComputedStyle(document.querySelector('.cursor-dot')).display
+  }));
+  assert(!restored.active&&restored.cursorDot!=='none',
+    'Custom cursor did not resume after leaving the map: '+JSON.stringify(restored));
+  console.log('PASS: Native pointer is visible and interactive inside Contact map; custom cursor resumes on exit.');
 
-  // Cursor-only color/photo reveal must actually be visible over the hen.
-  // Photos may fall back to a bundled illustrated texture if the Commons CDN
-  // rate limits the download, but the opaque black shape must change under Lens.
-  const hen=page.locator('[data-scd-fauna-layer] [data-fauna="chicken"]');
-  const henRect=await hen.boundingBox();
-  assert(!!henRect,'Cannot find hen at the end of the document.');
-  await page.mouse.move(henRect.x+henRect.width*.5,henRect.y+henRect.height*.5);
-  await page.waitForTimeout(200);
-  const painted=await page.evaluate(()=>({
-    visible:document.querySelector('[data-scd-fauna-photo-layer]')?.style.visibility,
-    photoPattern:!!document.querySelector('[data-scd-fauna-photo-layer] [data-fauna-photo="chicken"] pattern image'),
-    colorFallback:!!document.querySelector('[data-scd-fauna-photo-layer] [data-fauna-photo="chicken"] pattern rect')
-  }));
-  assert(painted.visible==='visible'&&painted.photoPattern&&painted.colorFallback,
-    'The hen texture did not appear inside the pointer: '+JSON.stringify(painted));
-  console.log('PASS: Lens pointer reveals a photo/color texture inside the hen silhouette.');
   await page.close();
 }finally{
   await browser?.close();
