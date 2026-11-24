@@ -57,7 +57,7 @@ try{
   console.log('PASS: Library includes the 3D織機 app and GitHub repository links.');
 
 
-  // Color Intensity starts at 70. Face pixels intentionally have 90%
+  // Color Intensity starts at 70. Face pixels intentionally have 70%
   // alpha; the wireframe is drawn separately at full opacity.
   await page.waitForFunction(()=>{
     const canvas=document.querySelector('main#top canvas[data-solid="cube"]');
@@ -91,18 +91,18 @@ try{
   assert(colorRender.slider==='70'&&colorRender.output==='70%'&&colorRender.colorLevel==='70',
     'Color Intensity default is not 70: '+JSON.stringify(colorRender));
   assert(colorRender.blend==='screen'&&colorRender.opacity==='1'&&colorRender.filter==='none'&&colorRender.visibleColorPixels>100,
-    'Hero face colors must remain visible at the 90% face-opacity setting, with screen blending: '+JSON.stringify(colorRender));
+    'Hero face colors must remain visible at the 70% face-opacity setting, with screen blending: '+JSON.stringify(colorRender));
   console.log('PASS: Color Intensity defaults to 70; hero solids use independently controlled face opacity and screen blending.');
 
-  // Screen blend opacity is a live Display setting with a 90% default.
+  // Screen blend opacity is a live Display setting with a 70% default.
   await page.locator('main#top .display-settings-button').click();
   const blendSlider=page.locator('main#top [data-hero-blend-opacity]');
   const blendOutput=page.locator('main#top [data-hero-blend-opacity-value]');
-  assert(await blendSlider.inputValue()==='90','Hero face opacity default is not 90%.');
-  assert((await blendOutput.textContent())?.trim()==='90%','Hero face opacity output does not show 90%.');
+  assert(await blendSlider.inputValue()==='70','Hero face opacity default is not 70%.');
+  assert((await blendOutput.textContent())?.trim()==='70%','Hero face opacity output does not show 70%.');
   const faceDefault=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--hero-face-opacity').trim());
   const wireDefault=await page.locator('main#top .science-field .science-object.object-solid').first().evaluate(el=>getComputedStyle(el).opacity);
-  assert(faceDefault==='0.9'&&wireDefault==='1','Hero face/wireframe opacity defaults are not independent: '+faceDefault+'/'+wireDefault);
+  assert(faceDefault==='0.7'&&wireDefault==='1','Hero face/wireframe opacity defaults are not independent: '+faceDefault+'/'+wireDefault);
   await blendSlider.evaluate(node=>{
     node.value='0';
     node.dispatchEvent(new Event('input',{bubbles:true}));
@@ -131,7 +131,7 @@ try{
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.locator('main#top .display-settings-button').click();
-  console.log('PASS: Hero face opacity defaults to 90%; at 0%, only white wireframes remain.');
+  console.log('PASS: Hero face opacity defaults to 70%; at 0%, only white wireframes remain.');
 
 
 
