@@ -1,5 +1,22 @@
 [
   {
+    "slug": "hataori",
+    "repo": "scd-ku/hataori",
+    "title": "3D織機",
+    "description": "16本の経糸と4枚の綜絖を備えた3D織機で、平織・綾織・綴織・保多織などの織り方を比較し、ペダル操作、筬打ち、小杼の動きを観察できるWeb教材です。",
+    "url": "https://scd-ku.github.io/hataori/",
+    "repoUrl": "https://github.com/scd-ku/hataori",
+    "tags": [
+      "3D",
+      "Craft",
+      "Education",
+      "Simulation"
+    ],
+    "size": "wide",
+    "updatedAt": "2026-11-24T06:55:47Z",
+    "year": 2026
+  },
+  {
     "slug": "furiko",
     "repo": "scd-ku/furiko",
     "title": "振り子実験室",
