@@ -10,6 +10,8 @@ on:
       - "src/components/ButterflyVisit.astro"
       - "package.json"
       - "src/components/AppGrid.astro"
+      - "src/data/apps.generated.json"
+      - "src/data/overrides.mjs"
       - "src/layouts/BaseLayout.astro"
       - "src/pages/index.astro"
       - "src/styles/global.css"
