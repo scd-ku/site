@@ -987,8 +987,8 @@ const base = import.meta.env.BASE_URL;
           // at 0%, only the wireframe remains visible.
           if(fullColorMode) ctx.globalCompositeOperation='screen';
           const faceOpacityRaw = getComputedStyle(document.documentElement).getPropertyValue('--hero-face-opacity').trim();
-          const faceOpacity = faceOpacityRaw === '' ? .9 : Math.max(0, Math.min(1, Number(faceOpacityRaw)));
-          ctx.globalAlpha = Number.isFinite(faceOpacity) ? faceOpacity : .9;
+          const faceOpacity = faceOpacityRaw === '' ? .7 : Math.max(0, Math.min(1, Number(faceOpacityRaw)));
+          ctx.globalAlpha = Number.isFinite(faceOpacity) ? faceOpacity : .7;
           const colorSeed = type==='cube' ? 0 : type==='octahedron' ? 3 : type==='hexPrism' ? 2 : type==='rhombohedron' ? 4 : 1;
           const colorMap = faceColorsForSolid(faces, colorSeed);
           faceData.forEach(({face,index})=>{
