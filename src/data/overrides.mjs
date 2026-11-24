@@ -1,4 +1,11 @@
 export default {
+  hataori: {
+    title: '3D織機',
+    year: 2026,
+    description: '16本の経糸と4枚の綜絖を備えた3D織機で、平織・綾織・綴織・保多織などの織り方を比較し、ペダル操作、筬打ち、小杼の動きを観察できるWeb教材です。',
+    tags: ['3D', 'Craft', 'Education', 'Simulation'],
+    size: 'wide'
+  },
   cad: {
     title: '3DCAD++',
     year: 2026,
