@@ -9,6 +9,8 @@ on:
       - "src/components/ContactQR.astro"
       - "src/components/ButterflyVisit.astro"
       - "package.json"
+      - "public/**"
+      - "astro.config.*"
       - "src/components/AppGrid.astro"
       - "src/data/apps.generated.json"
       - "src/data/overrides.mjs"
@@ -102,6 +104,13 @@ jobs:
         run: |
           test -f dist/index.html
           test -d dist/_astro
+          python3 - <<'PY'
+          from pathlib import Path
+          allowed = {"_astro", "admin", "privacy", "screenshots", "images", "index.html", "apple-touch-icon.png", "favicon-dark.png", "favicon.png", "favicon.svg", "icon-192.png", "icon-512.png", "site.webmanifest", ".nojekyll"}
+          unexpected = sorted(p.name for p in Path("dist").iterdir() if p.name not in allowed)
+          if unexpected:
+              raise SystemExit("Unexpected deployment entries: " + ", ".join(unexpected))
+          PY
           if grep -q 'content="0;url=https://scd-ku.github.io/site/"' dist/index.html; then
             echo "::error::Unexpected GitHub redirect in generated index.html"
             exit 1
