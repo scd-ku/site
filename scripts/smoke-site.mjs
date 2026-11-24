@@ -39,6 +39,24 @@ try{
   // noninteractive clone of this same button, and it is hidden by default.
   await page.waitForSelector('main#top button[data-qr-open]',{timeout:10000});
 
+  // New applications must be visible as Library cards in both the GitHub
+  // deployment and the university ZIP, with separate app/repository targets.
+  const loom=page.locator('main#top .app-card[data-slug="hataori"]');
+  assert(await loom.count()===1,'The new 3D織機 (hataori) card is missing or duplicated.');
+  const loomLinks=await loom.evaluate(card=>({
+    title:card.querySelector('.card-title')?.textContent?.trim(),
+    app:card.querySelector('.app-open')?.getAttribute('href'),
+    repo:card.querySelector('.repo-link')?.getAttribute('href'),
+    tags:JSON.parse(card.getAttribute('data-tags')||'[]')
+  }));
+  assert(loomLinks.title==='3D織機'
+    &&loomLinks.app==='https://scd-ku.github.io/hataori/'
+    &&loomLinks.repo==='https://github.com/scd-ku/hataori'
+    &&loomLinks.tags.includes('3D'),
+    '3D織機 card metadata or links are incorrect: '+JSON.stringify(loomLinks));
+  console.log('PASS: Library includes the 3D織機 app and GitHub repository links.');
+
+
   // Color Intensity starts at 70. Face pixels intentionally have 90%
   // alpha; the wireframe is drawn separately at full opacity.
   await page.waitForFunction(()=>{
