@@ -106,7 +106,7 @@ jobs:
           test -d dist/_astro
           python3 - <<'PY'
           from pathlib import Path
-          allowed = {"_astro", "admin", "privacy", "screenshots", "images", "index.html", "apple-touch-icon.png", "favicon-dark.png", "favicon.png", "favicon.svg", "icon-192.png", "icon-512.png", "site.webmanifest", ".nojekyll"}
+          allowed = {"_astro", "admin", "privacy", "screenshots", "images", "butterflies", "index.html", "apple-touch-icon.png", "favicon-dark.png", "favicon.png", "favicon.svg", "icon-192.png", "icon-512.png", "site.webmanifest", ".nojekyll"}
           unexpected = sorted(p.name for p in Path("dist").iterdir() if p.name not in allowed)
           if unexpected:
               raise SystemExit("Unexpected deployment entries: " + ", ".join(unexpected))
