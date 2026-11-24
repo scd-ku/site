@@ -107,7 +107,7 @@ try{
     node.value='0';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
-  const faceZero=await page.evaluate(()=>{
+  const readFaceZero=()=>page.evaluate(()=>{
     const root=getComputedStyle(document.documentElement).getPropertyValue('--hero-face-opacity').trim();
     const canvases=[...document.querySelectorAll('main#top canvas[data-solid]')];
     let whiteLinePixels=0, coloredFacePixels=0;
@@ -123,11 +123,17 @@ try{
     }
     return {root,whiteLinePixels,coloredFacePixels};
   });
+  // Canvas updates on animation frames, not synchronously with the slider event.
+  let faceZero=await readFaceZero();
+  for(let attempt=0;attempt<50 && (faceZero.root!=='0'||faceZero.whiteLinePixels===0||faceZero.coloredFacePixels!==0);attempt++){
+    await page.waitForTimeout(100);
+    faceZero=await readFaceZero();
+  }
   assert(faceZero.root==='0'&&faceZero.whiteLinePixels>0&&faceZero.coloredFacePixels===0,
     'At zero face opacity, colored fills should disappear while white wireframes remain: '+JSON.stringify(faceZero));
   assert((await blendOutput.textContent())?.trim()==='0%','Hero face opacity output did not update to zero.');
   await blendSlider.evaluate(node=>{
-    node.value='90';
+    node.value='70';
     node.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.locator('main#top .display-settings-button').click();
