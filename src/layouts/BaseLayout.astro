@@ -131,6 +131,12 @@ const base = import.meta.env.BASE_URL;
         stripCloneIds(clone);
         clone.setAttribute('aria-hidden','true');
         clone.classList.add('magnifier-document-copy');
+        clone.style.position='absolute';
+        clone.style.left='0';
+        clone.style.top='0';
+        clone.style.margin='0';
+        clone.style.width=`${source.getBoundingClientRect().width}px`;
+        clone.style.minWidth=clone.style.width;
         if ('inert' in clone) clone.inert = true;
 
         // Do not mirror the modal QR into the moving Lens. Browser dialog
@@ -145,7 +151,8 @@ const base = import.meta.env.BASE_URL;
           el.style.display='none';
         });
         clone.querySelectorAll('.contact-website-qr').forEach((el) => {
-          el.style.visibility = 'hidden'; // maintain layout measurements
+          el.style.visibility = 'visible';
+          el.style.pointerEvents = 'none';
         });
 
         clone.querySelectorAll('iframe').forEach((frame) => {
@@ -154,13 +161,15 @@ const base = import.meta.env.BASE_URL;
         });
 
         // Fixed-position UI is mirrored separately in document coordinates.
-        clone.querySelectorAll('.site-header,.display-settings-popover').forEach((el)=>el.remove());
+        clone.querySelectorAll('.site-header,.display-settings-popover').forEach((el)=>{el.style.visibility='hidden';});
 
         magnifierScene.replaceChildren(clone);
         magnifierSource = source;
         magnifierClone = clone;
         magnifierFixedPairs = [];
-        magnifierScene.style.width = `${document.documentElement.clientWidth}px`;
+        magnifierScene.style.width = `${source.getBoundingClientRect().width}px`;
+        magnifierScene.style.height = `${source.getBoundingClientRect().height}px`;
+        magnifierScene.style.transformOrigin='0 0';
 
         const sourceHeader=source.querySelector('.site-header');
         if(sourceHeader) addFixedMirror(sourceHeader,clone);
@@ -217,14 +226,14 @@ const base = import.meta.env.BASE_URL;
         copyInteractiveState(magnifierSource,magnifierClone);
 
         // Keep filtered cards, active buttons and generated inline styles current.
-        const selectors=['.app-card','.hero-weight-char','.like-button'];
+        const selectors=['.app-card','.hero-weight-char','.scd-hover-glyph','.like-button'];
         selectors.forEach((selector)=>{
           const src=[...magnifierSource.querySelectorAll(selector)];
           const dst=[...magnifierClone.querySelectorAll(selector)];
           for(let i=0;i<Math.min(src.length,dst.length);i++){
             if(selector!=='.hero-weight-char') dst[i].className=src[i].className;
             if(src[i].hasAttribute('hidden')) dst[i].setAttribute('hidden',''); else dst[i].removeAttribute('hidden');
-            if(selector==='.hero-weight-char') dst[i].style.cssText=src[i].style.cssText;
+            if(selector==='.hero-weight-char'||selector==='.scd-hover-glyph'||selector==='.app-card') dst[i].style.cssText=src[i].style.cssText;
           }
         });
 
@@ -251,8 +260,9 @@ const base = import.meta.env.BASE_URL;
         magnifierFixedPairs.forEach((pair)=>{
           const rect=pair.source.getBoundingClientRect();
           pair.clone.style.position='absolute';
-          pair.clone.style.left=`${window.scrollX+rect.left}px`;
-          pair.clone.style.top=`${window.scrollY+rect.top}px`;
+          const origin=magnifierSource.getBoundingClientRect();
+          pair.clone.style.left=`${rect.left-origin.left}px`;
+          pair.clone.style.top=`${rect.top-origin.top}px`;
           pair.clone.style.width=`${rect.width}px`;
           pair.clone.style.height=`${rect.height}px`;
           pair.clone.style.margin='0';
@@ -319,14 +329,15 @@ const base = import.meta.env.BASE_URL;
         magnifierLens.style.width=`${diameter}px`;
         magnifierLens.style.height=`${diameter}px`;
         magnifierLens.style.transform=`translate3d(${pointerX-radius}px,${pointerY-radius}px,0)`;
-        const docX = window.scrollX + pointerX;
-        const docY = window.scrollY + pointerY;
+        const sourceRect = magnifierSource.getBoundingClientRect();
+        const docX = pointerX - sourceRect.left;
+        const docY = pointerY - sourceRect.top;
 
         syncMagnifierDynamicState();
         syncMagnifierCanvases();
 
         // The pixel directly below the pointer remains at the centre of the lens.
-        magnifierScene.style.transform = `translate3d(${radius-docX*zoom}px,${radius-docY*zoom}px,0) scale(${zoom})`;
+        magnifierScene.style.transform = `translate3d(${radius-magnifierLens.clientLeft-docX*zoom}px,${radius-magnifierLens.clientTop-docY*zoom}px,0) scale(${zoom})`;
       }
 
       const requestMagnifierRefresh=()=>{
